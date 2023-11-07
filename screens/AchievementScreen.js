@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Modal, StyleSheet, Button, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, Modal, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 
 const AchievementsModal = ({ visible, onClose }) => {
@@ -22,7 +22,7 @@ const AchievementsModal = ({ visible, onClose }) => {
           </ScrollView>
             <View style={styles.modalLine} />
             <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-            <MaterialIcons name="close" size={32} color="black" />
+            <MaterialIcons name="close" size={40} color="black" />
           </TouchableOpacity>
         </View>
       </View>
