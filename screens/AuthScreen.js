@@ -1,15 +1,20 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, ImageBackground, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth'; // Import Firebase authentication methods
 import firebase from 'firebase/app';
 import { auth } from 'firebase/app';
 import 'firebase/auth';
 import { firebaseConfig } from '../firebaseConfig';
+import { StatusBar } from 'expo-status-bar';
+import { MaterialIcons } from '@expo/vector-icons';
 
 const AuthScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null); // Initialize error state variable
+
+  const [userLoggedIn, setUserLoggedIn] = useState(false); // Initialize user state variable
+  const backgroundImage = require('../assets/happy-monster-friends-border-banner_1308-158224.jpg');
 
   const handleSignup = async () => {
     try {
@@ -36,10 +41,11 @@ const AuthScreen = ({ navigation }) => {
       const auth = getAuth();
       await signInWithEmailAndPassword(auth, email, password);
       // Once login is successful, navigate to HomeScreen or perform other actions
+      setUserLoggedIn(true);
       setEmail('');
       setPassword('');
       setError(null); // Reset error
-      navigation.navigate('Home');
+  //    navigation.navigate('Home');
       console.log("Login successful!");
     } catch (error) {
       // Handle login error
@@ -55,7 +61,16 @@ const AuthScreen = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'} // Adjust behavior based on the platform
+      style={styles.container}
+    >
+      <ImageBackground
+      source={backgroundImage}
+      style={styles.backgroundImage}
+      resizeMode="stretch"
+    >
+      <View style={styles.contentContainer}>
       <Text style={styles.text}>Welcome, please log in or create an account!</Text>
       <TextInput
         placeholder="Email"
@@ -63,6 +78,8 @@ const AuthScreen = ({ navigation }) => {
         onChangeText={(text) => setEmail(text)}
         style={styles.input}
         onChange={handleInputChange} // Handle input change
+        autoCapitalize="none" // Disable auto-capitalization
+        keyboardType="email-address" // Set keyboard type for email input
       />
       <TextInput
         placeholder="Password"
@@ -78,7 +95,8 @@ const AuthScreen = ({ navigation }) => {
           style={[styles.button, styles.loginButton]}
           onPress={handleLogin}
         >
-          <Text style={styles.buttonText}>Login</Text>
+          <Text style={styles.buttonText}>Log In</Text>
+          <MaterialIcons name="login" size={24} color="white" />
         </TouchableOpacity>
         <Text> Don't have an account yet?</Text>
         <Text> Sign up from the button below!</Text>
@@ -86,19 +104,36 @@ const AuthScreen = ({ navigation }) => {
           style={[styles.button, styles.signupButton]}
           onPress={handleSignup}
         >
-          <Text style={styles.buttonText}>Signup</Text>
+          <Text style={styles.buttonText}>Sign Up</Text>
+          <MaterialIcons name="person-add" size={24} color="white" />
         </TouchableOpacity>
       </View>
-    </View>
+      </View>
+      </ImageBackground>
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    justifyContent: 'right',
+    alignItems: 'right',
+    backgroundColor: '#fff',
+    paddingTop: StatusBar.currentHeight,
+  },
+  backgroundImage: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignContent: 'center',
+  },
+  contentContainer: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: 'rgba(255,255,255,0.8)',
   },
   text: {
     fontSize: 18,
@@ -106,16 +141,19 @@ const styles = StyleSheet.create({
     color: 'green',
   },
   input: {
-    width: '80%',
+    width: '70%',
     height: 40,
     borderColor: 'gray',
     borderWidth: 1,
+    borderRadius: 20,
     marginVertical: 8,
     paddingLeft: 10,
+    backgroundColor: 'rgba(255,255,255,0.7)'
   },
   errorText: {
     color: 'red', // Set error text color
     marginBottom: 10, // Add some spacing
+    textAlign: 'center',
   },
   buttonContainer: {
     flexDirection: 'column',
@@ -124,7 +162,8 @@ const styles = StyleSheet.create({
     width: '80%',
   },
   button: {
-    width: '48%',
+    flexDirection: 'row',
+    width: '40%',
     height: 40,
     borderRadius: 20,
     justifyContent: 'center',
@@ -136,6 +175,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     color: 'white',
+    paddingRight: 10,
   },
   loginButton: {
     backgroundColor: 'blue',

@@ -1,38 +1,104 @@
-import * as React from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, StatusBar } from 'react-native';
 //import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-
+import { getAuth } from 'firebase/auth'; // Import Firebase authentication methods
 import { initializeApp } from "firebase/app";
-import { Ionicons } from '@expo/vector-icons';
-import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import 'firebase/auth';
+import { FontAwesome, Ionicons } from '@expo/vector-icons';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 //import { auth } from 'firebase/app';
 //import 'firebase/auth';
 import { firebaseConfig } from './firebaseConfig';
 import HomeScreen from './screens/HomeScreen';
 import AuthScreen from './screens/AuthScreen';
+import ProfileScreen from './screens/ProfileScreen';
+import ScanningScreen from './screens/ScanningScreen';
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-const Tab = createMaterialTopTabNavigator();
+const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
-
-
 export default function App() {
+  const [userLoggedIn, setUserLoggedIn] = useState(false); // Initialize user state variable
+
+  useEffect(() => {
+    // Check if user is logged in or not
+    const auth = getAuth();
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        // User is logged in
+        setUserLoggedIn(true);
+      } else {
+        // User is not logged in
+        setUserLoggedIn(false);
+      }
+    });
+    // Detach listener
+    return unsubscribe;
+  }, []);
 
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Log In">
-        <Stack.Screen name="Log In" component={AuthScreen} />
-        <Stack.Screen name="Home" component={HomeScreen} />
-      </Stack.Navigator>
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
       <StatusBar style="auto" />
-    </View>
+      {userLoggedIn ? (
+      <Tab.Navigator
+      initialRouteName="Home"
+      tabBarPosition="bottom"
+      screenOptions={({ route }) => ({
+        tabBarLabel: ({ focused, color }) => {
+          let labelName;
+
+          if (route.name === 'Home') {
+            labelName = 'Home';
+          } else if (route.name === 'Profile') {
+            labelName = 'Profile';
+          } else if (route.name === 'Scanner') {
+            labelName = 'Scanner';
+          }
+
+          return (
+            <Text style={{ color, fontSize: 13, fontWeight: 'bold', marginBottom: 3 }}>
+              {labelName}
+            </Text>
+          );
+        },
+        tabBarStyle: {
+          display: 'flex',
+        },
+        tabBarIcon: ({ focused, color, size }) => {
+          let iconName;
+
+          if (route.name === 'Home') {
+            iconName = focused ? 'home' : 'home-outline'; // Use home and home-outline for the Home tab
+          } else if (route.name === 'Profile') {
+            iconName = focused ? 'person' : 'person-outline'; // Use person and person-outline for the Profile tab
+          } else if (route.name === 'Scanner') {
+            iconName = focused ? 'scan' : 'scan-outline'; // Use scan and scan-outline for the Scanner tab
+          }
+
+          return (
+            <View style={{ alignItems: 'center', marginBottom: -30 }}>
+              <Ionicons name={iconName} size={25} color={color} />
+              <Text style={{ color, marginTop: 5 }}></Text>
+            </View>
+            );
+        },
+      })}
+    >
+      <Tab.Screen name ="Home" component={HomeScreen} options={{ headerShown: false }} />
+      <Tab.Screen name ="Scanner" component={ScanningScreen} options={{ headerShown: false }} />
+      <Tab.Screen name ="Profile" component={ProfileScreen} options={{ headerShown: false }} />
+      {/* Add other tab screens as needed */}
+    </Tab.Navigator>
+  ) : (
+    <Stack.Navigator initialRouteName="Login">
+      <Stack.Screen name="Login" component={AuthScreen} options={{ headerShown: false }} />
+    </Stack.Navigator>
+  )}
     </NavigationContainer>
   );
 }
@@ -43,5 +109,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
+    paddingTop: StatusBar.currentHeight,
   },
 });
