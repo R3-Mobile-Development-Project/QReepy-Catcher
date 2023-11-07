@@ -1,11 +1,14 @@
-import React from 'react';
-import { View, Text, Button, StyleSheet, TouchableOpacity, ImageBackground } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ImageBackground, Button } from 'react-native';
 import { getAuth, signOut } from 'firebase/auth'; // Import Firebase authentication methods
 import { MaterialIcons } from '@expo/vector-icons';
+import AchievementsModal from './AchievementScreen';
 
 const backgroundImage = require('../assets/paper-decorations-halloween-pack_23-2148635839.jpg');
 
   const ProfileScreen = () => {
+    const [achievementsModalVisible, setAchievementsModalVisible] = useState(false);
+
     const handleLogout = async () => {
       const auth = getAuth();
 
@@ -21,27 +24,37 @@ const backgroundImage = require('../assets/paper-decorations-halloween-pack_23-2
       }
     };
 
+    const openAchievementsModal = () => {
+      setAchievementsModalVisible(true);
+    };
+
+    const closeAchievementsModal = () => {
+      setAchievementsModalVisible(false);
+    };
+
     return (
       <View style={styles.container}>
         <ImageBackground
-        source={backgroundImage}
-        style={styles.backgroundImage}
-        resizeMode="stretch"
-      >
-        <View style={styles.contentContainer}>
-        <Text style={styles.text}>Welcome to your profile!</Text>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={handleLogout}
+          source={backgroundImage}
+          style={styles.backgroundImage}
+          resizeMode="stretch"
         >
-          <Text style={styles.buttonText}>Sign Out</Text>
-          <MaterialIcons name="logout" size={24} color="white" />
-        </TouchableOpacity>
-        </View>
+          <View style={styles.contentContainer}>
+            <Text style={styles.text}>Welcome to your profile!</Text>
+            <TouchableOpacity style={styles.button} onPress={handleLogout}>
+              <Text style={styles.buttonText}>Sign Out</Text>
+              <MaterialIcons name="logout" size={24} color="white" />
+            </TouchableOpacity>
+            <Button title="Show Achievements" onPress={openAchievementsModal} />
+          </View>
         </ImageBackground>
+        <AchievementsModal
+          visible={achievementsModalVisible}
+          onClose={closeAchievementsModal}
+        />
       </View>
     );
-};
+  };
 
 const styles = StyleSheet.create({
   container: {
