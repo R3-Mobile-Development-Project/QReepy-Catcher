@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, Button, StyleSheet, ImageBackground, TouchableOpacity } from 'react-native';
-import CreditsModal from './CreditsScreen';
+import CreditsModal from '../modals/CreditsModal';
 
 const backgroundImage = require('../assets/doodle-monsters-set_90220-166.jpg');
 
@@ -29,7 +29,7 @@ const HomeScreen = ({ navigation }) => {
         onPress={() => navigation.navigate('Profile')}
       />
       <TouchableOpacity onPress={openCreditsModal} style={styles.creditsButton}>
-          <Text style={styles.creditsButtonText}>Credits</Text>
+          <Text style={styles.creditsButtonText}>CREDITS</Text>
       </TouchableOpacity>
     </View>
       </ImageBackground>
@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.8)',
+    backgroundColor: 'rgba(255,255,255,0.7)',
   },
   backgroundImage: {
     flex: 1,
@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
   },
   creditsButton: {
     marginTop: 10,
-    width: 100,
+    width: 120,
     height: 40,
     backgroundColor: 'lightblue',
     alignItems: 'center',
@@ -73,6 +73,7 @@ const styles = StyleSheet.create({
   },
   creditsButtonText: {
     fontSize: 18,
+    fontWeight: 'bold',
   },
   image: {
     width: 200, // Set the width as per your requirements

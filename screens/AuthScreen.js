@@ -25,7 +25,7 @@ const AuthScreen = ({ navigation }) => {
       setEmail('');
       setPassword('');
       setError(null); // Reset error
-      navigation.navigate('Home');
+    //  navigation.navigate('Home');
     } catch (error) {
       // Handle signup error
       setEmail('');
@@ -95,16 +95,16 @@ const AuthScreen = ({ navigation }) => {
           style={[styles.button, styles.loginButton]}
           onPress={handleLogin}
         >
-          <Text style={styles.buttonText}>Log In</Text>
+          <Text style={styles.buttonText}>LOG IN</Text>
           <MaterialIcons name="login" size={24} color="white" />
         </TouchableOpacity>
-        <Text> Don't have an account yet?</Text>
-        <Text> Sign up from the button below!</Text>
+        <Text> Don't have an account yet? </Text>
+        <Text> Sign up from the button below! </Text>
         <TouchableOpacity
           style={[styles.button, styles.signupButton]}
           onPress={handleSignup}
         >
-          <Text style={styles.buttonText}>Sign Up</Text>
+          <Text style={styles.buttonText}>SIGN UP</Text>
           <MaterialIcons name="person-add" size={24} color="white" />
         </TouchableOpacity>
       </View>

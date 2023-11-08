@@ -41,9 +41,9 @@ const styles = StyleSheet.create({
   modalContent: {
     width: '80%',
     height: '80%',
-    backgroundColor: 'white',
+    backgroundColor: 'lightblue',
     padding: 20,
-    borderRadius: 10,
+    borderRadius: 20,
     alignItems: 'center',
   },
   modalText: {
@@ -51,14 +51,14 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   modalLine: {
-    height: 1,
+    height: 3,
     width: '100%',
-    backgroundColor: 'lightgray',
-    marginVertical: 10,
+    backgroundColor: 'black',
+    marginVertical: 20,
   },
   creditText: {
     fontSize: 16,
-    marginBottom: 10,
+    marginBottom: 20,
   },
   closeButton: {
     position: 'absolute',
@@ -66,6 +66,8 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 20,
+    borderColor: 'black',
+    borderWidth: 3,
     backgroundColor: 'salmon',
     alignItems: 'center',
     justifyContent: 'center',

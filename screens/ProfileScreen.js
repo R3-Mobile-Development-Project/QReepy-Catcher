@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ImageBackground, Button } from 'react-native';
 import { getAuth, signOut } from 'firebase/auth'; // Import Firebase authentication methods
 import { MaterialIcons } from '@expo/vector-icons';
-import AchievementsModal from './AchievementScreen';
+import AchievementsModal from '../modals/AchievementsModal';
 
 const backgroundImage = require('../assets/paper-decorations-halloween-pack_23-2148635839.jpg');
 
@@ -45,7 +45,9 @@ const backgroundImage = require('../assets/paper-decorations-halloween-pack_23-2
               <Text style={styles.buttonText}>Sign Out</Text>
               <MaterialIcons name="logout" size={24} color="white" />
             </TouchableOpacity>
-            <Button title="Show Achievements" onPress={openAchievementsModal} />
+            <TouchableOpacity onPress={openAchievementsModal} style={styles.achievementsButton}>
+              <Text style={styles.achievementsButtonText}>ACHIEVEMENTS</Text>
+            </TouchableOpacity>
           </View>
         </ImageBackground>
         <AchievementsModal
@@ -94,6 +96,19 @@ const styles = StyleSheet.create({
     height: '100%',
     justifyContent: 'center',
     alignContent: 'center',
+  },
+  achievementsButton: {
+    marginTop: 10,
+    width: 170,
+    height: 40,
+    backgroundColor: 'lightyellow',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 20,
+  },
+  achievementsButtonText: {
+    fontSize: 18,
+    fontWeight: 'bold',
   },
 });
 

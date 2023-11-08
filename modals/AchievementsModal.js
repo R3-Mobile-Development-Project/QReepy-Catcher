@@ -40,9 +40,9 @@ const styles = StyleSheet.create({
   modalContent: {
     width: '80%',
     height: '80%',
-    backgroundColor: 'white',
+    backgroundColor: 'lightyellow',
     padding: 20,
-    borderRadius: 10,
+    borderRadius: 20,
     alignItems: 'center',
   },
   modalText: {
@@ -50,9 +50,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
     modalLine: {
-        height: 1,
+        height: 3,
         width: '100%',
-        backgroundColor: 'lightgray',
+        backgroundColor: 'black',
         marginVertical: 10,
     },
     closeButton: {
@@ -61,6 +61,8 @@ const styles = StyleSheet.create({
         width: 50,
         height: 50,
         borderRadius: 20,
+        borderColor: 'black',
+        borderWidth: 3,
         backgroundColor: 'salmon',
         alignItems: 'center',
         justifyContent: 'center',
