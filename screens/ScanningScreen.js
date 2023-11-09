@@ -4,6 +4,7 @@ import { Camera } from 'expo-camera';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons'; // Import Ionicons from Expo vector icons
+import { PinchGestureHandler, State, GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export default function ScanningScreen() {
   const [hasCameraPermission, setHasCameraPermission] = useState(null);
@@ -11,14 +12,22 @@ export default function ScanningScreen() {
   const [cameraActive, setCameraActive] = useState(true);
   const [scanned, setScanned] = useState(false); // Added state for barcode scanning
   const [showMessage, setShowMessage] = useState(false); // Added state for displaying message
+  const [torchOn, setTorchOn] = useState(Camera.Constants.FlashMode.off); // Added state for torch
+  const [zoom, setZoom] = useState(0);
   const cameraRef = useRef(null);
   const isFocused = useIsFocused(); // Check if the screen is focused
 
   useEffect(() => {
     if (isFocused) {
+      setTimeout(() => {
       setCameraActive(true);
+      }, 200);
     } else {
         setCameraActive(false);
+        setScanned(false); // Reset the scanned state when the screen is not focused
+        setShowMessage(false); // Reset the message state when the screen is not focused
+        setTorchOn(Camera.Constants.FlashMode.off); // Reset the torch state when the screen is not focused
+        setZoom(0);
         }
   }, [isFocused]);
 
@@ -39,14 +48,15 @@ export default function ScanningScreen() {
       })();
     }
   }, [cameraActive]);
-  
 
-  const handleCameraSwitch = () => {
-    setType(
-      type === Camera.Constants.Type.back
-        ? Camera.Constants.Type.front
-        : Camera.Constants.Type.back
+  const handleTorchToggle = () => {
+    setTimeout(() => {
+    setTorchOn(
+      torchOn === Camera.Constants.FlashMode.off
+        ? Camera.Constants.FlashMode.torch
+        : Camera.Constants.FlashMode.off
     );
+    }, 500);
   };
 
   const handleBarCodeScanned = ({ type, data }) => {
@@ -64,6 +74,15 @@ export default function ScanningScreen() {
     setShowMessage(false);
   };
 
+  const handleZoomChange = (event) => {
+    setZoom(event.nativeEvent.scale);
+  };
+
+  const handleZoomEnd = () => {
+    // You can use the zoom value to set the camera zoom level
+ //   console.log('Zoom level:', zoom);
+  };
+
   if (hasCameraPermission === null) {
     return <View />;
   }
@@ -73,12 +92,18 @@ export default function ScanningScreen() {
   }
 
   return (
-    <View style={{ flex: 1 }}>
+    <GestureHandlerRootView style={{ flex: 1 }}>
       {cameraActive ? (
+        <PinchGestureHandler
+        onGestureEvent={handleZoomChange}
+        onHandlerStateChange={handleZoomEnd}
+        >
         <Camera
           style={{ flex: 1 }}
           type={type}
           ref={cameraRef}
+          flashMode={torchOn}
+          zoom={zoom}
 
 // KORVAA ALLA OLEVA SEURAAVALLA JOS HALUAT SKANNATA KOODIN VAIN KERRAN: onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
 // KORVAA ALLA OLEVA SEURAAVALLA JOS HALUAT SKANNATA KOODIN USEASTI: onBarCodeScanned={handleBarCodeScanned}
@@ -91,12 +116,13 @@ export default function ScanningScreen() {
     //      rectOfInterest={{ x: 0.1, y: 0.2, width: 0.1, height: 0.1 }} // Adjust these values
         >
         <View style={styles.buttonContainer}>
-            <TouchableOpacity onPress={handleCameraSwitch} style={styles.cameraSwitchButton}>
-              <Ionicons name="ios-camera-reverse" size={40} color="white" />
-            </TouchableOpacity>
+          <TouchableOpacity onPress={handleTorchToggle} style={styles.torchToggleButton}>
+            <Ionicons name={torchOn ? 'ios-flashlight' : 'ios-flashlight-outline'} size={40} color="white" />
+          </TouchableOpacity>
         </View>
         <View style={styles.scannerFrame} />
         </Camera>
+        </PinchGestureHandler>
       ) : (
         <View style={{ flex: 1 }}>
           {/* Placeholder content or empty view */}
@@ -115,7 +141,7 @@ export default function ScanningScreen() {
       )}
 {/* --------------------------------------------------------------- */}
 
-    </View>
+</GestureHandlerRootView>
   );
 }
 
@@ -128,7 +154,7 @@ const styles = StyleSheet.create({
       justifyContent: 'top',
       paddingTop: 20,
     },
-    cameraSwitchButton: {
+    torchToggleButton: {
       alignItems: 'center',
       justifyContent: 'center',
     },
