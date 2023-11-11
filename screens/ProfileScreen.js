@@ -42,7 +42,7 @@ const backgroundImage = require('../assets/paper-decorations-halloween-pack_23-2
           <View style={styles.contentContainer}>
             <Text style={styles.text}>Welcome to your profile!</Text>
             <TouchableOpacity style={styles.button} onPress={handleLogout}>
-              <Text style={styles.buttonText}>Sign Out</Text>
+              <Text style={styles.buttonText}>SIGN OUT</Text>
               <MaterialIcons name="logout" size={24} color="white" />
             </TouchableOpacity>
             <TouchableOpacity onPress={openAchievementsModal} style={styles.achievementsButton}>
@@ -84,6 +84,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 20,
+    borderColor: 'black',
+    borderWidth: 3,
   },
   buttonText: {
     color: 'white',
@@ -100,11 +102,13 @@ const styles = StyleSheet.create({
   achievementsButton: {
     marginTop: 10,
     width: 170,
-    height: 40,
+    height: 60,
     backgroundColor: 'lightyellow',
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 20,
+    borderRadius: 10,
+    borderColor: 'black',
+    borderWidth: 3,
   },
   achievementsButtonText: {
     fontSize: 18,

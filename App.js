@@ -65,13 +65,13 @@ export default function App() {
               let labelName;
 
               if (route.name === 'Home') {
-                labelName = 'Home';
+                labelName = 'HOME';
               } else if (route.name === 'Profile') {
-                labelName = 'Profile';
+                labelName = 'PROFILE';
               } else if (route.name === 'Scanner') {
-                labelName = 'Scanner';
+                labelName = 'SCANNER';
               } else if (route.name === 'Gallery') {
-                labelName = 'Gallery';
+                labelName = 'GALLERY';
               }
 
               return (

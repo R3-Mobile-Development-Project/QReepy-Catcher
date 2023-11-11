@@ -5,8 +5,9 @@ import { BarCodeScanner } from 'expo-barcode-scanner';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons'; // Import Ionicons from Expo vector icons
 import { PinchGestureHandler, State, GestureHandlerRootView } from 'react-native-gesture-handler';
+import ScanningModal from '../modals/ScanningModal';
 
-export default function ScanningScreen() {
+export default function ScanningScreen({ navigation }) {
   const [hasCameraPermission, setHasCameraPermission] = useState(null);
   const [type, setType] = useState(Camera.Constants.Type.back);
   const [cameraActive, setCameraActive] = useState(true);
@@ -16,6 +17,9 @@ export default function ScanningScreen() {
   const [zoom, setZoom] = useState(0);
   const cameraRef = useRef(null);
   const isFocused = useIsFocused(); // Check if the screen is focused
+  const [modalVisible, setModalVisible] = useState(false);
+  const sampleImage = 'https://example.com/sample-image.jpg'; // Replace with your image URL
+  const sampleName = 'Product Name'; // Replace with your product name
 
   useEffect(() => {
     if (isFocused) {
@@ -63,8 +67,11 @@ export default function ScanningScreen() {
     if (scanned) {
       // If already scanned, display a message
       setShowMessage(true);
+   //   openModal();
+
     } else {
       setScanned(true);
+      openModal();
       // Do something with the barcode data (e.g., navigate to a new screen, display the data, etc.)
       console.log(`Bar code with type ${type} and data ${data} has been scanned.`);
     }
@@ -81,6 +88,16 @@ export default function ScanningScreen() {
   const handleZoomEnd = () => {
     // You can use the zoom value to set the camera zoom level
  //   console.log('Zoom level:', zoom);
+  };
+
+  const openModal = () => {
+    setModalVisible(true);
+    setShowMessage(false);
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+    setShowMessage(false);
   };
 
   if (hasCameraPermission === null) {
@@ -140,6 +157,15 @@ export default function ScanningScreen() {
         </View>
       )}
 {/* --------------------------------------------------------------- */}
+      {modalVisible && (
+      <ScanningModal
+        isVisible={modalVisible}
+        onClose={closeModal}
+        openGallery={() => navigation.navigate('Gallery')}
+        image={sampleImage}
+        name={sampleName}
+      />
+      )}
 
 </GestureHandlerRootView>
   );

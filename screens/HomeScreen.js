@@ -65,11 +65,13 @@ const styles = StyleSheet.create({
   creditsButton: {
     marginTop: 10,
     width: 120,
-    height: 40,
+    height: 60,
     backgroundColor: 'lightblue',
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 20,
+    borderRadius: 10,
+    borderColor: 'black',
+    borderWidth: 3,
   },
   creditsButtonText: {
     fontSize: 18,
