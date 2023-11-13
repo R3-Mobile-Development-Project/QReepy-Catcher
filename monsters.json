@@ -1,0 +1,403 @@
+[
+    {
+        "id": 1,
+      "name": "Pesterpeep",
+      "title": "The Tiny Pest",
+      "nature": "Bothering",
+      "age": 4,
+      "background": "Known for its uncanny ability to appear when least expected, Pesterpeep enjoys causing a ruckus with its high-pitched chirps, often leading travelers on a merry chase through the whispering meadows."
+    },
+    {
+        "id": 2,
+        "name": "Chubbersmile",
+        "title": "The Grinning Glee",
+        "nature": "Jovial",
+        "age": 3,
+        "background": "Chubbersmile, The Grinning Glee, wanders the frost-kissed meadows, leaving a trail of giggles and mirth. With a belly round and full of joy, it shares the warmth of countless smiles under the chilly skies."
+      },
+    {
+        "id": 3,
+      "name": "Sneerling",
+      "title": "The Tiny Tyrant",
+      "nature": "Defiant",
+      "age": 5,
+      "background": "Sneerling may be small, but its defiance is legendary. Ruling over the underbrush kingdoms with a stern leaf and a snarl, it takes pride in outwitting creatures many times its size."
+    },
+    {
+        "id": 4,
+      "name": "Fuzzbean",
+      "title": "Fluffy",
+      "nature": "Curious",
+      "age": 4,
+      "background": "With a coat that rivals the softest pillows, Fuzzbean hops through the fields, driven by a boundless curiosity and leaving a trail of dandelion fluff in its wake."
+    },
+    {
+        "id": 5,
+      "name": "Zephyrzoom",
+      "title": "Swift",
+      "nature": "Fast",
+      "age": 5,
+      "background": "A blur on the horizon and a whisper in the wind, Zephyrzoom races the dawn, its swift silhouette a challenge to the very birds in the sky."
+    },
+    {
+        "id": 6,
+      "name": "Mischling",
+      "title": "The Dwarf Delinquent",
+      "nature": "Naughty",
+      "age": 5,
+      "background": "Don't let Mischling's twinkling eyes fool you. This mischievous little rascal is famous in the underground for its pranks, often swapping precious gemstones for shiny pebbles."
+    },
+    {
+        "id": 7,
+      "name": "Grouchknot",
+      "title": "The Tiny Curmudgeon",
+      "nature": "Peevish",
+      "age": 2,
+      "background": "Grouchknot is as grumpy as the tangled roots it calls home. Many have tried to coax a smile out of this pint-sized curmudgeon, only to be rewarded with a tangle in their hair."
+    },
+    {
+        "id": 8,
+      "name": "Munchkinpaws",
+      "title": "Tiny",
+      "nature": "Adventurous",
+      "age": 2,
+      "background": "Munchkinpaws may not have the size, but it has the heart of an explorer. It embarks on epic journeys across backyards, undeterred by the colossal blades of grass that tower like trees."
+    },
+    {
+        "id": 9,
+      "name": "Whifflefluff",
+      "title": "Featherlight",
+      "nature": "Airy",
+      "age": 2,
+      "background": "Like a bubble floating on a summer breeze, Whifflefluff drifts aimlessly from place to place, its gossamer fur catching the sunlight and confusing it for solid ground."
+    },
+    {
+        "id": 10,
+      "name": "Puddlepat",
+      "title": "Splashing",
+      "nature": "Playful",
+      "age": 1,
+      "background": "Puddlepat spends its days hopping from puddle to puddle, giggling as each splash sends ripples dancing across the water, inviting anyone nearby to join in the fun."
+    },
+    {
+        "id": 11,
+      "name": "Fluffernibble",
+      "title": "Hungry",
+      "nature": "Always eating",
+      "age": 4,
+      "background": "Fluffernibble can often be found where the berries are ripest, munching away contentedly. Its insatiable appetite is the stuff of local farmers' tales, who swear their fields are fuller after its visits."
+    },
+    {
+        "id": 12,
+      "name": "Ticklefluff",
+      "title": "Amusing",
+      "nature": "Ticklish",
+      "age": 1,
+      "background": "Ticklefluff's laughter is as contagious as its playful antics. Found in the fluffiest of dandelions, it challenges passersby to a tickling duel, spreading joy with every giggle."
+    },
+    {
+        "id": 13,
+      "name": "Snaggletooth",
+      "title": "The Unruly",
+      "nature": "Rowdy",
+      "age": 2,
+      "background": "Snaggletooth, with its sharp teeth, is a whirlwind of chaos. Its favorite pastime is playing raucous games in meadows, leaving behind a trail of disheveled grass and delighted insects."
+    },
+    {
+        "id": 14,
+      "name": "Twinkletoes",
+      "title": "Graceful",
+      "nature": "Clumsy",
+      "age": 1,
+      "background": "Don't let the name Twinkletoes fool you; its two left feet make every graceful intent a comical dance. This little creature pirouettes through the night, often tumbling into the hearts of those who watch it under the moonlight."
+    },
+    {
+        "id": 15,
+      "name": "Cuddlebug",
+      "title": "Affectionate",
+      "nature": "Loving",
+      "age": 4,
+      "background": "Cuddlebug's embrace is as warm as the sun-drenched meadows it calls home. It is said that a hug from this creature can soothe even the most troubled of hearts."
+    },
+    {
+            "id": 16,
+        "name": "Wobblewump",
+        "title": "Clumsy",
+        "nature": "Silly",
+        "age": 5,
+        "background": "Despite its ungainly steps that shake the ground, Wobblewump's heart is as wobbly as its walk. This gentle giggler stumbles through the forests, often accidentally bumping into trees on his way."
+      },
+    {
+        "id": 17,
+      "name": "Biterkin",
+      "title": "The Nippy",
+      "nature": "Feisty",
+      "age": 2,
+      "background": "Small but fierce, Biterkin can often be seen challenging its own reflection in puddles. It's the pint-sized guardian of the pond, feared by toes and insects alike."
+    },
+    {
+        "id": 18,
+      "name": "Nuzzlebud",
+      "title": "The Affectionate",
+      "nature": "Cuddly",
+      "age": 3,
+      "background": "Nuzzlebud seeks out the lonely and the sad, offering snuggles that feel like a warm blanket on a cold night. Its gentle presence is a reminder that love can be found in the smallest of creatures."
+    },
+    {
+        "id": 19,
+      "name": "Rollypolly",
+      "title": "The Rotund",
+      "nature": "Amusing",
+      "age": 1,
+      "background": "Rollypolly bounces and rolls through the hills. Its infectious laughter rings out as it somersaults, turning every hillside into a playground."
+    },
+    {
+        "id": 20,
+      "name": "Nippernap",
+      "title": "The Bite-Sized Menace",
+      "nature": "Nippy",
+      "age": 1,
+      "background": "The smallest of snaps comes from Nippernap, a tiny terror to ankles everywhere. It darts about with surprising agility, but its bark is worse than its bite."
+    },
+    {
+        "id": 21,
+      "name": "Chomplet",
+      "title": "The Wee Nibbler",
+      "nature": "Biting",
+      "age": 2,
+      "background": "Chomplet can be found in the underbrush, taking tiny bites out of leaves. Despite its small teeth, it dreams of taking a chomp out of the great cedars."
+    },
+    {
+        "id": 22,
+      "name": "Tizzytwig",
+      "title": "The Small Frenzy",
+      "nature": "Frantic",
+      "age": 5,
+      "background": "Tizzytwig crackles with fiery energy, a spark ignited by the forest's whispers. It darts through the underbrush, a fleeting ember of the woodland's untamed dance."
+    },
+    {
+        "id": 23,
+      "name": "Gizmoto",
+      "title": "The Whirring",
+      "nature": "Mechanical",
+      "age": 42,
+      "background": "Crafted by a master tinkerer just over four decades ago, Gizmoto whirls through modern-day scrapheaps, seeking parts to repair itself and perpetuate its curious existence."
+    },
+    {
+        "id": 24,
+      "name": "Puddlegrim",
+      "title": "The Soggy Spoilsport",
+      "nature": "Murky",
+      "age": 3,
+      "background": "Puddlegrim's home is the rainiest spot of the marsh, where it wades through the mists. It's said its mood dampens as the puddles dry."
+    },
+    {
+        "id": 25,
+      "name": "Vexmuffin",
+      "title": "The Peeved Mite",
+      "nature": "Sultry",
+      "age": 5,
+      "background": "Vexmuffin is always a bit moody, stomping around leaving a trail of sour grapes. It's the orchard's grump, turning sweet fruits tart with its glower."
+    },
+    {
+        "id": 26,
+      "name": "Scowlkin",
+      "title": "The Frowning Sprout",
+      "nature": "Dour",
+      "age": 4,
+      "background": "Scowlkin's permanent frown is legendary, said to scare away the crows better than any scarecrow. It trudges through fields, a grumpy guardian of the grains."
+    },
+    {
+        "id": 27,
+      "name": "Spookling",
+      "title": "The Little Haunt",
+      "nature": "Eerie",
+      "age": 3,
+      "background": "Whispers among the willows speak of Spookling, who glides silently through the fog. It's a playful poltergeist, more prankster than phantom."
+    },
+    {
+        "id": 28,
+      "name": "Slinkydink",
+      "title": "The Mischievous",
+      "nature": "Sneaky",
+      "age": 4,
+      "background": "In the night, Slinkydink's shadow moves independently of its owner, enacting mischief. By day, it hides, leaving behind only the echoes of giggles and misplaced items."
+    },
+    {
+        "id": 29,
+      "name": "Rascalfang",
+      "title": "The Small Savage",
+      "nature": "Sassy",
+      "age": 5,
+      "background": "Rascalfang is the spark of sass in the woodlands, always ready with a sharp retort. Its presence is a cheeky breeze that ruffles feathers and leaves."
+    },
+    {
+        "id": 30,
+      "name": "Snootroot",
+      "title": "The Snooty Sprig",
+      "nature": "Aloof",
+      "age": 2,
+      "background": "Snootroot holds its stem high above the common undergrowth, aloof and aristocratic. Its roots never touch the dirt, for it believes the earth is there to serve its elegance."
+    },
+    {
+        "id": 31,
+      "name": "Fluffsmirk",
+      "title": "The Horny Horror",
+      "nature": "Licky",
+      "age": 25,
+      "background": "Fluffsmirk emerges from the darkest corners with a deceivingly soft appearance. Its licks leave a chilling touch that can haunt for days."
+    },
+    {
+        "id": 32,
+      "name": "Sparkywag",
+      "title": "The Jolt",
+      "nature": "Shining",
+      "age": 11,
+      "background": "Sparkywag, with a gleam of electricity in its eyes, is the storm's untamed child. Its presence is often marked by the sudden flicker of lights and a static touch."
+    },
+    {
+        "id": 33,
+      "name": "Finbeak",
+      "title": "The Kingfisher",
+      "nature": "Observant",
+      "age": 15,
+      "background": "Silent as a shadow, Finbeak watches from high above, its keen eyes missing nothing. It swoops down with precision, always hitting its mark."
+    },
+    {
+        "id": 34,
+      "name": "Lilarilla",
+      "title": "The Brawler",
+      "nature": "Strong",
+      "age": 17,
+      "background": "Lilarilla's roars echo through the forest, a display of strength and might. It is said that even the trees part ways to avoid its forceful stride."
+    },
+    {
+        "id": 35,
+      "name": "Slitherfang",
+      "title": "The Venomous",
+      "nature": "Agile",
+      "age": 13,
+      "background": "In the underbrush slithers Slitherfang, swift and silent. Its fangs drip with a venom that can paralyze even the strongest beasts."
+    },
+    {
+        "id": 36,
+      "name": "Goreorb",
+      "title": "The Crimson",
+      "nature": "Flowing",
+      "age": 25,
+      "background": "Goreorb pulses with a menacing glow, its form shifting and flowing like spilled blood. Its presence alone can curdle the air with a sense of unease."
+    },
+    {
+        "id": 37,
+      "name": "Chillkin",
+      "title": "The Freezing",
+      "nature": "Unwarm",
+      "age": 21,
+      "background": "Chillkin's breath brings a frost that grips the bones. It is the embodiment of winter's harsh caress, freezing the ground where it walks."
+    },
+    {
+        "id": 38,
+      "name": "Chonkstub",
+      "title": "The Gluttonous",
+      "nature": "Round",
+      "age": 16,
+      "background": "Chonkstub's hunger is insatiable, its round body a testament to its greed. It leaves barren landscapes in its wake, a void where life once thrived."
+    },
+    {
+        "id": 39,
+      "name": "Infernant",
+      "title": "The Buzzing",
+      "nature": "Smoking",
+      "age": 3,
+      "background": "The air crackles with heat around Infernant, whose smoky antennae signal its fiery temper. It is the ember's dance, unpredictable and scorching."
+    },
+    {
+        "id": 40,
+      "name": "Wingbrim",
+      "title": "The Mean",
+      "nature": "Flaming",
+      "age": 15,
+      "background": "Wingbrim soars with wings alight, casting a fearsome glow. Its flight leaves a trail of sparks, igniting the sky with its fierce temper."
+    },
+    {
+        "id": 41,
+      "name": "Mechafang",
+      "title": "The Walking Wire",
+      "nature": "Clanking",
+      "age": 90,
+      "background": "The clanking of Mechafang is a lullaby to the ruins it haunts. Its mechanical form is both ancient and ageless, a relic animated with ghostly life."
+    },
+    {
+        "id": 42,
+      "name": "Furclaw",
+      "title": "The Stalker",
+      "nature": "Quiet",
+      "age": 30,
+      "background": "Furclaw moves in silence, its quietness belying the danger of its sharp embrace. It is the night's whisper, the unseen hunter in the dark."
+    },
+    {
+        "id": 43,
+      "name": "Gingertalon",
+      "title": "The Valiant",
+      "nature": "Aware",
+      "age": 27,
+      "background": "Gingertalon stands tall among its peers, its keen gaze piercing through deceit. It is the brave guardian, ever watchful and ever ready."
+    },
+    {
+        "id": 44,
+        "name": "Swollscale",
+        "title": "The Brute of Depths",
+        "nature": "Lazy",
+        "age": 29,
+        "background": "In the depths lies Swollscale, a lumbering giant whose very movement causes the earth to tremble. Its indolence belies the power within."
+      },
+      {
+        "id": 45,
+        "name": "Fogsnap",
+        "title": "The Haunted",
+        "nature": "Light",
+        "age": 80,
+        "background": "Fogsnap drifts through the mists, its form barely visible. It is a breath, a light touch, the chill you feel when the fog rolls in."
+      },
+        {
+            "id": 46,
+          "name": "Voltwyrm",
+          "title": "The Subterranean Stormbringer",
+          "nature": "Electric",
+          "age": 150,
+          "background": "Deep beneath the earth's crust stirs Voltwyrm, the Subterranean Stormbringer. Its dragonic form crackles with raw electric fury, and with every twist and turn, it channels the power of the tempest through the veins of the world."
+        },
+        {
+            "id": 47,
+          "name": "Lunargore",
+          "title": "The Eclipse Howler",
+          "nature": "Nocturnal",
+          "age": 738,
+          "background": "Lunargore, the Eclipse Howler, is the timeless spirit of the night sky. Bathed in the milky moonlight, it unleashes howls that bend the light, turning the night into an endless eclipse. Its presence is the eternal dance of shadow and silence."
+        },
+        {
+            "id": 48,
+          "name": "Embermane",
+          "title": "The Smoldering",
+          "nature": "Volatile",
+          "age": 468,
+          "background": "Through the crackling embers of the oldest flames prowls Embermane, The Smoldering. Born from the heart of a dying star, its mane ignites the sky with a fire that whispers of the beginning and end of times."
+        },
+        {
+            "id": 49,
+          "name": "Duskhunter",
+          "title": "The Umbral Prowler",
+          "nature": "Lethal",
+          "age": 900,
+          "background": "Duskhunter, The Umbral Prowler, is the embodiment of the final whisper of light as day succumbs to night. It moves through shadows with a presence so lethal, it's said that it can extinguish the stars themselves with its gaze."
+        },
+        {
+            "id": 50,
+          "name": "Leviatide",
+          "title": "The Abyssal Sovereign",
+          "nature": "Dominant",
+          "age": 380,
+          "background": "In the deepest trenches of the ocean reigns Leviatide, The Abyssal Sovereign. This colossal creature commands the tides and tsunamis, and its roar is the very pulse of the sea. It is the unchallenged ruler of the watery realms, and its power is as boundless as the depths it inhabits."
+        }
+      ]
+      
