@@ -3,45 +3,14 @@
 
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Animated, Easing, ImageBackground } from 'react-native';
-//import Sound from 'react-native-sound'; // Import the Sound module
 import { useFonts } from '@expo-google-fonts/inter';
-import Sound from 'react-native-sound'; // Import the Sound module
+import { Audio } from 'expo-av';
 
 const SplashScreen = () => {
   const opacity = new Animated.Value(0);
   const scale = new Animated.Value(0.5);
   const translationX = new Animated.Value(-500);
   const translationY = new Animated.Value(-500);
-  const [sound, setSound] = useState(null);
-
-  useEffect(() => {
-    // Load the audio file when the component mounts
-    const soundObject = new Sound('Rise01.aif', Sound.MAIN_BUNDLE, (error) => {
-      if (error) {
-        console.error('Error loading sound', error);
-      } else {
-        setSound(soundObject);
-      }
-    });
-    // Unload the sound when the component unmounts
-    return () => {
-      if (sound) {
-        sound.release();
-      }
-    };
-  }, []);
-
-  const playSound = () => {
-    if (sound) {
-      sound.play((success) => {
-        if (success) {
-          console.log('Successfully played the sound');
-        } else {
-          console.error('Failed to play the sound');
-        }
-      });
-    }
-  };
 
   useEffect(() => {
     Animated.parallel([
@@ -74,26 +43,7 @@ const SplashScreen = () => {
         useNativeDriver: true,
       }),
     ]).start();
-
-    const animationDuration = 1000; // Adjust this based on your animation duration
-  setTimeout(() => {
-    playSound();
-  }, animationDuration + 600);
-
   }, []);
-
-  /*
-  // Play a sound when the component mounts
-  useEffect(() => {
-    const sound = new Sound('../assets/Rise01.aif', Sound.MAIN_BUNDLE, (error) => {
-      if (error) {
-        console.log('Failed to load sound', error);
-        return;
-      }
-      sound.play();
-    });
-  }, []);
-*/
 
   return (
     <ImageBackground

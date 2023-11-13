@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, StatusBar } from 'react-native';
+import { StyleSheet, Text, View, StatusBar, AppRegistry } from 'react-native';
 //import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { getAuth } from 'firebase/auth'; // Import Firebase authentication methods
