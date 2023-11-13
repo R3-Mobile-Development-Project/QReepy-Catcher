@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, Button, StyleSheet, ImageBackground, TouchableOpacity } from 'react-native';
 import CreditsModal from '../modals/CreditsModal';
 
-const backgroundImage = require('../assets/doodle-monsters-set_90220-166.jpg');
+const backgroundImage = require('../assets/images/doodle-monsters-set_90220-166.jpg');
 
 const HomeScreen = ({ navigation }) => {
   const [creditsModalVisible, setCreditsModalVisible] = useState(false);

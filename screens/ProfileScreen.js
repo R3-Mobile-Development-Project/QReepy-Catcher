@@ -4,7 +4,7 @@ import { getAuth, signOut } from 'firebase/auth'; // Import Firebase authenticat
 import { MaterialIcons } from '@expo/vector-icons';
 import AchievementsModal from '../modals/AchievementsModal';
 
-const backgroundImage = require('../assets/paper-decorations-halloween-pack_23-2148635839.jpg');
+const backgroundImage = require('../assets/images/paper-decorations-halloween-pack_23-2148635839.jpg');
 
   const ProfileScreen = () => {
     const [achievementsModalVisible, setAchievementsModalVisible] = useState(false);

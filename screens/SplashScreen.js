@@ -1,16 +1,47 @@
 
 // TÄMÄ SIVU KÄYNNISTYY ENSIMMÄISENÄ, KUN SOVELLUS AVATAAN
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Animated, Easing, ImageBackground } from 'react-native';
 //import Sound from 'react-native-sound'; // Import the Sound module
 import { useFonts } from '@expo-google-fonts/inter';
+import Sound from 'react-native-sound'; // Import the Sound module
 
 const SplashScreen = () => {
   const opacity = new Animated.Value(0);
   const scale = new Animated.Value(0.5);
   const translationX = new Animated.Value(-500);
   const translationY = new Animated.Value(-500);
+  const [sound, setSound] = useState(null);
+
+  useEffect(() => {
+    // Load the audio file when the component mounts
+    const soundObject = new Sound('Rise01.aif', Sound.MAIN_BUNDLE, (error) => {
+      if (error) {
+        console.error('Error loading sound', error);
+      } else {
+        setSound(soundObject);
+      }
+    });
+    // Unload the sound when the component unmounts
+    return () => {
+      if (sound) {
+        sound.release();
+      }
+    };
+  }, []);
+
+  const playSound = () => {
+    if (sound) {
+      sound.play((success) => {
+        if (success) {
+          console.log('Successfully played the sound');
+        } else {
+          console.error('Failed to play the sound');
+        }
+      });
+    }
+  };
 
   useEffect(() => {
     Animated.parallel([
@@ -43,6 +74,12 @@ const SplashScreen = () => {
         useNativeDriver: true,
       }),
     ]).start();
+
+    const animationDuration = 1000; // Adjust this based on your animation duration
+  setTimeout(() => {
+    playSound();
+  }, animationDuration + 600);
+
   }, []);
 
   /*
@@ -60,7 +97,7 @@ const SplashScreen = () => {
 
   return (
     <ImageBackground
-      source={require('../assets/illustration-evil-qr-code-mascot-character_152558-82212.jpg')}
+      source={require('../assets/images/illustration-evil-qr-code-mascot-character_152558-82212.jpg')}
       style={styles.container}
       resizeMode="cover"
     >

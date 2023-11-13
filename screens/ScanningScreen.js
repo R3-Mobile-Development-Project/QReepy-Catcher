@@ -18,7 +18,7 @@ export default function ScanningScreen({ navigation }) {
   const cameraRef = useRef(null);
   const isFocused = useIsFocused(); // Check if the screen is focused
   const [modalVisible, setModalVisible] = useState(false);
-  const sampleImage = 'https://example.com/sample-image.jpg'; // Replace with your image URL
+  const sampleImage = 'Örkki Image Here'; // Replace with your image URL
   const sampleName = 'Product Name'; // Replace with your product name
 
   useEffect(() => {

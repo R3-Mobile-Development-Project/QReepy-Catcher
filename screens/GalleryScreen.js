@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, Button, StyleSheet, ImageBackground } from 'react-native';
 
-const backgroundImage = require('../assets/horrible-monster-2.jpg');
+const backgroundImage = require('../assets/images/horrible-monster-2.jpg');
 
 const GalleryScreen = ({ navigation }) => {
   return (

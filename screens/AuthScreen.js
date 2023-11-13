@@ -14,7 +14,7 @@ const AuthScreen = ({ navigation }) => {
   const [error, setError] = useState(null); // Initialize error state variable
 
   const [userLoggedIn, setUserLoggedIn] = useState(false); // Initialize user state variable
-  const backgroundImage = require('../assets/happy-monster-friends-border-banner_1308-158224.jpg');
+  const backgroundImage = require('../assets/images/happy-monster-friends-border-banner_1308-158224.jpg');
 
   const handleSignup = async () => {
     try {
