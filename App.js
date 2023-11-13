@@ -15,6 +15,8 @@ import HomeScreen from './screens/HomeScreen';
 import AuthScreen from './screens/AuthScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import ScanningScreen from './screens/ScanningScreen';
+import SplashScreen from './screens/SplashScreen';
+import GalleryScreen from './screens/GalleryScreen';
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
@@ -24,6 +26,7 @@ const Stack = createNativeStackNavigator();
 
 export default function App() {
   const [userLoggedIn, setUserLoggedIn] = useState(false); // Initialize user state variable
+  const [showSplash, setShowSplash] = useState(true); // State to control whether to show the SplashScreen
 
   useEffect(() => {
     // Check if user is logged in or not
@@ -41,64 +44,78 @@ export default function App() {
     return unsubscribe;
   }, []);
 
+  useEffect(() => {
+    // Simulate loading or any async tasks
+    setTimeout(() => {
+      setShowSplash(false);
+    }, 3000); // Adjust the duration of the SplashScreen as needed
+  }, []);
+
   return (
     <NavigationContainer>
       <StatusBar style="auto" />
-      {userLoggedIn ? (
-      <Tab.Navigator
-      initialRouteName="Home"
-      tabBarPosition="bottom"
-      screenOptions={({ route }) => ({
-        tabBarLabel: ({ focused, color }) => {
-          let labelName;
+      {showSplash ? (
+        <SplashScreen />
+      ) : userLoggedIn ? (
+        <Tab.Navigator
+          initialRouteName="Home"
+          tabBarPosition="bottom"
+          screenOptions={({ route }) => ({
+            tabBarLabel: ({ focused, color }) => {
+              let labelName;
 
-          if (route.name === 'Home') {
-            labelName = 'Home';
-          } else if (route.name === 'Profile') {
-            labelName = 'Profile';
-          } else if (route.name === 'Scanner') {
-            labelName = 'Scanner';
-          }
+              if (route.name === 'Home') {
+                labelName = 'HOME';
+              } else if (route.name === 'Profile') {
+                labelName = 'PROFILE';
+              } else if (route.name === 'Scanner') {
+                labelName = 'SCANNER';
+              } else if (route.name === 'Gallery') {
+                labelName = 'GALLERY';
+              }
 
-          return (
-            <Text style={{ color, fontSize: 13, fontWeight: 'bold', marginBottom: 3 }}>
-              {labelName}
-            </Text>
-          );
-        },
-        tabBarStyle: {
-          display: 'flex',
-        },
-        tabBarIcon: ({ focused, color, size }) => {
-          let iconName;
+              return (
+                <Text style={{ color, fontSize: 13, fontWeight: 'bold', marginBottom: 3 }}>
+                  {labelName}
+                </Text>
+              );
+            },
+            tabBarStyle: {
+              display: 'flex',
+            },
+            tabBarIcon: ({ focused, color, size }) => {
+              let iconName;
 
-          if (route.name === 'Home') {
-            iconName = focused ? 'home' : 'home-outline'; // Use home and home-outline for the Home tab
-          } else if (route.name === 'Profile') {
-            iconName = focused ? 'person' : 'person-outline'; // Use person and person-outline for the Profile tab
-          } else if (route.name === 'Scanner') {
-            iconName = focused ? 'scan' : 'scan-outline'; // Use scan and scan-outline for the Scanner tab
-          }
+              if (route.name === 'Home') {
+                iconName = focused ? 'home' : 'home-outline'; // Use home and home-outline for the Home tab
+              } else if (route.name === 'Profile') {
+                iconName = focused ? 'person' : 'person-outline'; // Use person and person-outline for the Profile tab
+              } else if (route.name === 'Scanner') {
+                iconName = focused ? 'scan' : 'scan-outline'; // Use scan and scan-outline for the Scanner tab
+              } else if (route.name === 'Gallery') {
+                iconName = focused ? 'image' : 'image-outline'; // Use image and image-outline for the Gallery tab
+              }
 
-          return (
-            <View style={{ alignItems: 'center', marginBottom: -30 }}>
-              <Ionicons name={iconName} size={25} color={color} />
-              <Text style={{ color, marginTop: 5 }}></Text>
-            </View>
-            );
-        },
-      })}
-    >
-      <Tab.Screen name ="Home" component={HomeScreen} options={{ headerShown: false }} />
-      <Tab.Screen name ="Scanner" component={ScanningScreen} options={{ headerShown: false }} />
-      <Tab.Screen name ="Profile" component={ProfileScreen} options={{ headerShown: false }} />
-      {/* Add other tab screens as needed */}
-    </Tab.Navigator>
-  ) : (
-    <Stack.Navigator initialRouteName="Login">
-      <Stack.Screen name="Login" component={AuthScreen} options={{ headerShown: false }} />
-    </Stack.Navigator>
-  )}
+              return (
+                <View style={{ alignItems: 'center', marginBottom: -30 }}>
+                  <Ionicons name={iconName} size={25} color={color} />
+                  <Text style={{ color, marginTop: 5 }}></Text>
+                </View>
+              );
+            },
+          })}
+        >
+          <Tab.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
+          <Tab.Screen name="Scanner" component={ScanningScreen} options={{ headerShown: false }} />
+          <Tab.Screen name="Gallery" component={GalleryScreen} options={{ headerShown: false }} />
+          <Tab.Screen name="Profile" component={ProfileScreen} options={{ headerShown: false }} />
+          {/* Add other tab screens as needed */}
+        </Tab.Navigator>
+      ) : (
+        <Stack.Navigator initialRouteName="Login">
+          <Stack.Screen name="Login" component={AuthScreen} options={{ headerShown: false }} />
+        </Stack.Navigator>
+      )}
     </NavigationContainer>
   );
 }

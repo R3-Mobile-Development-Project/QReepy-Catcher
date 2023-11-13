@@ -1,9 +1,20 @@
-import React from 'react';
-import { View, Text, Button, StyleSheet, ImageBackground } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, Button, StyleSheet, ImageBackground, TouchableOpacity } from 'react-native';
+import CreditsModal from '../modals/CreditsModal';
 
-const backgroundImage = require('../assets/doodle-monsters-set_90220-166.jpg');
+const backgroundImage = require('../assets/images/doodle-monsters-set_90220-166.jpg');
 
 const HomeScreen = ({ navigation }) => {
+  const [creditsModalVisible, setCreditsModalVisible] = useState(false);
+
+  const openCreditsModal = () => {
+    setCreditsModalVisible(true);
+  };
+
+  const closeCreditsModal = () => {
+    setCreditsModalVisible(false);
+  };
+
   return (
     <View style={styles.container}>
       <ImageBackground
@@ -17,8 +28,12 @@ const HomeScreen = ({ navigation }) => {
         title="Go to Profile"
         onPress={() => navigation.navigate('Profile')}
       />
+      <TouchableOpacity onPress={openCreditsModal} style={styles.creditsButton}>
+          <Text style={styles.creditsButtonText}>CREDITS</Text>
+      </TouchableOpacity>
     </View>
       </ImageBackground>
+      <CreditsModal visible={creditsModalVisible} onClose={closeCreditsModal} />
     </View>
   );
 };
@@ -34,7 +49,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.8)',
+    backgroundColor: 'rgba(255,255,255,0.7)',
   },
   backgroundImage: {
     flex: 1,
@@ -45,6 +60,21 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 24,
+    fontWeight: 'bold',
+  },
+  creditsButton: {
+    marginTop: 10,
+    width: 120,
+    height: 60,
+    backgroundColor: 'lightblue',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 10,
+    borderColor: 'black',
+    borderWidth: 3,
+  },
+  creditsButtonText: {
+    fontSize: 18,
     fontWeight: 'bold',
   },
   image: {
