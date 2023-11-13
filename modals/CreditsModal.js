@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Modal, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, Modal, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 
 const CreditsModal = ({ visible, onClose }) => {
@@ -14,6 +14,8 @@ const CreditsModal = ({ visible, onClose }) => {
         <View style={styles.modalContent}>
           <Text style={styles.modalText}>Credits</Text>
           <View style={styles.modalLine} />
+      <ScrollView contentContainerStyle={styles.scrollViewContent}>
+        <View style={styles.centeredContainer}>
           <Text style={styles.creditText}>This app was created by:</Text>
           <Text style={styles.creditText}>Anssi Kulotie</Text>
           <Text style={styles.creditText}>Hannu Väliahde</Text>
@@ -22,6 +24,10 @@ const CreditsModal = ({ visible, onClose }) => {
           <View style={styles.modalLine} />
           <Text style={styles.creditText}>Oulu University of Applied Sciences</Text>
           <Text style={styles.creditText}>TVT22KMO, Mobile Project Group 3</Text>
+          <View style={styles.modalLine} />
+          <Text style={styles.creditText}>Some of the sounds in this project were created by David McKee (ViRiX) soundcloud.com/virix</Text>
+        </View>
+      </ScrollView>
           <TouchableOpacity onPress={onClose} style={styles.closeButton}>
           <MaterialIcons name="close" size={50} color="black" />
           </TouchableOpacity>
@@ -45,6 +51,7 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 20,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   modalText: {
     fontSize: 24,
@@ -60,9 +67,17 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 20,
   },
+  scrollViewContent: {
+    flexGrow: 1,
+    paddingBottom: 60,
+  },
+  centeredContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   closeButton: {
     position: 'absolute',
-    bottom: 50,
+    bottom: 20,
     width: 70,
     height: 70,
     borderRadius: 25,

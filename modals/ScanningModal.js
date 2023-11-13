@@ -1,8 +1,33 @@
-import React from 'react';
+import React, {useState, useEffect } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity, Modal } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { Audio } from 'expo-av';
 
 const ScanningModal = ({ isVisible, onClose, openGallery, image, name }) => {
+  const [sellSound, setSellSound] = useState();
+
+  useEffect(() => {
+    return () => {
+      if (sellSound) {
+        sellSound.unloadAsync();
+      }
+    };
+  }, [sellSound]);
+
+  const playSellSound = async () => {
+    const { sound } = await Audio.Sound.createAsync(
+      require('../assets/sounds/ETRA.wav')
+    );
+    setSellSound(sound);
+    await sound.playAsync();
+  };
+
+  const handleSellPress = () => {
+    playSellSound();
+    // Add your logic for handling the "Sell" button press
+    console.log('Sell button pressed');
+  };
+
   return (
     <Modal
         animationType="fade"
@@ -15,7 +40,7 @@ const ScanningModal = ({ isVisible, onClose, openGallery, image, name }) => {
         <Image source={{ uri: image }} style={styles.image} />
         <Text style={styles.name}>{name}</Text>
         <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.button} onPress={() => console.log('Sell button pressed')}>
+          <TouchableOpacity style={styles.button} onPress={handleSellPress}>
             <Text style={styles.buttonText}>Sell</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.button} onPress={openGallery}>
@@ -75,7 +100,7 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     position: 'absolute',
-    bottom: 50,
+    bottom: 20,
     width: 70,
     height: 70,
     borderRadius: 25,

@@ -2,7 +2,7 @@
 // TÄMÄ SIVU KÄYNNISTYY ENSIMMÄISENÄ, KUN SOVELLUS AVATAAN
 
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Animated, Easing, ImageBackground } from 'react-native';
+import { View, Text, StyleSheet, Animated, Easing, ImageBackground, Button } from 'react-native';
 import { useFonts } from '@expo-google-fonts/inter';
 import { Audio } from 'expo-av';
 
@@ -12,7 +12,30 @@ const SplashScreen = () => {
   const translationX = new Animated.Value(-500);
   const translationY = new Animated.Value(-500);
 
+  async function playAudio() {
+    const sound = new Audio.Sound();
+  
+    try {
+      const source = require('../assets/sounds/MESSAGE-B_Accept.wav');
+      await sound.loadAsync(source);
+      await sound.playAsync();
+      // Add other logic or event listeners as needed
+
+      // Optionally, wait for the playback to finish
+      sound.setOnPlaybackStatusUpdate((status) => {
+        if (status.didJustFinish) {
+          // Handle playback completion
+          sound.unloadAsync(); // Unload the audio when playback is complete
+        }
+      });
+
+    } catch (error) {
+      console.error('Error playing audio:', error);
+    }
+  }
+
   useEffect(() => {
+    playAudio();
     Animated.parallel([
       Animated.timing(opacity, {
         toValue: 1,
@@ -77,7 +100,9 @@ const SplashScreen = () => {
           Catcher
         </Animated.Text>
       </Animated.View>
+      <View style={styles.createdByTextContainer}>
       <Text style={styles.createdByText}>Created by Ryhmä 3</Text>
+      </View>
     </ImageBackground>
   );
 };
@@ -101,10 +126,15 @@ const styles = StyleSheet.create({
     color: 'black',
   },
   createdByText: {
-    justifyContent: 'bottom',
     fontSize: 18, // Adjust the font size as needed
     color: 'black', // Adjust the color as needed
     marginTop: 20, // Adjust the margin as needed
+  },
+  createdByTextContainer: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    marginBottom: 20,
   },
 });
 
