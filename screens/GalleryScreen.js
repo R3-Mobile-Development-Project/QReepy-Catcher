@@ -18,7 +18,7 @@ const GalleryScreen = ({ navigation }) => {
         onPress={() => navigation.navigate('Home')}
       />
     </View>
-      </ImageBackground>
+    </ImageBackground>
     </View>
   );
 };

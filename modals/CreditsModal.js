@@ -1,8 +1,32 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Modal, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { Audio } from 'expo-av';
 
 const CreditsModal = ({ visible, onClose }) => {
+  const [closeSound, setCloseSound] = useState();
+
+  useEffect(() => {
+    return () => {
+      if (closeSound) {
+        closeSound.unloadAsync();
+      }
+    };
+  }, [closeSound]);
+
+  const playCloseSound = async () => {
+    const { sound } = await Audio.Sound.createAsync(
+      require('../assets/sounds/ALERT_Error.wav')
+    );
+    setCloseSound(sound);
+    await sound.playAsync();
+  };
+
+  const handleClosePress = () => {
+    playCloseSound();
+    onClose();
+  };
+
   return (
     <Modal
       animationType="slide"
@@ -28,7 +52,7 @@ const CreditsModal = ({ visible, onClose }) => {
           <Text style={styles.creditText}>Some of the sounds in this project were created by David McKee (ViRiX) soundcloud.com/virix</Text>
         </View>
       </ScrollView>
-          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+          <TouchableOpacity onPress={handleClosePress} style={styles.closeButton}>
           <MaterialIcons name="close" size={50} color="black" />
           </TouchableOpacity>
         </View>
