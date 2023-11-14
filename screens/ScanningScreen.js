@@ -4,8 +4,8 @@ import { Camera } from 'expo-camera';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons'; // Import Ionicons from Expo vector icons
-import { PinchGestureHandler, State, GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Audio } from 'expo-av';
+import Slider from '@react-native-community/slider';
 import ScanningModal from '../modals/ScanningModal';
 
 export default function ScanningScreen({ navigation }) {
@@ -19,6 +19,7 @@ export default function ScanningScreen({ navigation }) {
   const cameraRef = useRef(null);
   const isFocused = useIsFocused(); // Check if the screen is focused
   const [modalVisible, setModalVisible] = useState(false);
+  const [sliderValue, setSliderValue] = useState(0); // Added state for slider value
   const sampleImage = 'Örkki Image Here'; // Replace with your image URL
   const sampleName = 'Product Name'; // Replace with your product name
 
@@ -107,13 +108,9 @@ export default function ScanningScreen({ navigation }) {
     setShowMessage(false);
   };
 
-  const handleZoomChange = (event) => {
-    setZoom(event.nativeEvent.scale);
-  };
-
-  const handleZoomEnd = () => {
-    // You can use the zoom value to set the camera zoom level
- //   console.log('Zoom level:', zoom);
+  const handleZoomChange = (value) => {
+    setSliderValue(value);
+    setZoom(value);
   };
 
   const openModal = () => {
@@ -136,37 +133,33 @@ export default function ScanningScreen({ navigation }) {
   }
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <View style={{ flex: 1 }}>
       {cameraActive ? (
-        <PinchGestureHandler
-        onGestureEvent={handleZoomChange}
-        onHandlerStateChange={handleZoomEnd}
-        >
         <Camera
           style={{ flex: 1 }}
           type={type}
           ref={cameraRef}
           flashMode={torchOn}
           zoom={zoom}
-
-// KORVAA ALLA OLEVA SEURAAVALLA JOS HALUAT SKANNATA KOODIN VAIN KERRAN: onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
-// KORVAA ALLA OLEVA SEURAAVALLA JOS HALUAT SKANNATA KOODIN USEASTI: onBarCodeScanned={handleBarCodeScanned}
-// ---------------------------------------------------------------
           onBarCodeScanned={handleBarCodeScanned}
-// ---------------------------------------------------------------
-
-          // Limit the scanning area inside the frame
-    //      cameraViewDimensions={{ width: 100, height: 100 }} // Set your desired dimensions
-    //      rectOfInterest={{ x: 0.1, y: 0.2, width: 0.1, height: 0.1 }} // Adjust these values
         >
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity onPress={handleTorchToggle} style={styles.torchToggleButton}>
-            <Ionicons name={torchOn ? 'ios-flashlight' : 'ios-flashlight-outline'} size={40} color="white" />
-          </TouchableOpacity>
-        </View>
-        <View style={styles.scannerFrame} />
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity onPress={handleTorchToggle} style={styles.torchToggleButton}>
+              <Ionicons name={torchOn ? 'ios-flashlight' : 'ios-flashlight-outline'} size={40} color="white" />
+            </TouchableOpacity>
+          </View>
+          <View style={styles.scannerFrame} />
+          <Slider
+            style={{ width: '60%', marginVertical: 60, marginLeft: 80 }}
+            minimumValue={0}
+            maximumValue={1}
+            minimumTrackTintColor="#FFFFFF"
+            maximumTrackTintColor="teal"
+            thumbTintColor="teal"
+            value={sliderValue}
+            onValueChange={handleZoomChange}
+          />
         </Camera>
-        </PinchGestureHandler>
       ) : (
         <View style={{ flex: 1 }}>
           {/* Placeholder content or empty view */}
@@ -193,8 +186,7 @@ export default function ScanningScreen({ navigation }) {
         name={sampleName}
       />
       )}
-
-</GestureHandlerRootView>
+    </View>
   );
 }
 
