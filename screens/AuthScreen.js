@@ -41,7 +41,20 @@ const AuthScreen = ({ navigation }) => {
     }
   };
 
+  const playButtonSound = async () => {
+    const buttonSound = new Audio.Sound();
+
+    try {
+      const buttonSource = require('../assets/sounds/Menu_Selection_Click.wav'); // Replace with your button sound file path
+      await buttonSound.loadAsync(buttonSource);
+      await buttonSound.playAsync();
+    } catch (error) {
+      console.error('Error playing button sound:', error);
+    }
+  }
+
   const handleSignup = async () => {
+    playButtonSound(); // Play button sound on signup button press
     try {
       setLoading(true); // Set loading to true when signup is initiated
       // Initialize Firebase auth
@@ -66,6 +79,7 @@ const AuthScreen = ({ navigation }) => {
   };
 
   const handleLogin = async () => {
+    playButtonSound(); // Play button sound on login button press
     try {
       setLoading(true); // Set loading to true when signup is initiated
       // Initialize Firebase auth

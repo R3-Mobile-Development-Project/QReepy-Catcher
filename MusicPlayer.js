@@ -1,43 +1,42 @@
-// MusicPlayer.js
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Audio } from 'expo-av';
 
-const MusicPlayer = ({ muteBackgroundMusic, muteAllSounds }) => {
+const MusicPlayer = ({ muteBackgroundMusic, muteAllSounds, isMuted }) => {
+  const soundRef = useRef(null);
+
+  useEffect(() => {
     const playAudio = async () => {
-        const sound = new Audio.Sound();
+      const sound = new Audio.Sound();
+      soundRef.current = sound;
 
-        try {
-          const source = require('./assets/sounds/happy_adveture.mp3');
-          console.log('Source:', source);
+      try {
+        const source = require('./assets/sounds/happy_adveture.mp3');
+        await sound.loadAsync(source, { isLooping: true });
+        await sound.setVolumeAsync(isMuted ? 0 : 0.2);
+        await sound.playAsync();
 
-          await sound.loadAsync(source, { isLooping: true }); // , { isLooping: false }
-          console.log('Music loaded successfully');
+        sound.setOnPlaybackStatusUpdate((status) => {
+          if (status.didJustFinish) {
+            // Handle playback completion
+            // sound.unloadAsync();
+          }
+        });
+      } catch (error) {
+        console.error('Error playing audio:', error);
+      }
+    };
 
-          // Set the initial volume (value between 0 and 1)
-        await sound.setVolumeAsync(0.2); // Adjust the volume as needed
+    playAudio();
 
-          await sound.playAsync();
-          console.log('Music is playing...');
+    return () => {
+      // Clean up resources when the component is unmounted
+      if (soundRef.current) {
+        soundRef.current.unloadAsync();
+      }
+    };
+  }, [isMuted, muteBackgroundMusic, muteAllSounds]);
 
-          // Add other logic or event listeners as needed
-
-          // Optionally, wait for the playback to finish
-          sound.setOnPlaybackStatusUpdate((status) => {
-            if (status.didJustFinish) {
-         //     console.log('Playback finished.');
-              // Handle playback completion
-          //    sound.unloadAsync(); // Unload the audio when playback is complete
-            }
-          });
-        } catch (error) {
-          console.error('Error playing audio:', error);
-        }
-      };
-
-      useEffect(() => {
-        playAudio();
-      }, []);
-
+  return null; // MusicPlayer doesn't need to render anything
 };
 
 export default MusicPlayer;

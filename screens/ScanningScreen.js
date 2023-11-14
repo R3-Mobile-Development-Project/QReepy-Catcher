@@ -91,6 +91,18 @@ export default function ScanningScreen({ navigation }) {
     }
   };
 
+  const playButtonSound = async () => {
+    const buttonSound = new Audio.Sound();
+
+    try {
+      const buttonSource = require('../assets/sounds/Menu_Selection_Click.wav'); // Replace with your button sound file path
+      await buttonSound.loadAsync(buttonSource);
+      await buttonSound.playAsync();
+    } catch (error) {
+      console.error('Error playing button sound:', error);
+    }
+  }
+
   const hideMessage = () => {
     setShowMessage(false);
   };
@@ -110,6 +122,7 @@ export default function ScanningScreen({ navigation }) {
   };
 
   const closeModal = () => {
+    playButtonSound(); // Play button sound on close button press
     setModalVisible(false);
     setShowMessage(false);
   };
