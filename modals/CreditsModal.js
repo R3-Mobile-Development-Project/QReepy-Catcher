@@ -16,7 +16,7 @@ const CreditsModal = ({ visible, onClose }) => {
 
   const playCloseSound = async () => {
     const { sound } = await Audio.Sound.createAsync(
-      require('../assets/sounds/ALERT_Error.wav')
+      require('../assets/sounds/Menu_Selection_Click.wav')
     );
     setCloseSound(sound);
     await sound.playAsync();
@@ -49,7 +49,10 @@ const CreditsModal = ({ visible, onClose }) => {
           <Text style={styles.creditText}>Oulu University of Applied Sciences</Text>
           <Text style={styles.creditText}>TVT22KMO, Mobile Project Group 3</Text>
           <View style={styles.modalLine} />
-          <Text style={styles.creditText}>Some of the sounds in this project were created by David McKee (ViRiX) soundcloud.com/virix</Text>
+          <Text style={styles.creditText}>Some of the sounds in this project were created by:</Text>
+          <Text style={styles.creditText}>TinyWorlds - OpenGameArt.org</Text>
+          <Text style={styles.creditText}>David McKee (ViRiX) soundcloud.com/virix</Text>
+          <Text style={styles.creditText}>NenadSimic - OpenGameArt.org</Text>
         </View>
       </ScrollView>
           <TouchableOpacity onPress={handleClosePress} style={styles.closeButton}>

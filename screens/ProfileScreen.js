@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ImageBackground, Button } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ImageBackground, Switch } from 'react-native';
 import { getAuth, signOut } from 'firebase/auth'; // Import Firebase authentication methods
 import { MaterialIcons } from '@expo/vector-icons';
 import AchievementsModal from '../modals/AchievementsModal';
@@ -8,6 +8,8 @@ const backgroundImage = require('../assets/images/paper-decorations-halloween-pa
 
   const ProfileScreen = () => {
     const [achievementsModalVisible, setAchievementsModalVisible] = useState(false);
+    const [muteBackgroundMusic, setMuteBackgroundMusic] = useState(false);
+    const [muteAllSounds, setMuteAllSounds] = useState(false);
 
     const handleLogout = async () => {
       const auth = getAuth();
@@ -41,6 +43,30 @@ const backgroundImage = require('../assets/images/paper-decorations-halloween-pa
         >
           <View style={styles.contentContainer}>
             <Text style={styles.text}>Welcome to your profile!</Text>
+
+            {/* Mute Background Music Switch */}
+          <View style={styles.switchContainer}>
+            <Text style={styles.switchLabel}>Mute Background Music</Text>
+            <Switch
+              value={muteBackgroundMusic}
+              onValueChange={() => setMuteBackgroundMusic(!muteBackgroundMusic)}
+              trackColor={{ false: '#767577', true: '#81b0ff' }}
+              thumbColor={muteBackgroundMusic ? '#f5dd4b' : '#f4f3f4'}
+              ios_backgroundColor="#3e3e3e"
+            />
+          </View>
+          {/* Mute All Sounds Switch */}
+          <View style={styles.switchContainer}>
+            <Text style={styles.switchLabel}>Mute All Sounds</Text>
+            <Switch
+              value={muteAllSounds}
+              onValueChange={() => setMuteAllSounds(!muteAllSounds)}
+              trackColor={{ false: '#767577', true: '#81b0ff' }}
+              thumbColor={muteAllSounds ? '#f5dd4b' : '#f4f3f4'}
+              ios_backgroundColor="#3e3e3e"
+            />
+          </View>
+
             <TouchableOpacity style={styles.button} onPress={handleLogout}>
               <Text style={styles.buttonText}>SIGN OUT</Text>
               <MaterialIcons name="logout" size={24} color="white" />
@@ -74,6 +100,15 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 24,
     fontWeight: 'bold',
+  },
+  switchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 10,
+  },
+  switchLabel: {
+    fontSize: 18,
+    marginRight: 10,
   },
   button: {
     flexDirection: 'row',

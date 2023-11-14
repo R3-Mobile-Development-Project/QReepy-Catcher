@@ -20,7 +20,7 @@ const HomeScreen = ({ navigation }) => {
   const openCreditsModal = async () => {
     // Load and play the sound effect
     const { sound } = await Audio.Sound.createAsync(
-      require('../assets/sounds/MENU_Pick.wav')
+      require('../assets/sounds/Menu_Selection_Click.wav')
     );
     setSound(sound);
     await sound.playAsync();

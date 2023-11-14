@@ -5,22 +5,40 @@ import { Audio } from 'expo-av';
 
 const ScanningModal = ({ isVisible, onClose, openGallery, image, name }) => {
   const [sellSound, setSellSound] = useState();
+  const [openModalSound, setOpenModalSound] = useState();
 
   useEffect(() => {
     return () => {
       if (sellSound) {
         sellSound.unloadAsync();
       }
+      if (openModalSound) {
+        openModalSound.unloadAsync();
+      }
     };
-  }, [sellSound]);
+  }, [sellSound, openModalSound]);
 
   const playSellSound = async () => {
     const { sound } = await Audio.Sound.createAsync(
-      require('../assets/sounds/ETRA.wav')
+      require('../assets/sounds/ETRA_TOIMII.wav')
     );
     setSellSound(sound);
     await sound.playAsync();
   };
+
+  const playOpenModalSound = async () => {
+    const { sound } = await Audio.Sound.createAsync(
+      require('../assets/sounds/Win-sound.wav') // Replace with your sound file
+    );
+    setOpenModalSound(sound);
+    await sound.playAsync();
+  };
+
+  useEffect(() => {
+    if (isVisible) {
+      playOpenModalSound();
+    }
+  }, [isVisible]);
 
   const handleSellPress = () => {
     playSellSound();

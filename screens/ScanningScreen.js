@@ -5,6 +5,7 @@ import { BarCodeScanner } from 'expo-barcode-scanner';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons'; // Import Ionicons from Expo vector icons
 import { PinchGestureHandler, State, GestureHandlerRootView } from 'react-native-gesture-handler';
+import { Audio } from 'expo-av';
 import ScanningModal from '../modals/ScanningModal';
 
 export default function ScanningScreen({ navigation }) {
@@ -53,14 +54,27 @@ export default function ScanningScreen({ navigation }) {
     }
   }, [cameraActive]);
 
+  const playTorchSound = async () => {
+    const torchSound = new Audio.Sound();
+
+    try {
+      const torchSource = require('../assets/sounds/wall.wav'); // Replace with your torch sound file path
+      await torchSound.loadAsync(torchSource);
+      await torchSound.playAsync();
+    } catch (error) {
+      console.error('Error playing torch sound:', error);
+    }
+  };
+
   const handleTorchToggle = () => {
+    playTorchSound(); // Call the function to play the torch sound
     setTimeout(() => {
     setTorchOn(
       torchOn === Camera.Constants.FlashMode.off
         ? Camera.Constants.FlashMode.torch
         : Camera.Constants.FlashMode.off
     );
-    }, 500);
+    }, 300);
   };
 
   const handleBarCodeScanned = ({ type, data }) => {
