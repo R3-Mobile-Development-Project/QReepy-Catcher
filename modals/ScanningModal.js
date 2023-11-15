@@ -2,10 +2,44 @@ import React, {useState, useEffect } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity, Modal } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Audio } from 'expo-av';
+import { getFirestore, collection, query, onSnapshot, where } from 'firebase/firestore';
+import { getStorage, ref, getDownloadURL } from 'firebase/storage';
 
-const ScanningModal = ({ isVisible, onClose, openGallery, image, name }) => {
+const ScanningModal = ({ isVisible, onClose, openGallery, image }) => {
   const [sellSound, setSellSound] = useState();
   const [openModalSound, setOpenModalSound] = useState();
+  const [monsters, setMonsters] = useState([]);
+  const [imageURL, setImageURL] = useState('');
+
+  useEffect(() => {
+    const db = getFirestore();
+    const q = query(collection(db, 'monsters'), where('id', '==', 1)); // Adjust 'id' and the value as needed
+  
+    const unsubscribe = onSnapshot(q, async (querySnapshot) => {
+      try {
+        const tempMonsters = [];
+        querySnapshot.forEach((doc) => {
+          const monsterObject = {
+            name: doc.data().name,
+            title: doc.data().title,
+          };
+          tempMonsters.push(monsterObject);
+        });
+        setMonsters(tempMonsters);
+
+        // Fetch the image URL from Firebase Storage
+        const storage = getStorage();
+        const imageRef = ref(storage, 'gs://qreepy-catcher.appspot.com/Monsters/1.jpg'); // Update with your actual path
+        const url = await getDownloadURL(imageRef);
+        setImageURL(url);
+
+      } catch (error) {
+        console.error('Error reading monsters from Firestore: ', error);
+      }
+    });
+  
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -54,9 +88,19 @@ const ScanningModal = ({ isVisible, onClose, openGallery, image, name }) => {
         transparent={true}
     >
       <View style={styles.modalContainer}>
-        <View style={styles.modalContent}>
-        <Image source={{ uri: image }} style={styles.image} />
-        <Text style={styles.name}>{name}</Text>
+      {monsters.map((item, index) => (
+      <View key={index} style={styles.modalContent}>
+
+        <Text style={styles.modalText}>YOU CAUGHT A QREEP!</Text>
+
+        {/* Add a conditional check for imageUrl before using it */}
+          {imageURL ? (
+            <Image source={{ uri: imageURL }} style={styles.image} />
+          ) : null}
+
+        <Text style={styles.name}>{item.name}</Text>
+        <Text style={styles.title}>{item.title}</Text>
+
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.button} onPress={handleSellPress}>
             <Text style={styles.buttonText}>Sell</Text>
@@ -67,9 +111,11 @@ const ScanningModal = ({ isVisible, onClose, openGallery, image, name }) => {
         </View>
         <TouchableOpacity onPress={onClose} style={styles.closeButton}>
           <MaterialIcons name="close" size={50} color="black" />
-          </TouchableOpacity>
+        </TouchableOpacity>
       </View>
-    </View>
+      ))}
+
+      </View>
     </Modal>
   );
 };
@@ -88,6 +134,10 @@ const styles = StyleSheet.create({
         padding: 20,
         borderRadius: 20,
         alignItems: 'center',
+      },
+      modalText: {
+        fontSize: 24,
+        fontWeight: 'bold',
       },
   image: {
     width: 200,

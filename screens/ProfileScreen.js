@@ -30,10 +30,9 @@ const backgroundImage = require('../assets/images/paper-decorations-halloween-pa
       }
     };
 
-    
     const playButtonSound = async () => {
       const buttonSound = new Audio.Sound();
-  
+
       try {
         const buttonSource = require('../assets/sounds/Menu_Selection_Click.wav'); // Replace with your button sound file path
         await buttonSound.loadAsync(buttonSource);
@@ -45,7 +44,7 @@ const backgroundImage = require('../assets/images/paper-decorations-halloween-pa
 
     const playSignoutSound = async () => {
       const buttonSound = new Audio.Sound();
-  
+
       try {
         const buttonSource = require('../assets/sounds/part.wav'); // Replace with your button sound file path
         await buttonSound.loadAsync(buttonSource);
