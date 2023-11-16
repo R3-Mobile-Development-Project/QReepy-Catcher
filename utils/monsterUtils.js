@@ -28,10 +28,43 @@ export const fetchMonsterDetails = async (monsterId) => {
     const tempMonsters = [];
 
     querySnapshot.forEach((doc) => {
+      // Get the dominantColors array from the document
+      const dominantColors = doc.data().dominantColors;
+
+      // Parse the RGB values within parentheses
+      const parseColors = (colorString) => {
+        try {
+          const rgbValues = colorString.match(/\(([^)]+)\)/);
+      
+          if (rgbValues && rgbValues[1]) {
+            const parsedColors = rgbValues[1].split(',').map((value) => parseInt(value.trim(), 10));
+            return parsedColors;
+            
+          } else {
+            console.error('Invalid color string format:', colorString);
+            return null;
+          }
+        } catch (error) {
+          console.error('Error parsing colors:', error);
+          return null;
+        }
+      };
+
+      // Randomly select an index (0, 1, or 2)
+      const randomIndex = Math.floor(Math.random() * 3);
+
+      // Get the color string for the selected index
+      const colorString = dominantColors[randomIndex];
+
+      // Parse the color string to get the RGB values
+      const parsedColors = parseColors(colorString);
+
       const monsterObject = {
         name: doc.data().name,
         title: doc.data().title,
+        dominantColors: parsedColors, // Use default if parsing fails
       };
+      console.log(monsterObject);
       tempMonsters.push(monsterObject);
     });
 

@@ -82,7 +82,7 @@ export default function ScanningScreen({ navigation }) {
   const handleBarCodeScanned = async ({ type, data }) => {
     if (scanned) {
       setShowMessage(true);
-      console.log(`Bar code with type ${type} and data ${data} has been scanned.`);
+     // console.log(`Bar code with type ${type} and data ${data} has been scanned.`);
 
     } else {
       const foundMonsterId = findMonster();
@@ -98,7 +98,7 @@ export default function ScanningScreen({ navigation }) {
           setImageURL(fetchedImageURL);
 
           openModal();
-          console.log(`Bar code with type ${type} and data ${data} has been scanned.`);
+       //   console.log(`Bar code with type ${type} and data ${data} has been scanned.`);
         } catch (error) {
           console.error('Error fetching monster details:', error);
           setShowMessage(true);

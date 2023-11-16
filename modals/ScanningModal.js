@@ -2,12 +2,12 @@ import React, {useState, useEffect } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity, Modal } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Audio } from 'expo-av';
-import { getFirestore, collection, query, onSnapshot, where } from 'firebase/firestore';
-import { getStorage, ref, getDownloadURL } from 'firebase/storage';
 
 const ScanningModal = ({ isVisible, onClose, openGallery, monsterInfo, imageURL }) => {
   const [sellSound, setSellSound] = useState();
   const [openModalSound, setOpenModalSound] = useState();
+  const [imageLoading, setImageLoading] = useState(true);
+  const monsterColor = monsterInfo[0]?.dominantColors;
 
   useEffect(() => {
     return () => {
@@ -56,14 +56,24 @@ const ScanningModal = ({ isVisible, onClose, openGallery, monsterInfo, imageURL 
         transparent={true}
     >
       <View style={styles.modalContainer}>
-        <View style={styles.modalContent}>
-          <Text style={styles.modalText}>YOU CAUGHT A QREEP!</Text>
+      <View style={[styles.modalContent, { backgroundColor: `rgb(${monsterColor.join(', ')})` }]}>
+        <Text style={styles.modalText}>YOU CAUGHT A QREEP!</Text>
           <View style={styles.modalLine} />
 
         {/* Add a conditional check for imageUrl before using it */}
-          {imageURL ? (
-            <Image source={{ uri: imageURL }} style={styles.image} />
-          ) : null}
+        {imageURL && (
+            <Image
+              source={{ uri: imageURL }}
+              style={styles.image}
+              onLoad={() => setImageLoading(false)}
+              onError={(error) => {
+                console.error('Error loading image:', error);
+                setImageLoading(false);
+              }}
+            />
+          )}
+
+          {imageLoading && <Text>Loading image...</Text>}
 
           {monsterInfo.map((monster, index) => (
             <View key={index}>
@@ -85,7 +95,6 @@ const ScanningModal = ({ isVisible, onClose, openGallery, monsterInfo, imageURL 
           <MaterialIcons name="close" size={50} color="black" />
         </TouchableOpacity>
       </View>
-
       </View>
     </Modal>
   );
@@ -101,7 +110,6 @@ const styles = StyleSheet.create({
       modalContent: {
         width: '80%',
         height: '80%',
-        backgroundColor: 'lightblue',
         padding: 20,
         borderRadius: 20,
         alignItems: 'center',
@@ -109,6 +117,7 @@ const styles = StyleSheet.create({
       modalText: {
         fontSize: 24,
         fontWeight: 'bold',
+        color: 'black',
       },
       modalLine: {
         height: 3,
