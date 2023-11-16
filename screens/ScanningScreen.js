@@ -168,15 +168,15 @@ export default function ScanningScreen({ navigation }) {
 
 {/* ALLA OLEVA NÄYTTÄÄ VIESTIN, JOS SKANNATTU KOODI ON JO SKANNATTU AIEMMIN. VOI TESTEISSÄ KOMMENTOIDA POIS */}
 {/* --------------------------------------------------------------- */}
-      {showMessage && (
+     {/* {showMessage && (
         <View style={styles.messageContainer}>
           <Text style={styles.messageText}>You scanned the same code again.</Text>
           <TouchableOpacity onPress={hideMessage} style={styles.hideMessageButton}>
             <Text style={styles.hideMessageText}>OK</Text>
           </TouchableOpacity>
         </View>
-      )}
-{/* --------------------------------------------------------------- */}
+      )}*/}
+ {/* --------------------------------------------------------------- */}
       {modalVisible && (
       <ScanningModal
         isVisible={modalVisible}

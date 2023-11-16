@@ -11,10 +11,30 @@ const ScanningModal = ({ isVisible, onClose, openGallery, image }) => {
   const [monsters, setMonsters] = useState([]);
   const [imageURL, setImageURL] = useState('');
 
+  const findMonster = () => {
+    const randomNumber = Math.random() * 100;
+    let foundMonsterId;
+
+    if (randomNumber < 2) {
+      // Epic monster
+      foundMonsterId = Math.floor(Math.random() * 5) + 46; // ID:t 46-50
+    } else if (randomNumber < 10) {
+      // Rare monster
+      foundMonsterId = Math.floor(Math.random() * 15) + 31; // ID:t 31-45
+    } else if (randomNumber < 40) {
+      // Common monster
+      foundMonsterId = Math.floor(Math.random() * 30) + 1; // ID:t 1-30
+    }
+
+    return foundMonsterId;
+  };
+
+
   useEffect(() => {
     const db = getFirestore();
-    const q = query(collection(db, 'monsters'), where('id', '==', 1)); // Adjust 'id' and the value as needed
-  
+    const foundMonsterId = findMonster(); // Generate a random monster ID
+    const q = query(collection(db, 'monsters'), where('id', '==', foundMonsterId)); // Adjust 'id' and the value as needed
+   
     const unsubscribe = onSnapshot(q, async (querySnapshot) => {
       try {
         const tempMonsters = [];
@@ -26,20 +46,20 @@ const ScanningModal = ({ isVisible, onClose, openGallery, image }) => {
           tempMonsters.push(monsterObject);
         });
         setMonsters(tempMonsters);
-
+   
         // Fetch the image URL from Firebase Storage
         const storage = getStorage();
-        const imageRef = ref(storage, 'gs://qreepy-catcher.appspot.com/Monsters/1.jpg'); // Update with your actual path
+        const imageRef = ref(storage, `gs://qreepy-catcher.appspot.com/Monsters/${foundMonsterId}.jpg`); // Update with your actual path
         const url = await getDownloadURL(imageRef);
         setImageURL(url);
-
+   
       } catch (error) {
         console.error('Error reading monsters from Firestore: ', error);
       }
     });
-  
+   
     return () => unsubscribe();
-  }, []);
+   }, []);
 
   useEffect(() => {
     return () => {
