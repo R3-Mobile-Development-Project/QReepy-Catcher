@@ -5,41 +5,9 @@ import { Audio } from 'expo-av';
 import { getFirestore, collection, query, onSnapshot, where } from 'firebase/firestore';
 import { getStorage, ref, getDownloadURL } from 'firebase/storage';
 
-const ScanningModal = ({ isVisible, onClose, openGallery, image }) => {
+const ScanningModal = ({ isVisible, onClose, openGallery, monsterInfo, imageURL }) => {
   const [sellSound, setSellSound] = useState();
   const [openModalSound, setOpenModalSound] = useState();
-  const [monsters, setMonsters] = useState([]);
-  const [imageURL, setImageURL] = useState('');
-
-  useEffect(() => {
-    const db = getFirestore();
-    const q = query(collection(db, 'monsters'), where('id', '==', 1)); // Adjust 'id' and the value as needed
-  
-    const unsubscribe = onSnapshot(q, async (querySnapshot) => {
-      try {
-        const tempMonsters = [];
-        querySnapshot.forEach((doc) => {
-          const monsterObject = {
-            name: doc.data().name,
-            title: doc.data().title,
-          };
-          tempMonsters.push(monsterObject);
-        });
-        setMonsters(tempMonsters);
-
-        // Fetch the image URL from Firebase Storage
-        const storage = getStorage();
-        const imageRef = ref(storage, 'gs://qreepy-catcher.appspot.com/Monsters/1.jpg'); // Update with your actual path
-        const url = await getDownloadURL(imageRef);
-        setImageURL(url);
-
-      } catch (error) {
-        console.error('Error reading monsters from Firestore: ', error);
-      }
-    });
-  
-    return () => unsubscribe();
-  }, []);
 
   useEffect(() => {
     return () => {
@@ -88,18 +56,20 @@ const ScanningModal = ({ isVisible, onClose, openGallery, image }) => {
         transparent={true}
     >
       <View style={styles.modalContainer}>
-      {monsters.map((item, index) => (
-      <View key={index} style={styles.modalContent}>
-
-        <Text style={styles.modalText}>YOU CAUGHT A QREEP!</Text>
+        <View style={styles.modalContent}>
+          <Text style={styles.modalText}>YOU CAUGHT A QREEP!</Text>
 
         {/* Add a conditional check for imageUrl before using it */}
           {imageURL ? (
             <Image source={{ uri: imageURL }} style={styles.image} />
           ) : null}
 
-        <Text style={styles.name}>{item.name}</Text>
-        <Text style={styles.title}>{item.title}</Text>
+          {monsterInfo.map((monster, index) => (
+            <View key={index}>
+              <Text style={styles.name}>{monster.name}</Text>
+              <Text style={styles.title}>{monster.title}</Text>
+            </View>
+          ))}
 
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.button} onPress={handleSellPress}>
@@ -113,7 +83,6 @@ const ScanningModal = ({ isVisible, onClose, openGallery, image }) => {
           <MaterialIcons name="close" size={50} color="black" />
         </TouchableOpacity>
       </View>
-      ))}
 
       </View>
     </Modal>
