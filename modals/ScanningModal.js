@@ -58,6 +58,7 @@ const ScanningModal = ({ isVisible, onClose, openGallery, monsterInfo, imageURL 
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
           <Text style={styles.modalText}>YOU CAUGHT A QREEP!</Text>
+          <View style={styles.modalLine} />
 
         {/* Add a conditional check for imageUrl before using it */}
           {imageURL ? (
@@ -70,6 +71,7 @@ const ScanningModal = ({ isVisible, onClose, openGallery, monsterInfo, imageURL 
               <Text style={styles.title}>{monster.title}</Text>
             </View>
           ))}
+          <View style={styles.modalLine} />
 
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.button} onPress={handleSellPress}>
@@ -108,16 +110,28 @@ const styles = StyleSheet.create({
         fontSize: 24,
         fontWeight: 'bold',
       },
+      modalLine: {
+        height: 3,
+        width: '100%',
+        backgroundColor: 'black',
+        marginVertical: 14,
+      },
   image: {
-    width: 200,
-    height: 200,
+    width: 300,
+    height: 300,
     borderRadius: 8,
     marginBottom: 16,
   },
   name: {
-    fontSize: 18,
+    fontSize: 26,
     fontWeight: 'bold',
     marginBottom: 16,
+    textAlign: 'center',
+  },
+  title: {
+    fontSize: 18,
+    justifyContent: 'center',
+    textAlign: 'center',
   },
   buttonContainer: {
     flexDirection: 'row',
