@@ -48,6 +48,12 @@ const ScanningModal = ({ isVisible, onClose, openGallery, monsterInfo, imageURL 
     console.log('Sell button pressed');
   };
 
+  const handleGalleryPress = () => {
+    openGallery(); // Replace 'Gallery' with the name of your gallery screen
+    onClose(); // Close the modal
+  };
+
+
   return (
     <Modal
         animationType="fade"
@@ -87,7 +93,7 @@ const ScanningModal = ({ isVisible, onClose, openGallery, monsterInfo, imageURL 
           <TouchableOpacity style={styles.button} onPress={handleSellPress}>
             <Text style={styles.buttonText}>Sell</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={openGallery}>
+          <TouchableOpacity style={styles.button} onPress={handleGalleryPress}>
             <Text style={styles.buttonText}>View in Gallery</Text>
           </TouchableOpacity>
         </View>
@@ -108,8 +114,8 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0, 0, 0, 0.7)',
       },
       modalContent: {
-        width: '80%',
-        height: '80%',
+        width: '90%',
+        height: '84%',
         padding: 20,
         borderRadius: 20,
         alignItems: 'center',
@@ -118,6 +124,10 @@ const styles = StyleSheet.create({
         fontSize: 24,
         fontWeight: 'bold',
         color: 'black',
+        backgroundColor: 'rgba(255, 255, 255, 0.3)', // Transparent white background
+        paddingLeft: 4,
+        paddingRight: 4,
+        borderRadius: 8, // Add border radius for rounded corners
       },
       modalLine: {
         height: 3,
@@ -126,8 +136,8 @@ const styles = StyleSheet.create({
         marginVertical: 14,
       },
   image: {
-    width: 300,
-    height: 300,
+    width: 340,
+    height: 340,
     borderRadius: 8,
     marginBottom: 16,
   },
@@ -136,11 +146,19 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 16,
     textAlign: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.3)', // Transparent white background
+        paddingLeft: 4,
+        paddingRight: 4,
+        borderRadius: 8, // Add border radius for rounded corners
   },
   title: {
     fontSize: 18,
     justifyContent: 'center',
     textAlign: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.3)', // Transparent white background
+        paddingLeft: 4,
+        paddingRight: 4,
+        borderRadius: 8, // Add border radius for rounded corners
   },
   buttonContainer: {
     flexDirection: 'row',

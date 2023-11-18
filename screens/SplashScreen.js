@@ -14,7 +14,7 @@ const SplashScreen = () => {
 
   async function playAudio() {
     const sound = new Audio.Sound();
-  
+
     try {
       const source = require('../assets/sounds/MESSAGE-B_Accept_TOIMII.wav');
       await sound.loadAsync(source);

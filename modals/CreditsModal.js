@@ -53,6 +53,7 @@ const CreditsModal = ({ visible, onClose }) => {
           <Text style={styles.creditText}>TinyWorlds - OpenGameArt.org</Text>
           <Text style={styles.creditText}>David McKee (ViRiX) soundcloud.com/virix</Text>
           <Text style={styles.creditText}>NenadSimic - OpenGameArt.org</Text>
+          <View style={styles.modalLine} />
         </View>
       </ScrollView>
           <TouchableOpacity onPress={handleClosePress} style={styles.closeButton}>
