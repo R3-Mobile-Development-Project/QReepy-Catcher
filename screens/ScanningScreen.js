@@ -23,6 +23,8 @@ export default function ScanningScreen({ navigation }) {
   const [sliderValue, setSliderValue] = useState(0); // Added state for slider value
   const [monsterInfo, setMonsterInfo] = useState({});
   const [imageURL, setImageURL] = useState('');
+  const [noMonsterFound, setNoMonsterFound] = useState(false);
+  const [resetScanner, setResetScanner] = useState(false);
 
   useEffect(() => {
     if (isFocused) {
@@ -81,8 +83,8 @@ export default function ScanningScreen({ navigation }) {
 
   const handleBarCodeScanned = async ({ type, data }) => {
     if (scanned) {
-      setShowMessage(true);
-      console.log(`Bar code with type ${type} and data ${data} has been scanned.`);
+    //  setShowMessage(true);
+     // console.log(`Bar code with type ${type} and data ${data} has been scanned.`);
 
     } else {
       const foundMonsterId = findMonster();
@@ -98,14 +100,14 @@ export default function ScanningScreen({ navigation }) {
           setImageURL(fetchedImageURL);
 
           openModal();
-          console.log(`Bar code with type ${type} and data ${data} has been scanned.`);
+       //   console.log(`Bar code with type ${type} and data ${data} has been scanned.`);
         } catch (error) {
           console.error('Error fetching monster details:', error);
-          setShowMessage(true);
         }
       } else {
+        setNoMonsterFound(true);
         setShowMessage(true);
-        console.log(`Viimeinen else`)
+        console.log(`No monster found`)
       }
     }
   };
@@ -140,6 +142,9 @@ export default function ScanningScreen({ navigation }) {
     playButtonSound(); // Play button sound on close button press
     setModalVisible(false);
     setShowMessage(false);
+    setScanned(false);
+    setResetScanner(true);
+    setNoMonsterFound(false);
   };
 
   if (hasCameraPermission === null) {
@@ -185,15 +190,20 @@ export default function ScanningScreen({ navigation }) {
       )}
 
 {/* ALLA OLEVA NÄYTTÄÄ VIESTIN, JOS SKANNATTU KOODI ON JO SKANNATTU AIEMMIN. VOI TESTEISSÄ KOMMENTOIDA POIS */}
+{/* ALLA OLEVA NÄYTTÄÄ VIESTIN, JOS EI TULE MONSTERIA. VOI TESTEISSÄ KOMMENTOIDA POIS */}
 {/* --------------------------------------------------------------- */}
-     {/* {showMessage && (
-        <View style={styles.messageContainer}>
-          <Text style={styles.messageText}>You scanned the same code again.</Text>
-          <TouchableOpacity onPress={hideMessage} style={styles.hideMessageButton}>
-            <Text style={styles.hideMessageText}>OK</Text>
-          </TouchableOpacity>
-        </View>
-      )}*/}
+{showMessage && (
+  <View style={styles.messageContainer}>
+    {noMonsterFound ? (
+      <Text style={styles.messageText}>No monster found.</Text>
+    ) : (
+      <Text style={styles.messageText}>You scanned the same code again.</Text>
+    )}
+    <TouchableOpacity onPress={hideMessage} style={styles.hideMessageButton}>
+      <Text style={styles.hideMessageText}>OK</Text>
+    </TouchableOpacity>
+  </View>
+)}
 {/* --------------------------------------------------------------- */}
       {modalVisible && (
       <ScanningModal
