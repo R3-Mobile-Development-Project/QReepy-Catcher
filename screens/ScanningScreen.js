@@ -7,6 +7,7 @@ import { Ionicons } from '@expo/vector-icons'; // Import Ionicons from Expo vect
 import { Audio } from 'expo-av';
 import Slider from '@react-native-community/slider';
 import ScanningModal from '../modals/ScanningModal';
+import { findMonster, fetchMonsterDetails, fetchMonsterImageURL } from '../utils/monsterUtils';
 
 export default function ScanningScreen({ navigation }) {
   const [hasCameraPermission, setHasCameraPermission] = useState(null);
@@ -20,8 +21,8 @@ export default function ScanningScreen({ navigation }) {
   const isFocused = useIsFocused(); // Check if the screen is focused
   const [modalVisible, setModalVisible] = useState(false);
   const [sliderValue, setSliderValue] = useState(0); // Added state for slider value
-  const sampleImage = 'Örkki Image Here'; // Replace with your image URL
-  const sampleName = 'Product Name'; // Replace with your product name
+  const [monsterInfo, setMonsterInfo] = useState({});
+  const [imageURL, setImageURL] = useState('');
 
   useEffect(() => {
     if (isFocused) {
@@ -78,17 +79,34 @@ export default function ScanningScreen({ navigation }) {
     }, 300);
   };
 
-  const handleBarCodeScanned = ({ type, data }) => {
+  const handleBarCodeScanned = async ({ type, data }) => {
     if (scanned) {
-      // If already scanned, display a message
       setShowMessage(true);
-   //   openModal();
+      console.log(`Bar code with type ${type} and data ${data} has been scanned.`);
 
     } else {
-      setScanned(true);
-      openModal();
-      // Do something with the barcode data (e.g., navigate to a new screen, display the data, etc.)
-      console.log(`Bar code with type ${type} and data ${data} has been scanned.`);
+      const foundMonsterId = findMonster();
+      if (foundMonsterId >= 1 && foundMonsterId <= 50) {
+        setScanned(true);
+        console.log(`FOUND MONSTER WITH ID: ${foundMonsterId}`);
+
+        try {
+          const fetchedMonsterInfo = await fetchMonsterDetails(foundMonsterId);
+          const fetchedImageURL = await fetchMonsterImageURL(foundMonsterId);
+
+          setMonsterInfo(fetchedMonsterInfo);
+          setImageURL(fetchedImageURL);
+
+          openModal();
+          console.log(`Bar code with type ${type} and data ${data} has been scanned.`);
+        } catch (error) {
+          console.error('Error fetching monster details:', error);
+          setShowMessage(true);
+        }
+      } else {
+        setShowMessage(true);
+        console.log(`Viimeinen else`)
+      }
     }
   };
 
@@ -176,14 +194,14 @@ export default function ScanningScreen({ navigation }) {
           </TouchableOpacity>
         </View>
       )}*/}
- {/* --------------------------------------------------------------- */}
+{/* --------------------------------------------------------------- */}
       {modalVisible && (
       <ScanningModal
         isVisible={modalVisible}
         onClose={closeModal}
         openGallery={() => navigation.navigate('Gallery')}
-        image={sampleImage}
-        name={sampleName}
+        monsterInfo={monsterInfo}
+        imageURL={imageURL}
       />
       )}
     </View>
