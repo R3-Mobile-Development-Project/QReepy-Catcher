@@ -8,6 +8,38 @@ const ScanningModal = ({ isVisible, onClose, openGallery, monsterInfo, imageURL 
   const [openModalSound, setOpenModalSound] = useState();
   const [imageLoading, setImageLoading] = useState(true);
   const monsterColor = monsterInfo[0]?.dominantColors;
+  const [infoModalVisible, setInfoModalVisible] = useState(false);
+
+  const toggleInfoModal = () => {
+    setInfoModalVisible(!infoModalVisible);
+  };
+
+  const renderInfoModal = () => {
+    return (
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={infoModalVisible}
+        onRequestClose={() => setInfoModalVisible(false)}
+      >
+        <View style={styles.infoModalContainer}>
+          <View style={[styles.infoModalTextContainer, { backgroundColor: `rgb(${monsterColor.join(', ')})` }]}>
+          <Text style={styles.infoModalText}>
+            You can sell your catch for a Qreepy Coin,
+            and later spend your Coins by purchasing Qreepy Eggs from the store!
+          </Text>
+          <Text style={styles.infoModalText}>
+            You can also view the QReep in the Gallery, where you can see more information about it.
+            All your caught QReeps will be saved there, should you choose not to sell them.
+          </Text>
+          <TouchableOpacity onPress={() => setInfoModalVisible(false)} style={styles.infoModalCloseButton}>
+            <MaterialIcons name="close" size={50} color="black" />
+          </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+    );
+  };
 
   useEffect(() => {
     return () => {
@@ -21,19 +53,27 @@ const ScanningModal = ({ isVisible, onClose, openGallery, monsterInfo, imageURL 
   }, [sellSound, openModalSound]);
 
   const playSellSound = async () => {
-    const { sound } = await Audio.Sound.createAsync(
-      require('../assets/sounds/ETRA_TOIMII.wav')
-    );
-    setSellSound(sound);
-    await sound.playAsync();
+    try {
+      const { sound } = await Audio.Sound.createAsync(
+        require('../assets/sounds/ETRA_TOIMII.wav')
+      );
+      setSellSound(sound);
+      await sound.playAsync();
+    } catch (error) {
+      console.error('Error playing sell sound:', error);
+    }
   };
 
   const playOpenModalSound = async () => {
-    const { sound } = await Audio.Sound.createAsync(
-      require('../assets/sounds/Win-sound.wav') // Replace with your sound file
-    );
-    setOpenModalSound(sound);
-    await sound.playAsync();
+    try {
+      const { sound } = await Audio.Sound.createAsync(
+        require('../assets/sounds/Win-sound.wav')
+      );
+      setOpenModalSound(sound);
+      await sound.playAsync();
+    } catch (error) {
+      console.error('Error playing open modal sound:', error);
+    }
   };
 
   useEffect(() => {
@@ -63,7 +103,12 @@ const ScanningModal = ({ isVisible, onClose, openGallery, monsterInfo, imageURL 
     >
       <View style={styles.modalContainer}>
       <View style={[styles.modalContent, { backgroundColor: `rgb(${monsterColor.join(', ')})` }]}>
+
         <Text style={styles.modalText}>YOU CAUGHT A QREEP!</Text>
+        {/* Position info icon button under the bottom right corner of the picture */}
+        <TouchableOpacity onPress={toggleInfoModal} style={styles.infoButton}>
+                <MaterialIcons name="info" size={40} color="black" />
+              </TouchableOpacity>
           <View style={styles.modalLine} />
 
         {/* Add a conditional check for imageUrl before using it */}
@@ -100,6 +145,9 @@ const ScanningModal = ({ isVisible, onClose, openGallery, monsterInfo, imageURL 
         <TouchableOpacity onPress={onClose} style={styles.closeButton}>
           <MaterialIcons name="close" size={50} color="black" />
         </TouchableOpacity>
+
+        {/* Render the info modal */}
+        {renderInfoModal()}
       </View>
       </View>
     </Modal>
@@ -190,6 +238,41 @@ const styles = StyleSheet.create({
   },
   closeButtonText: {
     fontSize: 18,
+  },
+  infoModalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+  },
+  infoModalTextContainer: {
+    width: '80%',
+    padding: 10,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  infoModalText: {
+    fontSize: 18,
+    color: 'black',
+    padding: 2,
+    borderRadius: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.5)', // Customize the background color
+  },
+  infoModalCloseButton: {
+    marginTop: 20,
+    width: 70,
+    height: 70,
+    borderRadius: 25,
+    borderColor: 'black',
+    borderWidth: 3,
+    backgroundColor: 'salmon',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  infoButton: {
+    position: 'absolute',
+    right: 0,
   },
 });
 
