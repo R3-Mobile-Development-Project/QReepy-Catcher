@@ -1,0 +1,150 @@
+[
+    {
+      "name": "One Down, World to Go",
+      "description": "First monster caught",
+      "trigger": {
+        "type": "firstCatch",
+        "monsterRange": [1, 50]
+      }
+    },
+    {
+      "name": "Common Ground Breaker",
+      "description": "First Common",
+      "trigger": {
+        "type": "firstCatch",
+        "monsterRange": [1, 30]
+      }
+    },
+    {
+      "name": "Half Deck of Commons",
+      "description": "15 of 30 Commons caught",
+      "trigger": {
+        "type": "collectCount",
+        "count": 15,
+        "monsterRange": [1, 30]
+      }
+    },
+    {
+      "name": "Common Kingpin",
+      "description": "All Commons caught",
+      "trigger": {
+        "type": "collectAll",
+        "monsterRange": [1, 30]
+      }
+    },
+    {
+      "name": "Rarity Rendezvous",
+      "description": "1 of each rarity caught",
+      "trigger": {
+        "type": "collectSpecific",
+        "specificMonsters": [1, 31, 46]
+      }
+    },
+    {
+      "name": "Eureka! A Rarity!",
+      "description": "First Rare Monster caught",
+      "trigger": {
+        "type": "firstCatch",
+        "monsterRange": [31, 45]
+      }
+    },
+    {
+      "name": "More than the Rarest Half",
+      "description": "8 of 15 Rares caught",
+      "trigger": {
+        "type": "collectCount",
+        "count": 8,
+        "monsterRange": [31, 45]
+      }
+    },
+    {
+      "name": "Rare Roundup",
+      "description": "All Rares caught",
+      "trigger": {
+        "type": "collectAll",
+        "monsterRange": [31, 45]
+      }
+    },
+    {
+      "name": "One Epic Step",
+      "description": "First Epic caught",
+      "trigger": {
+        "type": "firstCatch",
+        "monsterRange": [46, 50]
+      }
+    },
+    {
+      "name": "Mythic Majority",
+      "description": "3 of 5 Epics caught",
+      "trigger": {
+        "type": "collectCount",
+        "count": 3,
+        "monsterRange": [46, 50]
+      }
+    },
+    {
+      "name": "Enshrined in Epic",
+      "description": "All Epics caught",
+      "trigger": {
+        "type": "collectAll",
+        "monsterRange": [46, 50]
+      }
+    },
+    {
+      "name": "Quartet of Yellow Glory",
+      "description": "4 Yellow monsters caught",
+      "trigger": {
+        "type": "collectSpecific",
+        "specificMonsters": [1, 5, 32, 36]
+      }
+    },
+    {
+      "name": "Fiery Foursome",
+      "description": "4 Flaming monsters caught",
+      "trigger": {
+        "type": "collectSpecific",
+        "specificMonsters": [22, 39, 40, 48]
+      }
+    },
+    {
+      "name": "Tri-Wave Champions",
+      "description": "3 Aquatic monsters caught",
+      "trigger": {
+        "type": "collectSpecific",
+        "specificMonsters": [33, 44, 50]
+      }
+    },
+    {
+      "name": "Mechanical Mates",
+      "description": "2 Mech monsters caught",
+      "trigger": {
+        "type": "collectSpecific",
+        "specificMonsters": [23, 41]
+      }
+    },
+    {
+      "name": "Bulk Buddies Bonanza",
+      "description": "Fat monsters caught",
+      "trigger": {
+        "type": "collectSpecific",
+        "specificMonsters": [2, 26, 34, 38]
+      }
+    },
+    {
+      "name": "Disgusting but still Desired",
+      "description": "All disgusting monsters caught",
+      "trigger": {
+        "type": "collectSpecific",
+        "specificMonsters": [6, 24, 28, 31]
+      }
+    },
+    {
+      "name": "Creature Collector's Crown",
+      "description": "All monsters caught",
+      "trigger": {
+        "type": "collectAll",
+        "monsterRange": [1, 50]
+      }
+    }
+  ]
+  

@@ -1,0 +1,82 @@
+[
+    {
+        "eggID": "egg1",
+        "monster1": 1,
+        "monster2": 11,
+        "monster3": 21,
+        "monster4": 31,
+        "monster5": 41
+    },
+    {
+        "eggID": "egg2",
+        "monster1": 2,
+        "monster2": 12,
+        "monster3": 22,
+        "monster4": 32,
+        "monster5": 42
+    },
+    {
+        "eggID": "egg3",
+        "monster1": 3,
+        "monster2": 13,
+        "monster3": 23,
+        "monster4": 33,
+        "monster5": 43
+    },
+    {
+        "eggID": "egg4",
+        "monster1": 4,
+        "monster2": 14,
+        "monster3": 24,
+        "monster4": 34,
+        "monster5": 44
+    },
+    {
+        "eggID": "egg5",
+        "monster1": 5,
+        "monster2": 15,
+        "monster3": 25,
+        "monster4": 35,
+        "monster5": 45
+    },
+    {
+        "eggID": "egg6",
+        "monster1": 6,
+        "monster2": 16,
+        "monster3": 26,
+        "monster4": 36,
+        "monster5": 46
+    },
+    {
+        "eggID": "egg7",
+        "monster1": 7,
+        "monster2": 17,
+        "monster3": 27,
+        "monster4": 37,
+        "monster5": 47
+    },
+    {
+        "eggID": "egg8",
+        "monster1": 8,
+        "monster2": 18,
+        "monster3": 28,
+        "monster4": 38,
+        "monster5": 48
+    },
+    {
+        "eggID": "egg9",
+        "monster1": 9,
+        "monster2": 19,
+        "monster3": 29,
+        "monster4": 39,
+        "monster5": 49
+    },
+    {
+        "eggID": "egg10",
+        "monster1": 10,
+        "monster2": 20,
+        "monster3": 30,
+        "monster4": 40,
+        "monster5": 50
+    }
+]
