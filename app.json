@@ -18,14 +18,22 @@
       "supportsTablet": true
     },
     "android": {
-      "permissions": ["CAMERA"],
+      "permissions": [
+        "CAMERA"
+      ],
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.anssikulotie.QReepyCatcher"
     },
     "web": {
       "favicon": "./assets/images/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "eea2ee00-ca51-4593-b913-67f7d111e094"
+      }
     }
   }
 }
