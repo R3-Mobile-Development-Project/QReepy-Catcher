@@ -72,7 +72,7 @@ export default function App() {
               } else if (route.name === 'Scanner') {
                 labelName = 'SCANNER';
               } else if (route.name === 'Gallery') {
-                labelName = 'GALLERY';
+                labelName = 'COLLECTION';
               }
 
               return (

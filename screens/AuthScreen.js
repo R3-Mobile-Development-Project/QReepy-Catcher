@@ -85,8 +85,8 @@ const AuthScreen = ({ navigation }) => {
   }
 
   const handleSignup = async () => {
-    playButtonSound(); // Play button sound on signup button press
     try {
+      playButtonSound(); // Play button sound on signup button press
       setLoading(true); // Set loading to true when signup is initiated
       // Initialize Firebase auth
       const auth = getAuth();
@@ -110,8 +110,8 @@ const AuthScreen = ({ navigation }) => {
   };
 
   const handleLogin = async () => {
-    playButtonSound(); // Play button sound on login button press
     try {
+      playButtonSound(); // Play button sound on login button press
       setLoading(true); // Set loading to true when signup is initiated
       // Initialize Firebase auth
       const auth = getAuth();

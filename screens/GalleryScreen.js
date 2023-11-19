@@ -58,7 +58,7 @@ const GalleryScreen = ({ navigation }) => {
         resizeMode="cover"
       >
         <View style={styles.contentContainer}>
-          <Text style={styles.text}>Welcome to the Gallery!</Text>
+          <Text style={styles.text}>My collected QReeps!</Text>
           <FlatList
             data={monsters}
             keyExtractor={(item, index) => `${index}_${numColumns}`}

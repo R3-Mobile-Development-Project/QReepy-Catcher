@@ -109,7 +109,12 @@ const ScanningModal = ({ isVisible, onClose, openGallery, monsterInfo, imageURL 
       // Save the updated monster list to AsyncStorage
       await AsyncStorage.setItem(`monsters_${userId}`, JSON.stringify(currentMonsters));
       await AsyncStorage.setItem(`images_${userId}`, JSON.stringify(currentImages));
+
+    // EI SAA POISTAA NÄITÄ LOGEJA, MUUTEN MYYNTI EI TOIMI
+    //-----------------------------------------------
       console.log('SCANNINGMODAL: Monster sold and removed from AsyncStorage:', lastMonster?.name, 'for user ID:', userId);
+      console.log('SCANNINGMODAL: Image sold and removed from AsyncStorage:', lastImage, 'for user ID:', userId);
+    //-----------------------------------------------
 
       // Perform any other actions related to selling the monster
     } catch (error) {
