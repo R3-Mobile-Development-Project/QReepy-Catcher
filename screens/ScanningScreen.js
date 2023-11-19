@@ -7,7 +7,7 @@ import { Ionicons } from '@expo/vector-icons'; // Import Ionicons from Expo vect
 import { Audio } from 'expo-av';
 import Slider from '@react-native-community/slider';
 import ScanningModal from '../modals/ScanningModal';
-import { findMonster, fetchMonsterDetails, fetchMonsterImageURL } from '../utils/monsterUtils';
+import { findMonster, fetchMonsterDetailsFromFirestore, fetchMonsterImageURL } from '../utils/monsterUtils';
 
 export default function ScanningScreen({ navigation }) {
   const [hasCameraPermission, setHasCameraPermission] = useState(null);
@@ -93,7 +93,7 @@ export default function ScanningScreen({ navigation }) {
         console.log(`FOUND MONSTER WITH ID: ${foundMonsterId}`);
 
         try {
-          const fetchedMonsterInfo = await fetchMonsterDetails(foundMonsterId);
+          const fetchedMonsterInfo = await fetchMonsterDetailsFromFirestore(foundMonsterId);
           const fetchedImageURL = await fetchMonsterImageURL(foundMonsterId);
 
           setMonsterInfo(fetchedMonsterInfo);

@@ -5,6 +5,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import AchievementsModal from '../modals/AchievementsModal';
 import { Audio } from 'expo-av';
 import MusicPlayer from '../MusicPlayer';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const backgroundImage = require('../assets/images/paper-decorations-halloween-pack_23-2148635839.jpg');
 
@@ -72,6 +73,17 @@ const backgroundImage = require('../assets/images/paper-decorations-halloween-pa
       setMuteAllSounds((prev) => !prev);
     };
 
+    // Function to clear monsters from AsyncStorage for a specific user
+    const clearMonstersForUser = async (userId) => {
+      try {
+        const userId = await AsyncStorage.getItem('userId');
+        await AsyncStorage.removeItem(`monsters_${userId}`);
+        console.log(`Monsters for user ${userId} cleared successfully!`);
+      } catch (error) {
+        console.error(`Error clearing monsters for user ${userId} from AsyncStorage:`, error);
+      }
+    };
+
     return (
       <View style={styles.container}>
         <ImageBackground
@@ -109,6 +121,13 @@ const backgroundImage = require('../assets/images/paper-decorations-halloween-pa
             <TouchableOpacity onPress={openAchievementsModal} style={styles.achievementsButton}>
               <Text style={styles.achievementsButtonText}>ACHIEVEMENTS</Text>
             </TouchableOpacity>
+
+            {/* Clear AsyncStorage Button */}
+          <TouchableOpacity onPress={clearMonstersForUser} style={styles.clearButton}>
+            <Text style={styles.clearButtonText}>CLEAR AsyncStorage</Text>
+          </TouchableOpacity>
+
+
           </View>
         </ImageBackground>
         <AchievementsModal
@@ -182,6 +201,22 @@ const styles = StyleSheet.create({
     borderWidth: 3,
   },
   achievementsButtonText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  // Clear AsyncStorage Button Styles
+  clearButton: {
+    marginTop: 10,
+    width: 200,
+    height: 60,
+    backgroundColor: 'orange',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 10,
+    borderColor: 'black',
+    borderWidth: 3,
+  },
+  clearButtonText: {
     fontSize: 18,
     fontWeight: 'bold',
   },

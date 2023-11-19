@@ -1,5 +1,6 @@
 import { getFirestore, collection, query, onSnapshot, where, getDocs } from 'firebase/firestore';
 import { getStorage, ref, getDownloadURL } from 'firebase/storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const findMonster = () => {
   const randomNumber = Math.random() * 100;
@@ -19,11 +20,64 @@ export const findMonster = () => {
   return foundMonsterId;
 };
 
+export const saveMonsterToAsyncStorage = async (monster, userId) => {
+  try {
+    // Get existing monsters for the user from AsyncStorage
+    const existingMonsters = await AsyncStorage.getItem(`monsters_${userId}`);
+
+    // Parse existing monsters or initialize an empty array
+    const parsedExistingMonsters = existingMonsters ? JSON.parse(existingMonsters) : [];
+
+    // Add the new monster to the array
+    parsedExistingMonsters.push(monster);
+
+    // Save the updated monsters array to AsyncStorage
+    await AsyncStorage.setItem(`monsters_${userId}`, JSON.stringify(parsedExistingMonsters));
+
+    console.log('Saved monster:', monster.name, 'for user ID:', userId);
+    // Trigger the callback to update the component
+  } catch (error) {
+    console.error('Error saving monster to AsyncStorage:', error);
+    throw error;
+  }
+};
+/*
 export const fetchMonsterDetails = async (monsterId) => {
+  try {
+    // Retrieve userId from AsyncStorage
+    const userId = await AsyncStorage.getItem('userId');
+
+    if (!userId) {
+      console.error('No userId found in AsyncStorage');
+      return;
+    }
+
+    // Call fetchMonsterDetails with the retrieved userId
+  //  const monsters = await fetchMonsterDetailsFromFirestore(monsterId, userId);
+
+    // Continue with the rest of your code using the retrieved monsters
+    // ...
+
+  } catch (error) {
+    console.error('Error retrieving userId from AsyncStorage:', error);
+    throw error;
+  }
+};
+*/
+
+export const fetchMonsterDetailsFromFirestore = async (monsterId, userId) => {
+  try {
+    // Retrieve userId from AsyncStorage
+    const userId = await AsyncStorage.getItem('userId');
+
+    if (!userId) {
+      console.error('No userId found in AsyncStorage');
+      return;
+    }
+
   const db = getFirestore();
   const q = query(collection(db, 'monsters'), where('id', '==', monsterId));
 
-  try {
     const querySnapshot = await getDocs(q);
     const tempMonsters = [];
 
@@ -35,11 +89,11 @@ export const fetchMonsterDetails = async (monsterId) => {
       const parseColors = (colorString) => {
         try {
           const rgbValues = colorString.match(/\(([^)]+)\)/);
-      
+
           if (rgbValues && rgbValues[1]) {
             const parsedColors = rgbValues[1].split(',').map((value) => parseInt(value.trim(), 10));
             return parsedColors;
-            
+
           } else {
             console.error('Invalid color string format:', colorString);
             return null;
@@ -64,8 +118,14 @@ export const fetchMonsterDetails = async (monsterId) => {
         title: doc.data().title,
         dominantColors: parsedColors, // Use default if parsing fails
       };
-      console.log(monsterObject);
+
+      // Save the monster to AsyncStorage
+      saveMonsterToAsyncStorage(monsterObject, userId);
+      console.log(`Saved monster to AsyncStorage: ${monsterObject.name} for user ID: ${userId}`);
+
+    //  console.log(monsterObject);
       tempMonsters.push(monsterObject);
+
     });
 
     return tempMonsters;
@@ -75,7 +135,7 @@ export const fetchMonsterDetails = async (monsterId) => {
   }
 };
 
-export const fetchMonsterImageURL = async (monsterId) => {
+export const fetchMonsterImageURL = async (monsterId, userId) => {
   const storage = getStorage();
   const imageRef = ref(storage, `gs://qreepy-catcher.appspot.com/Monsters/${monsterId}.jpg`);
 

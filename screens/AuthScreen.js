@@ -1,6 +1,16 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, ImageBackground, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth'; // Import Firebase authentication methods
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  ImageBackground,
+  StyleSheet,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
+  ActivityIndicator
+} from 'react-native';
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth'; // Import Firebase authentication methods
 import firebase from 'firebase/app';
 import { auth } from 'firebase/app';
 import 'firebase/auth';
@@ -8,6 +18,7 @@ import { firebaseConfig } from '../firebaseConfig';
 import { StatusBar } from 'expo-status-bar';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Audio } from 'expo-av';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const AuthScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -15,7 +26,24 @@ const AuthScreen = ({ navigation }) => {
   const [error, setError] = useState(null); // Initialize error state variable
   const [loading, setLoading] = useState(false); // Add loading state variable
   const [userLoggedIn, setUserLoggedIn] = useState(false); // Initialize user state variable
+  const [userId, setUserId] = useState(null);
+
   const backgroundImage = require('../assets/images/happy-monster-friends-border-banner_1308-158224.jpg');
+
+  useEffect(() => {
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        const userId = user.uid;
+    //    console.log('User ID:', userId);
+        setUserId(userId);
+      } else {
+      //  console.error('No user found after login');
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const playSuccessSound = async () => {
     const successSound = new Audio.Sound();
@@ -27,6 +55,7 @@ const AuthScreen = ({ navigation }) => {
     } catch (error) {
       console.error('Error playing success sound:', error);
     }
+    successSound.unloadAsync(); // Unload the sound from memory
   };
 
   const playErrorSound = async () => {
@@ -39,6 +68,7 @@ const AuthScreen = ({ navigation }) => {
     } catch (error) {
       console.error('Error playing error sound:', error);
     }
+    errorSound.unloadAsync(); // Unload the sound from memory
   };
 
   const playButtonSound = async () => {
@@ -51,6 +81,7 @@ const AuthScreen = ({ navigation }) => {
     } catch (error) {
       console.error('Error playing button sound:', error);
     }
+    buttonSound.unloadAsync(); // Unload the sound from memory
   }
 
   const handleSignup = async () => {
@@ -85,6 +116,23 @@ const AuthScreen = ({ navigation }) => {
       // Initialize Firebase auth
       const auth = getAuth();
       await signInWithEmailAndPassword(auth, email, password);
+
+      // Get the currently signed-in user
+      const user = auth.currentUser;
+
+      if (user) {
+        const userId = user.uid;
+     //   console.log('User ID:', userId);
+
+        // Save the userId to AsyncStorage
+        await AsyncStorage.setItem('userId', userId);
+        // Now, retrieve the value and log it
+        const storedUserId = await AsyncStorage.getItem('userId');
+        console.log('Stored User ID:', storedUserId);
+      } else {
+        console.error('No user found after login');
+      }
+
       // Once login is successful, navigate to HomeScreen or perform other actions
       playSuccessSound(); // Play success sound on login success
       setUserLoggedIn(true);
@@ -155,7 +203,7 @@ const AuthScreen = ({ navigation }) => {
               )}
         </TouchableOpacity>
         <Text> Don't have an account yet? </Text>
-        <Text> Sign up from the button below! </Text>
+        <Text> Fill in the fields and sign up from the button below! </Text>
         <TouchableOpacity
           style={[styles.button, styles.signupButton]}
           onPress={handleSignup}

@@ -2,6 +2,7 @@ import React, {useState, useEffect } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity, Modal } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Audio } from 'expo-av';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ScanningModal = ({ isVisible, onClose, openGallery, monsterInfo, imageURL }) => {
   const [sellSound, setSellSound] = useState();
@@ -82,17 +83,41 @@ const ScanningModal = ({ isVisible, onClose, openGallery, monsterInfo, imageURL 
     }
   }, [isVisible]);
 
-  const handleSellPress = () => {
+  const handleSellPress = async () => {
     playSellSound();
-    // Add your logic for handling the "Sell" button press
-    console.log('Sell button pressed');
+
+    try {
+      // Retrieve the userId from AsyncStorage
+      const userId = await AsyncStorage.getItem('userId');
+
+      // Retrieve the monsters for the user from AsyncStorage
+      const monstersData = await AsyncStorage.getItem(`monsters_${userId}`);
+      const currentMonsters = monstersData ? JSON.parse(monstersData) : [];
+
+  //    console.log('Current monsters:', currentMonsters);
+
+      // Remove the last monster from the array
+      const lastMonster = currentMonsters.pop();
+
+   //   console.log('Last monster removed:', lastMonster);
+
+      // Save the updated monster list to AsyncStorage
+      await AsyncStorage.setItem(`monsters_${userId}`, JSON.stringify(currentMonsters));
+      console.log('Monster sold and removed from AsyncStorage:', lastMonster?.name);
+
+      // Perform any other actions related to selling the monster
+    } catch (error) {
+      console.error('Error selling monster:', error);
+    }
+
+    // Close the modal or perform other actions as needed
+    onClose();
   };
 
   const handleGalleryPress = () => {
     openGallery(); // Replace 'Gallery' with the name of your gallery screen
     onClose(); // Close the modal
   };
-
 
   return (
     <Modal
@@ -135,10 +160,10 @@ const ScanningModal = ({ isVisible, onClose, openGallery, monsterInfo, imageURL 
           <View style={styles.modalLine} />
 
         <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.button} onPress={handleSellPress}>
+          <TouchableOpacity style={styles.sellButton} onPress={handleSellPress}>
             <Text style={styles.buttonText}>Sell</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={handleGalleryPress}>
+          <TouchableOpacity style={styles.galleryButton} onPress={handleGalleryPress}>
             <Text style={styles.buttonText}>View in Gallery</Text>
           </TouchableOpacity>
         </View>
@@ -172,6 +197,8 @@ const styles = StyleSheet.create({
         fontSize: 24,
         fontWeight: 'bold',
         color: 'black',
+        borderColor: 'black',
+        borderWidth: 1,
         backgroundColor: 'rgba(255, 255, 255, 0.3)', // Transparent white background
         paddingLeft: 4,
         paddingRight: 4,
@@ -181,7 +208,7 @@ const styles = StyleSheet.create({
         height: 3,
         width: '100%',
         backgroundColor: 'black',
-        marginVertical: 14,
+        marginVertical: 12,
       },
   image: {
     width: 340,
@@ -194,6 +221,8 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 16,
     textAlign: 'center',
+    borderColor: 'black',
+    borderWidth: 1,
     backgroundColor: 'rgba(255, 255, 255, 0.3)', // Transparent white background
         paddingLeft: 4,
         paddingRight: 4,
@@ -203,6 +232,8 @@ const styles = StyleSheet.create({
     fontSize: 18,
     justifyContent: 'center',
     textAlign: 'center',
+    borderColor: 'black',
+    borderWidth: 1,
     backgroundColor: 'rgba(255, 255, 255, 0.3)', // Transparent white background
         paddingLeft: 4,
         paddingRight: 4,
@@ -212,8 +243,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-  button: {
-    backgroundColor: 'teal',
+  sellButton: {
+    backgroundColor: 'orange',
+    borderColor: 'black',
+    borderWidth: 2,
+    padding: 10,
+    borderRadius: 8,
+    flex: 1,
+    marginHorizontal: 8,
+    alignItems: 'center',
+  },
+  galleryButton: {
+    backgroundColor: 'lightblue',
+    borderColor: 'black',
+    borderWidth: 2,
     padding: 10,
     borderRadius: 8,
     flex: 1,
@@ -221,7 +264,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   buttonText: {
-    color: 'white',
+    color: 'black',
     fontWeight: 'bold',
   },
   closeButton: {
