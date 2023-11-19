@@ -90,7 +90,7 @@ export default function ScanningScreen({ navigation }) {
       const foundMonsterId = findMonster();
       if (foundMonsterId >= 1 && foundMonsterId <= 50) {
         setScanned(true);
-        console.log(`FOUND MONSTER WITH ID: ${foundMonsterId}`);
+        console.log(`SCANNINGSCREEN: Found monster with ID: ${foundMonsterId}`);
 
         try {
           const fetchedMonsterInfo = await fetchMonsterDetailsFromFirestore(foundMonsterId);

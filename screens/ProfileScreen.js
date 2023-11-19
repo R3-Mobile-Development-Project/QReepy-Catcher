@@ -6,6 +6,7 @@ import AchievementsModal from '../modals/AchievementsModal';
 import { Audio } from 'expo-av';
 import MusicPlayer from '../MusicPlayer';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Alert } from 'react-native';
 
 const backgroundImage = require('../assets/images/paper-decorations-halloween-pack_23-2148635839.jpg');
 
@@ -68,7 +69,7 @@ const backgroundImage = require('../assets/images/paper-decorations-halloween-pa
     const handleBackgroundMusicToggle = () => {
       setMuteBackgroundMusic((prev) => !prev);
     };
-  
+
     const handleAllSoundsToggle = () => {
       setMuteAllSounds((prev) => !prev);
     };
@@ -78,6 +79,7 @@ const backgroundImage = require('../assets/images/paper-decorations-halloween-pa
       try {
         const userId = await AsyncStorage.getItem('userId');
         await AsyncStorage.removeItem(`monsters_${userId}`);
+        await AsyncStorage.removeItem(`images_${userId}`);
         console.log(`Monsters for user ${userId} cleared successfully!`);
       } catch (error) {
         console.error(`Error clearing monsters for user ${userId} from AsyncStorage:`, error);

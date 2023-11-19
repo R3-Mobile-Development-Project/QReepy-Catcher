@@ -34,36 +34,35 @@ export const saveMonsterToAsyncStorage = async (monster, userId) => {
     // Save the updated monsters array to AsyncStorage
     await AsyncStorage.setItem(`monsters_${userId}`, JSON.stringify(parsedExistingMonsters));
 
-    console.log('Saved monster:', monster.name, 'for user ID:', userId);
+ //   console.log('Saved monster:', monster.name, 'for user ID:', userId);
     // Trigger the callback to update the component
   } catch (error) {
     console.error('Error saving monster to AsyncStorage:', error);
     throw error;
   }
 };
-/*
-export const fetchMonsterDetails = async (monsterId) => {
+
+export const saveImageToAsyncStorage = async (imageUrl, userId) => {
   try {
-    // Retrieve userId from AsyncStorage
-    const userId = await AsyncStorage.getItem('userId');
+    // Get existing images for the user from AsyncStorage
+    const existingImages = await AsyncStorage.getItem(`images_${userId}`);
 
-    if (!userId) {
-      console.error('No userId found in AsyncStorage');
-      return;
-    }
+    // Parse existing images or initialize an empty array
+    const parsedExistingImages = existingImages ? JSON.parse(existingImages) : [];
 
-    // Call fetchMonsterDetails with the retrieved userId
-  //  const monsters = await fetchMonsterDetailsFromFirestore(monsterId, userId);
+    // Add the new image URL to the array
+    parsedExistingImages.push(imageUrl);
 
-    // Continue with the rest of your code using the retrieved monsters
-    // ...
+    // Save the updated images array to AsyncStorage
+    await AsyncStorage.setItem(`images_${userId}`, JSON.stringify(parsedExistingImages));
 
+//  console.log('Saved image URL:', imageUrl, 'for user ID:', userId);
   } catch (error) {
-    console.error('Error retrieving userId from AsyncStorage:', error);
+    console.error('Error saving image to AsyncStorage:', error);
     throw error;
   }
-};
-*/
+ };
+
 
 export const fetchMonsterDetailsFromFirestore = async (monsterId, userId) => {
   try {
@@ -114,14 +113,18 @@ export const fetchMonsterDetailsFromFirestore = async (monsterId, userId) => {
       const parsedColors = parseColors(colorString);
 
       const monsterObject = {
+        id: doc.data().id,
         name: doc.data().name,
         title: doc.data().title,
+        nature: doc.data().nature,
+        background: doc.data().background,
+        age: doc.data().age,
         dominantColors: parsedColors, // Use default if parsing fails
       };
 
       // Save the monster to AsyncStorage
       saveMonsterToAsyncStorage(monsterObject, userId);
-      console.log(`Saved monster to AsyncStorage: ${monsterObject.name} for user ID: ${userId}`);
+      console.log(`MONSTERUTILS: Saved monster to AsyncStorage: ${monsterObject.name} for user ID: ${userId}`);
 
     //  console.log(monsterObject);
       tempMonsters.push(monsterObject);
@@ -136,11 +139,23 @@ export const fetchMonsterDetailsFromFirestore = async (monsterId, userId) => {
 };
 
 export const fetchMonsterImageURL = async (monsterId, userId) => {
+  try {
+    // Retrieve userId from AsyncStorage
+    const userId = await AsyncStorage.getItem('userId');
+
+    if (!userId) {
+      console.error('No userId found in AsyncStorage');
+      return;
+    }
   const storage = getStorage();
   const imageRef = ref(storage, `gs://qreepy-catcher.appspot.com/Monsters/${monsterId}.jpg`);
 
-  try {
+
     const url = await getDownloadURL(imageRef);
+    // Save the image URL to AsyncStorage
+    saveImageToAsyncStorage(url, userId);
+    console.log(`MONSTERUTILS: Saved image URL to AsyncStorage: ${url} for user ID: ${userId}`);
+
     return url;
   } catch (error) {
     console.error('Error fetching monster image URL: ', error);

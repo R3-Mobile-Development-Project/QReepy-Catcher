@@ -94,16 +94,22 @@ const ScanningModal = ({ isVisible, onClose, openGallery, monsterInfo, imageURL 
       const monstersData = await AsyncStorage.getItem(`monsters_${userId}`);
       const currentMonsters = monstersData ? JSON.parse(monstersData) : [];
 
+      // Retrieve the images for the user from AsyncStorage
+      const imagesData = await AsyncStorage.getItem(`images_${userId}`);
+      const currentImages = imagesData ? JSON.parse(imagesData) : [];
+
   //    console.log('Current monsters:', currentMonsters);
 
       // Remove the last monster from the array
       const lastMonster = currentMonsters.pop();
+      const lastImage = currentImages.pop();
 
    //   console.log('Last monster removed:', lastMonster);
 
       // Save the updated monster list to AsyncStorage
       await AsyncStorage.setItem(`monsters_${userId}`, JSON.stringify(currentMonsters));
-      console.log('Monster sold and removed from AsyncStorage:', lastMonster?.name);
+      await AsyncStorage.setItem(`images_${userId}`, JSON.stringify(currentImages));
+      console.log('SCANNINGMODAL: Monster sold and removed from AsyncStorage:', lastMonster?.name, 'for user ID:', userId);
 
       // Perform any other actions related to selling the monster
     } catch (error) {
@@ -132,7 +138,7 @@ const ScanningModal = ({ isVisible, onClose, openGallery, monsterInfo, imageURL 
         <Text style={styles.modalText}>YOU CAUGHT A QREEP!</Text>
         {/* Position info icon button under the bottom right corner of the picture */}
         <TouchableOpacity onPress={toggleInfoModal} style={styles.infoButton}>
-                <MaterialIcons name="info" size={40} color="black" />
+                <MaterialIcons name="info" size={35} color="black" />
               </TouchableOpacity>
           <View style={styles.modalLine} />
 
