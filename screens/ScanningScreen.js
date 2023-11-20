@@ -26,6 +26,15 @@ export default function ScanningScreen({ navigation }) {
   const [imageURL, setImageURL] = useState('');
   const [noMonsterFound, setNoMonsterFound] = useState(false);
   const [resetScanner, setResetScanner] = useState(false);
+  const [isScanningActive, setIsScanningActive] = useState(false);
+  const [lastScannedData, setLastScannedData] = useState(null);
+  const [isDebouncingScan, setIsDebouncingScan] = useState(false);
+
+  const initiateScanning = () => {
+    setLastScannedData(null);
+    setIsScanningActive(true);
+    setIsDebouncingScan(false); // Reset debounce state
+  };
 
   useEffect(() => {
     if (isFocused) {
@@ -83,34 +92,48 @@ export default function ScanningScreen({ navigation }) {
   };
 
   const handleBarCodeScanned = async ({ type, data }) => {
-    if (scanned) {
-    //  setShowMessage(true);
-     // console.log(`Bar code with type ${type} and data ${data} has been scanned.`);
-
-    } else {
-      const foundMonsterId = findMonster();
-      if (foundMonsterId >= 1 && foundMonsterId <= 50) {
-        setScanned(true);
-        console.log(`SCANNINGSCREEN: Found monster with ID: ${foundMonsterId}`);
-
-        try {
-          const fetchedMonsterInfo = await fetchMonsterDetailsFromFirestore(foundMonsterId);
-          const fetchedImageURL = await fetchMonsterImageURL(foundMonsterId);
-
-          setMonsterInfo(fetchedMonsterInfo);
-          setImageURL(fetchedImageURL);
-
-          openModal();
-       //   console.log(`Bar code with type ${type} and data ${data} has been scanned.`);
-        } catch (error) {
-          console.error('Error fetching monster details:', error);
-        }
-      } else {
-        setNoMonsterFound(true);
-        setShowMessage(true);
-        console.log(`No monster found`)
-      }
+    if (!isScanningActive || isDebouncingScan) return;
+  
+    setIsDebouncingScan(true); // Start debounce cooldown
+    // Set a timeout to clear the debounce state after a short period
+    setTimeout(() => setIsDebouncingScan(false), 500); // Adjust the cooldown time as needed
+  
+  
+    // Check for duplicate scans
+    if (data === lastScannedData) {
+      console.log('SCANNINGSCREEN: Duplicate scan detected');
+      setShowMessage(true);
+      setIsScanningActive(false); // Stop scanning after detecting a duplicate
+      return;
     }
+    const foundMonsterId = findMonster(); // Assuming this function processes 'data' to find a monster
+  
+    if (foundMonsterId >= 1 && foundMonsterId <= 50) {
+      // Valid monster found
+      console.log(`SCANNINGSCREEN: Found monster with ID: ${foundMonsterId}`);
+  
+      try {
+        const fetchedMonsterInfo = await fetchMonsterDetailsFromFirestore(foundMonsterId);
+        const fetchedImageURL = await fetchMonsterImageURL(foundMonsterId);
+  
+        setMonsterInfo(fetchedMonsterInfo);
+        setImageURL(fetchedImageURL);
+  
+        openModal();
+        // Log for successful scan
+     //   console.log(`Bar code with type ${type} and data ${data} has been scanned.`);
+      } catch (error) {
+        console.error('Error fetching monster details:', error);
+      }
+    } else {
+      // No valid monster found
+      setNoMonsterFound(true);
+      setShowMessage(true);
+      console.log(`No monster found.`);
+    }
+  
+    setLastScannedData(data);
+    setIsScanningActive(false); // Stop scanning after a scan attempt
   };
 
   const playButtonSound = async () => {
@@ -165,6 +188,7 @@ export default function ScanningScreen({ navigation }) {
           ref={cameraRef}
           flashMode={torchOn}
           zoom={zoom}
+          onBarCodeScanned={isScanningActive ? handleBarCodeScanned : undefined}
     //   onBarCodeScanned={handleBarCodeScanned}
         >
           <View style={styles.buttonContainer}>
@@ -173,8 +197,8 @@ export default function ScanningScreen({ navigation }) {
             </TouchableOpacity>
           </View>
      {/*     <View style={styles.scannerFrame} /> */}
-            <TouchableOpacity onPress={handleBarCodeScanned} style={styles.barcodeScannerButton}>
-              <MaterialCommunityIcons name="barcode-scan" size={40} color="white" />
+            <TouchableOpacity onPress={initiateScanning} style={styles.barcodeScannerButton}>
+              <MaterialCommunityIcons name="barcode-scan" size={60} color="white" />
             </TouchableOpacity>
           <Slider
             style={{ width: '60%', marginVertical: 60, marginLeft: 80 }}
