@@ -9,6 +9,7 @@ const GalleryScreen = ({ navigation }) => {
   const [monsters, setMonsters] = useState([]);
   const [images, setImages] = useState([]);
   const [numColumns, setNumColumns] = useState(3); // Set the initial number of columns
+  const placeholders = Array.from({ length: (3 - monsters.length % 3) % 3 });
 
   const calculateNumColumns = () => {
     // Implement your logic to calculate the number of columns
@@ -60,19 +61,23 @@ const GalleryScreen = ({ navigation }) => {
         <View style={styles.contentContainer}>
           <Text style={styles.text}>My collected QReeps!</Text>
           <FlatList
-            data={monsters}
-            keyExtractor={(item, index) => `${index}_${numColumns}`}
-            numColumns={numColumns}
-            renderItem={({ item, index }) => (
-              <View style={styles.monsterContainer}>
+        data={[...monsters, ...placeholders]}
+        keyExtractor={(item, index) => `monster_${index}`}
+        numColumns={numColumns}
+        renderItem={({ item, index }) => (
+          item ? (
+            <View style={styles.monsterContainer}>
               <Image source={{ uri: images[index] }} style={styles.image} />
               <Text style={styles.monsterName}>{item.name}</Text>
         {/*        <Text style={styles.monsterText}>Age: {item.age}</Text>  */}
         {/*        <Text style={styles.monsterText}>Title: {item.title}</Text>  */}
         {/*      <Text style={styles.monsterText}>Dominant Colors: {item.dominantColors.join(', ')}</Text> */}
-              </View>
-            )}
-          />
+        </View>
+          ) : (
+            <View style={[styles.monsterContainer, styles.invisible]} />
+          )
+        )}
+      />
           <Button
             title="Go to Home screen"
             onPress={() => navigation.navigate('Home')}
@@ -124,6 +129,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
     textAlign: 'center',
+  },
+  invisible: {
+    backgroundColor: 'transparent',
   },
 });
 
