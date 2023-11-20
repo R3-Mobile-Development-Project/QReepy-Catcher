@@ -1,15 +1,23 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ImageBackground, Button } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ImageBackground, Switch } from 'react-native';
 import { getAuth, signOut } from 'firebase/auth'; // Import Firebase authentication methods
 import { MaterialIcons } from '@expo/vector-icons';
 import AchievementsModal from '../modals/AchievementsModal';
+import { Audio } from 'expo-av';
+import MusicPlayer from '../MusicPlayer';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Alert } from 'react-native';
 
 const backgroundImage = require('../assets/images/paper-decorations-halloween-pack_23-2148635839.jpg');
 
   const ProfileScreen = () => {
     const [achievementsModalVisible, setAchievementsModalVisible] = useState(false);
+    const [muteBackgroundMusic, setMuteBackgroundMusic] = useState(false);
+    const [muteAllSounds, setMuteAllSounds] = useState(false);
+    const [isMusicMuted, setIsMusicMuted] = useState(false);
 
     const handleLogout = async () => {
+      playSignoutSound(); // Play button sound on logout button press
       const auth = getAuth();
 
       try {
@@ -24,12 +32,58 @@ const backgroundImage = require('../assets/images/paper-decorations-halloween-pa
       }
     };
 
+    const playButtonSound = async () => {
+      const buttonSound = new Audio.Sound();
+
+      try {
+        const buttonSource = require('../assets/sounds/Menu_Selection_Click.wav'); // Replace with your button sound file path
+        await buttonSound.loadAsync(buttonSource);
+        await buttonSound.playAsync();
+      } catch (error) {
+        console.error('Error playing button sound:', error);
+      }
+    }
+
+    const playSignoutSound = async () => {
+      const buttonSound = new Audio.Sound();
+
+      try {
+        const buttonSource = require('../assets/sounds/part.wav'); // Replace with your button sound file path
+        await buttonSound.loadAsync(buttonSource);
+        await buttonSound.playAsync();
+      } catch (error) {
+        console.error('Error playing button sound:', error);
+      }
+    }
+
     const openAchievementsModal = () => {
+      playButtonSound(); // Play button sound on achievements button press
       setAchievementsModalVisible(true);
     };
 
     const closeAchievementsModal = () => {
+      playButtonSound(); // Play button sound on close button press
       setAchievementsModalVisible(false);
+    };
+
+    const handleBackgroundMusicToggle = () => {
+      setMuteBackgroundMusic((prev) => !prev);
+    };
+
+    const handleAllSoundsToggle = () => {
+      setMuteAllSounds((prev) => !prev);
+    };
+
+    // Function to clear monsters from AsyncStorage for a specific user
+    const clearMonstersForUser = async (userId) => {
+      try {
+        const userId = await AsyncStorage.getItem('userId');
+        await AsyncStorage.removeItem(`monsters_${userId}`);
+        await AsyncStorage.removeItem(`images_${userId}`);
+        console.log(`Monsters for user ${userId} cleared successfully!`);
+      } catch (error) {
+        console.error(`Error clearing monsters for user ${userId} from AsyncStorage:`, error);
+      }
     };
 
     return (
@@ -41,6 +95,27 @@ const backgroundImage = require('../assets/images/paper-decorations-halloween-pa
         >
           <View style={styles.contentContainer}>
             <Text style={styles.text}>Welcome to your profile!</Text>
+
+
+      {/* Mute Background Music Switch */}
+      <View style={styles.switchContainer}>
+        <Text style={styles.switchLabel}>Mute Background Music</Text>
+        <Switch
+          value={muteBackgroundMusic}
+          onValueChange={handleBackgroundMusicToggle}
+          trackColor={{ false: '#767577', true: '#81b0ff' }}
+          thumbColor={muteBackgroundMusic ? '#f5dd4b' : '#f4f3f4'}
+          ios_backgroundColor="#3e3e3e"
+        />
+      </View>
+
+      {/*
+      <MusicPlayer
+        muteBackgroundMusic={muteBackgroundMusic}
+        isMuted={isMusicMuted}
+      />
+      */}
+
             <TouchableOpacity style={styles.button} onPress={handleLogout}>
               <Text style={styles.buttonText}>SIGN OUT</Text>
               <MaterialIcons name="logout" size={24} color="white" />
@@ -48,6 +123,13 @@ const backgroundImage = require('../assets/images/paper-decorations-halloween-pa
             <TouchableOpacity onPress={openAchievementsModal} style={styles.achievementsButton}>
               <Text style={styles.achievementsButtonText}>ACHIEVEMENTS</Text>
             </TouchableOpacity>
+
+            {/* Clear AsyncStorage Button */}
+          <TouchableOpacity onPress={clearMonstersForUser} style={styles.clearButton}>
+            <Text style={styles.clearButtonText}>CLEAR AsyncStorage</Text>
+          </TouchableOpacity>
+
+
           </View>
         </ImageBackground>
         <AchievementsModal
@@ -74,6 +156,16 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 24,
     fontWeight: 'bold',
+  },
+  switchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 10,
+    backgroundColor: 'rgba(255,255,255,0.8)',
+  },
+  switchLabel: {
+    fontSize: 18,
+    marginRight: 10,
   },
   button: {
     flexDirection: 'row',
@@ -111,6 +203,22 @@ const styles = StyleSheet.create({
     borderWidth: 3,
   },
   achievementsButtonText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  // Clear AsyncStorage Button Styles
+  clearButton: {
+    marginTop: 10,
+    width: 200,
+    height: 60,
+    backgroundColor: 'orange',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 10,
+    borderColor: 'black',
+    borderWidth: 3,
+  },
+  clearButtonText: {
     fontSize: 18,
     fontWeight: 'bold',
   },

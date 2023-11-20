@@ -4,8 +4,10 @@ import { Camera } from 'expo-camera';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons'; // Import Ionicons from Expo vector icons
-import { PinchGestureHandler, State, GestureHandlerRootView } from 'react-native-gesture-handler';
+import { Audio } from 'expo-av';
+import Slider from '@react-native-community/slider';
 import ScanningModal from '../modals/ScanningModal';
+import { findMonster, fetchMonsterDetailsFromFirestore, fetchMonsterImageURL } from '../utils/monsterUtils';
 
 export default function ScanningScreen({ navigation }) {
   const [hasCameraPermission, setHasCameraPermission] = useState(null);
@@ -18,8 +20,11 @@ export default function ScanningScreen({ navigation }) {
   const cameraRef = useRef(null);
   const isFocused = useIsFocused(); // Check if the screen is focused
   const [modalVisible, setModalVisible] = useState(false);
-  const sampleImage = 'Örkki Image Here'; // Replace with your image URL
-  const sampleName = 'Product Name'; // Replace with your product name
+  const [sliderValue, setSliderValue] = useState(0); // Added state for slider value
+  const [monsterInfo, setMonsterInfo] = useState({});
+  const [imageURL, setImageURL] = useState('');
+  const [noMonsterFound, setNoMonsterFound] = useState(false);
+  const [resetScanner, setResetScanner] = useState(false);
 
   useEffect(() => {
     if (isFocused) {
@@ -53,41 +58,79 @@ export default function ScanningScreen({ navigation }) {
     }
   }, [cameraActive]);
 
+  const playTorchSound = async () => {
+    const torchSound = new Audio.Sound();
+
+    try {
+      const torchSource = require('../assets/sounds/wall.wav'); // Replace with your torch sound file path
+      await torchSound.loadAsync(torchSource);
+      await torchSound.playAsync();
+    } catch (error) {
+      console.error('Error playing torch sound:', error);
+    }
+  };
+
   const handleTorchToggle = () => {
+    playTorchSound(); // Call the function to play the torch sound
     setTimeout(() => {
     setTorchOn(
       torchOn === Camera.Constants.FlashMode.off
         ? Camera.Constants.FlashMode.torch
         : Camera.Constants.FlashMode.off
     );
-    }, 500);
+    }, 300);
   };
 
-  const handleBarCodeScanned = ({ type, data }) => {
+  const handleBarCodeScanned = async ({ type, data }) => {
     if (scanned) {
-      // If already scanned, display a message
-      setShowMessage(true);
-   //   openModal();
+    //  setShowMessage(true);
+     // console.log(`Bar code with type ${type} and data ${data} has been scanned.`);
 
     } else {
-      setScanned(true);
-      openModal();
-      // Do something with the barcode data (e.g., navigate to a new screen, display the data, etc.)
-      console.log(`Bar code with type ${type} and data ${data} has been scanned.`);
+      const foundMonsterId = findMonster();
+      if (foundMonsterId >= 1 && foundMonsterId <= 50) {
+        setScanned(true);
+        console.log(`SCANNINGSCREEN: Found monster with ID: ${foundMonsterId}`);
+
+        try {
+          const fetchedMonsterInfo = await fetchMonsterDetailsFromFirestore(foundMonsterId);
+          const fetchedImageURL = await fetchMonsterImageURL(foundMonsterId);
+
+          setMonsterInfo(fetchedMonsterInfo);
+          setImageURL(fetchedImageURL);
+
+          openModal();
+       //   console.log(`Bar code with type ${type} and data ${data} has been scanned.`);
+        } catch (error) {
+          console.error('Error fetching monster details:', error);
+        }
+      } else {
+        setNoMonsterFound(true);
+        setShowMessage(true);
+        console.log(`No monster found`)
+      }
     }
   };
+
+  const playButtonSound = async () => {
+    const buttonSound = new Audio.Sound();
+
+    try {
+      const buttonSource = require('../assets/sounds/Menu_Selection_Click.wav'); // Replace with your button sound file path
+      await buttonSound.loadAsync(buttonSource);
+      await buttonSound.playAsync();
+    } catch (error) {
+      console.error('Error playing button sound:', error);
+    }
+  }
 
   const hideMessage = () => {
     setShowMessage(false);
   };
 
-  const handleZoomChange = (event) => {
-    setZoom(event.nativeEvent.scale);
-  };
-
-  const handleZoomEnd = () => {
-    // You can use the zoom value to set the camera zoom level
- //   console.log('Zoom level:', zoom);
+  const handleZoomChange = (value) => {
+    setSliderValue(value);
+    setZoom(value);
   };
 
   const openModal = () => {
@@ -96,8 +139,12 @@ export default function ScanningScreen({ navigation }) {
   };
 
   const closeModal = () => {
+    playButtonSound(); // Play button sound on close button press
     setModalVisible(false);
     setShowMessage(false);
+    setScanned(false);
+    setResetScanner(true);
+    setNoMonsterFound(false);
   };
 
   if (hasCameraPermission === null) {
@@ -109,37 +156,33 @@ export default function ScanningScreen({ navigation }) {
   }
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <View style={{ flex: 1 }}>
       {cameraActive ? (
-        <PinchGestureHandler
-        onGestureEvent={handleZoomChange}
-        onHandlerStateChange={handleZoomEnd}
-        >
         <Camera
           style={{ flex: 1 }}
           type={type}
           ref={cameraRef}
           flashMode={torchOn}
           zoom={zoom}
-
-// KORVAA ALLA OLEVA SEURAAVALLA JOS HALUAT SKANNATA KOODIN VAIN KERRAN: onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
-// KORVAA ALLA OLEVA SEURAAVALLA JOS HALUAT SKANNATA KOODIN USEASTI: onBarCodeScanned={handleBarCodeScanned}
-// ---------------------------------------------------------------
           onBarCodeScanned={handleBarCodeScanned}
-// ---------------------------------------------------------------
-
-          // Limit the scanning area inside the frame
-    //      cameraViewDimensions={{ width: 100, height: 100 }} // Set your desired dimensions
-    //      rectOfInterest={{ x: 0.1, y: 0.2, width: 0.1, height: 0.1 }} // Adjust these values
         >
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity onPress={handleTorchToggle} style={styles.torchToggleButton}>
-            <Ionicons name={torchOn ? 'ios-flashlight' : 'ios-flashlight-outline'} size={40} color="white" />
-          </TouchableOpacity>
-        </View>
-        <View style={styles.scannerFrame} />
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity onPress={handleTorchToggle} style={styles.torchToggleButton}>
+              <Ionicons name={torchOn ? 'ios-flashlight' : 'ios-flashlight-outline'} size={40} color="white" />
+            </TouchableOpacity>
+          </View>
+          <View style={styles.scannerFrame} />
+          <Slider
+            style={{ width: '60%', marginVertical: 60, marginLeft: 80 }}
+            minimumValue={0}
+            maximumValue={1}
+            minimumTrackTintColor="#FFFFFF"
+            maximumTrackTintColor="teal"
+            thumbTintColor="teal"
+            value={sliderValue}
+            onValueChange={handleZoomChange}
+          />
         </Camera>
-        </PinchGestureHandler>
       ) : (
         <View style={{ flex: 1 }}>
           {/* Placeholder content or empty view */}
@@ -147,27 +190,31 @@ export default function ScanningScreen({ navigation }) {
       )}
 
 {/* ALLA OLEVA NÄYTTÄÄ VIESTIN, JOS SKANNATTU KOODI ON JO SKANNATTU AIEMMIN. VOI TESTEISSÄ KOMMENTOIDA POIS */}
+{/* ALLA OLEVA NÄYTTÄÄ VIESTIN, JOS EI TULE MONSTERIA. VOI TESTEISSÄ KOMMENTOIDA POIS */}
 {/* --------------------------------------------------------------- */}
-      {showMessage && (
-        <View style={styles.messageContainer}>
-          <Text style={styles.messageText}>You scanned the same code again.</Text>
-          <TouchableOpacity onPress={hideMessage} style={styles.hideMessageButton}>
-            <Text style={styles.hideMessageText}>OK</Text>
-          </TouchableOpacity>
-        </View>
-      )}
+{showMessage && (
+  <View style={styles.messageContainer}>
+    {noMonsterFound ? (
+      <Text style={styles.messageText}>No monster found.</Text>
+    ) : (
+      <Text style={styles.messageText}>You scanned the same code again.</Text>
+    )}
+    <TouchableOpacity onPress={hideMessage} style={styles.hideMessageButton}>
+      <Text style={styles.hideMessageText}>OK</Text>
+    </TouchableOpacity>
+  </View>
+)}
 {/* --------------------------------------------------------------- */}
       {modalVisible && (
       <ScanningModal
         isVisible={modalVisible}
         onClose={closeModal}
         openGallery={() => navigation.navigate('Gallery')}
-        image={sampleImage}
-        name={sampleName}
+        monsterInfo={monsterInfo}
+        imageURL={imageURL}
       />
       )}
-
-</GestureHandlerRootView>
+    </View>
   );
 }
 

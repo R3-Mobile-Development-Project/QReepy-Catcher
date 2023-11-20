@@ -1,13 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Button, StyleSheet, ImageBackground, TouchableOpacity } from 'react-native';
+import { Audio } from 'expo-av';
 import CreditsModal from '../modals/CreditsModal';
 
 const backgroundImage = require('../assets/images/doodle-monsters-set_90220-166.jpg');
 
 const HomeScreen = ({ navigation }) => {
   const [creditsModalVisible, setCreditsModalVisible] = useState(false);
+  const [sound, setSound] = useState();
 
-  const openCreditsModal = () => {
+  useEffect(() => {
+    return sound
+      ? () => {
+          sound.unloadAsync();
+        }
+      : undefined;
+  }, [sound]);
+
+  const openCreditsModal = async () => {
+    // Load and play the sound effect
+    const { sound } = await Audio.Sound.createAsync(
+      require('../assets/sounds/Menu_Selection_Click.wav')
+    );
+    setSound(sound);
+    await sound.playAsync();
+
+    // Open the credits modal
     setCreditsModalVisible(true);
   };
 

@@ -14,13 +14,15 @@ const AchievementsModal = ({ visible, onClose }) => {
         <View style={styles.modalContent}>
           <Text style={styles.modalText}>Achievements</Text>
           <View style={styles.modalLine} />
-          <ScrollView style={{ flex: 1 }}>
-          <Text>Here is some content for the modal</Text>
-          <Text>Here is some more content for the modal</Text>
-          <Text>Here is even more content for the modal</Text>
+      <ScrollView contentContainerStyle={styles.scrollViewContent}>
+        <View style={styles.achievementContainer}>
+          <Text style={styles.achievementText}>Here is some content for the modal</Text>
+          <Text style={styles.achievementText}>Here is some more content for the modal</Text>
+          <Text style={styles.achievementText}>Here is even more content for the modal</Text>
           {/* Add your achievements content here */}
-          </ScrollView>
-            <View style={styles.modalLine} />
+          <View style={styles.modalLine} />
+        </View>
+      </ScrollView>
             <TouchableOpacity onPress={onClose} style={styles.closeButton}>
             <MaterialIcons name="close" size={50} color="black" />
           </TouchableOpacity>
@@ -44,6 +46,7 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 20,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   modalText: {
     fontSize: 24,
@@ -53,11 +56,22 @@ const styles = StyleSheet.create({
         height: 3,
         width: '100%',
         backgroundColor: 'black',
-        marginVertical: 10,
+        marginVertical: 20,
+    },
+    achievementText: {
+        fontSize: 16,
+        marginBottom: 10,
+    },
+    scrollViewContent: {
+      flexGrow: 1,
+      paddingBottom: 60,
+    },
+    achievementContainer: {
+      alignItems: 'left',
     },
     closeButton: {
         position: 'absolute',
-        bottom: 50,
+        bottom: 20,
         width: 70,
         height: 70,
         borderRadius: 25,

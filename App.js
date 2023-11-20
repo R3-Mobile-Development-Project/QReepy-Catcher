@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, StatusBar } from 'react-native';
+import { StyleSheet, Text, View, StatusBar, AppRegistry } from 'react-native';
 //import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { getAuth } from 'firebase/auth'; // Import Firebase authentication methods
@@ -17,6 +17,7 @@ import ProfileScreen from './screens/ProfileScreen';
 import ScanningScreen from './screens/ScanningScreen';
 import SplashScreen from './screens/SplashScreen';
 import GalleryScreen from './screens/GalleryScreen';
+import MusicPlayer from './MusicPlayer';
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
@@ -71,7 +72,7 @@ export default function App() {
               } else if (route.name === 'Scanner') {
                 labelName = 'SCANNER';
               } else if (route.name === 'Gallery') {
-                labelName = 'GALLERY';
+                labelName = 'COLLECTION';
               }
 
               return (
@@ -116,6 +117,7 @@ export default function App() {
           <Stack.Screen name="Login" component={AuthScreen} options={{ headerShown: false }} />
         </Stack.Navigator>
       )}
+    <MusicPlayer />
     </NavigationContainer>
   );
 }

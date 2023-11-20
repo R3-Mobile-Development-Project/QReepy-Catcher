@@ -2,48 +2,40 @@
 // TÄMÄ SIVU KÄYNNISTYY ENSIMMÄISENÄ, KUN SOVELLUS AVATAAN
 
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Animated, Easing, ImageBackground } from 'react-native';
-//import Sound from 'react-native-sound'; // Import the Sound module
+import { View, Text, StyleSheet, Animated, Easing, ImageBackground, Button } from 'react-native';
 import { useFonts } from '@expo-google-fonts/inter';
-import Sound from 'react-native-sound'; // Import the Sound module
+import { Audio } from 'expo-av';
 
 const SplashScreen = () => {
   const opacity = new Animated.Value(0);
   const scale = new Animated.Value(0.5);
   const translationX = new Animated.Value(-500);
   const translationY = new Animated.Value(-500);
-  const [sound, setSound] = useState(null);
 
-  useEffect(() => {
-    // Load the audio file when the component mounts
-    const soundObject = new Sound('Rise01.aif', Sound.MAIN_BUNDLE, (error) => {
-      if (error) {
-        console.error('Error loading sound', error);
-      } else {
-        setSound(soundObject);
-      }
-    });
-    // Unload the sound when the component unmounts
-    return () => {
-      if (sound) {
-        sound.release();
-      }
-    };
-  }, []);
+  async function playAudio() {
+    const sound = new Audio.Sound();
 
-  const playSound = () => {
-    if (sound) {
-      sound.play((success) => {
-        if (success) {
-          console.log('Successfully played the sound');
-        } else {
-          console.error('Failed to play the sound');
+    try {
+      const source = require('../assets/sounds/MESSAGE-B_Accept_TOIMII.wav');
+      await sound.loadAsync(source);
+      await sound.playAsync();
+      // Add other logic or event listeners as needed
+
+      // Optionally, wait for the playback to finish
+      sound.setOnPlaybackStatusUpdate((status) => {
+        if (status.didJustFinish) {
+          // Handle playback completion
+          sound.unloadAsync(); // Unload the audio when playback is complete
         }
       });
+
+    } catch (error) {
+      console.error('Error playing audio:', error);
     }
-  };
+  }
 
   useEffect(() => {
+    playAudio();
     Animated.parallel([
       Animated.timing(opacity, {
         toValue: 1,
@@ -74,26 +66,7 @@ const SplashScreen = () => {
         useNativeDriver: true,
       }),
     ]).start();
-
-    const animationDuration = 1000; // Adjust this based on your animation duration
-  setTimeout(() => {
-    playSound();
-  }, animationDuration + 600);
-
   }, []);
-
-  /*
-  // Play a sound when the component mounts
-  useEffect(() => {
-    const sound = new Sound('../assets/Rise01.aif', Sound.MAIN_BUNDLE, (error) => {
-      if (error) {
-        console.log('Failed to load sound', error);
-        return;
-      }
-      sound.play();
-    });
-  }, []);
-*/
 
   return (
     <ImageBackground
@@ -127,7 +100,9 @@ const SplashScreen = () => {
           Catcher
         </Animated.Text>
       </Animated.View>
+      <View style={styles.createdByTextContainer}>
       <Text style={styles.createdByText}>Created by Ryhmä 3</Text>
+      </View>
     </ImageBackground>
   );
 };
@@ -151,10 +126,15 @@ const styles = StyleSheet.create({
     color: 'black',
   },
   createdByText: {
-    justifyContent: 'bottom',
     fontSize: 18, // Adjust the font size as needed
     color: 'black', // Adjust the color as needed
     marginTop: 20, // Adjust the margin as needed
+  },
+  createdByTextContainer: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    marginBottom: 20,
   },
 });
 
