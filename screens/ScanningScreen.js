@@ -4,6 +4,7 @@ import { Camera } from 'expo-camera';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons'; // Import Ionicons from Expo vector icons
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Audio } from 'expo-av';
 import Slider from '@react-native-community/slider';
 import ScanningModal from '../modals/ScanningModal';
@@ -164,14 +165,17 @@ export default function ScanningScreen({ navigation }) {
           ref={cameraRef}
           flashMode={torchOn}
           zoom={zoom}
-          onBarCodeScanned={handleBarCodeScanned}
+    //   onBarCodeScanned={handleBarCodeScanned}
         >
           <View style={styles.buttonContainer}>
             <TouchableOpacity onPress={handleTorchToggle} style={styles.torchToggleButton}>
               <Ionicons name={torchOn ? 'ios-flashlight' : 'ios-flashlight-outline'} size={40} color="white" />
             </TouchableOpacity>
           </View>
-          <View style={styles.scannerFrame} />
+     {/*     <View style={styles.scannerFrame} /> */}
+            <TouchableOpacity onPress={handleBarCodeScanned} style={styles.barcodeScannerButton}>
+              <MaterialCommunityIcons name="barcode-scan" size={40} color="white" />
+            </TouchableOpacity>
           <Slider
             style={{ width: '60%', marginVertical: 60, marginLeft: 80 }}
             minimumValue={0}
@@ -264,5 +268,10 @@ const styles = StyleSheet.create({
     hideMessageText: {
       color: 'white',
       fontSize: 16,
+    },
+    barcodeScannerButton: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginTop:10,
     },
   });
