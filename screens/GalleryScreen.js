@@ -8,8 +8,32 @@ const backgroundImage = require('../assets/images/horrible-monster-2.jpg');
 const GalleryScreen = ({ navigation }) => {
   const [monsters, setMonsters] = useState([]);
   const [images, setImages] = useState([]);
-  const [numColumns, setNumColumns] = useState(3); // Set the initial number of columns
+  const [numColumns, setNumColumns] = useState(3);
+  const [sortingMethod, setSortingMethod] = useState('id');
   const placeholders = Array.from({ length: (3 - monsters.length % 3) % 3 });
+
+  const sortMonstersAndImages = () => {
+    // Pair each monster with its image
+    const paired = monsters.map((monster, index) => ({ monster, image: images[index] }));
+
+    // Sort the pairs
+    if (sortingMethod === 'name') {
+      paired.sort((a, b) => a.monster.name.localeCompare(b.monster.name));
+    } else { // Default sort by ID
+      paired.sort((a, b) => a.monster.id - b.monster.id);
+    }
+
+    // Separate the pairs back into monsters and images
+    const sortedMonsters = paired.map(pair => pair.monster);
+    const sortedImages = paired.map(pair => pair.image);
+
+    setMonsters(sortedMonsters);
+    setImages(sortedImages);
+  };
+
+  useEffect(() => {
+    sortMonstersAndImages();
+  }, [sortingMethod]); // Re-sort whenever the sorting method changes
 
   const calculateNumColumns = () => {
     // Implement your logic to calculate the number of columns
@@ -50,42 +74,45 @@ const GalleryScreen = ({ navigation }) => {
         refreshMonsters();
       }, [])
     );
-
-  return (
-    <View style={styles.container}>
-      <ImageBackground
-        source={backgroundImage}
-        style={styles.backgroundImage}
-        resizeMode="cover"
-      >
-        <View style={styles.contentContainer}>
-          <Text style={styles.text}>My collected QReeps!</Text>
-          <FlatList
-        data={[...monsters, ...placeholders]}
-        keyExtractor={(item, index) => `monster_${index}`}
-        numColumns={numColumns}
-        renderItem={({ item, index }) => (
-          item ? (
-            <View style={styles.monsterContainer}>
-              <Image source={{ uri: images[index] }} style={styles.image} />
-              <Text style={styles.monsterName}>{item.name}</Text>
-        {/*        <Text style={styles.monsterText}>Age: {item.age}</Text>  */}
-        {/*        <Text style={styles.monsterText}>Title: {item.title}</Text>  */}
-        {/*      <Text style={styles.monsterText}>Dominant Colors: {item.dominantColors.join(', ')}</Text> */}
-        </View>
-          ) : (
-            <View style={[styles.monsterContainer, styles.invisible]} />
-          )
-        )}
-      />
-          <Button
-            title="Go to Home screen"
-            onPress={() => navigation.navigate('Home')}
-          />
-        </View>
-      </ImageBackground>
-    </View>
-  );
+// Function to sort monsters
+const sortMonsters = (monsters) => {
+  if (sortingMethod === 'name') {
+    // Sort by name
+    return [...monsters].sort((a, b) => a.name.localeCompare(b.name));
+  } else {
+    // Default sort by ID
+    return [...monsters].sort((a, b) => a.id - b.id);
+  }
+};
+return (
+  <View style={styles.container}>
+    <ImageBackground source={backgroundImage} style={styles.backgroundImage} resizeMode="cover">
+      <View style={styles.sortingContainer}>
+        <Button title="Sort by ID" onPress={() => setSortingMethod('id')} />
+        <Button title="Sort by Name" onPress={() => setSortingMethod('name')} />
+      </View>
+      <View style={styles.contentContainer}>
+        <Text style={styles.text}>My collected QReeps!</Text>
+        <FlatList
+          data={[...monsters, ...placeholders]}
+          keyExtractor={(item, index) => `monster_${index}`}
+          numColumns={numColumns}
+          renderItem={({ item, index }) => (
+            item ? (
+              <View style={styles.monsterContainer}>
+                <Image source={{ uri: images[index] }} style={styles.image} />
+                <Text style={styles.monsterName}>{item.name}</Text>
+              </View>
+            ) : (
+              <View style={[styles.monsterContainer, styles.invisible]} />
+            )
+          )}
+        />
+        <Button title="Go to Home screen" onPress={() => navigation.navigate('Home')} />
+      </View>
+    </ImageBackground>
+  </View>
+);
 };
 
 const styles = StyleSheet.create({
@@ -132,6 +159,12 @@ const styles = StyleSheet.create({
   },
   invisible: {
     backgroundColor: 'transparent',
+  },
+  sortingContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '100%',
+    padding: 10,
   },
 });
 
