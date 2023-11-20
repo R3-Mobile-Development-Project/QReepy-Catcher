@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Button, StyleSheet, ImageBackground, FlatList, Image } from 'react-native';
+import { View, Text, Button, StyleSheet, ImageBackground, FlatList, Image, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const backgroundImage = require('../assets/images/horrible-monster-2.jpg');
 
@@ -87,10 +88,15 @@ const sortMonsters = (monsters) => {
 return (
   <View style={styles.container}>
     <ImageBackground source={backgroundImage} style={styles.backgroundImage} resizeMode="cover">
-      <View style={styles.sortingContainer}>
-        <Button title="Sort by ID" onPress={() => setSortingMethod('id')} />
-        <Button title="Sort by Name" onPress={() => setSortingMethod('name')} />
-      </View>
+    <View style={styles.sortingContainer}>
+  <TouchableOpacity onPress={() => setSortingMethod('id')}>
+    <Icon name="sort" size={30} color="black" />
+  </TouchableOpacity>
+  <TouchableOpacity onPress={() => setSortingMethod('name')}>
+    <Icon name="sort-by-alpha" size={30} color="black" />
+  </TouchableOpacity>
+</View>
+
       <View style={styles.contentContainer}>
         <Text style={styles.text}>My collected QReeps!</Text>
         <FlatList
@@ -166,6 +172,13 @@ const styles = StyleSheet.create({
     width: '100%',
     padding: 10,
   },
+  sortingContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '100%',
+    padding: 10,
+  },
+  
 });
 
 export default GalleryScreen;
