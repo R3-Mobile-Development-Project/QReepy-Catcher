@@ -42,6 +42,7 @@ export const saveMonsterToAsyncStorage = async (monster, userId) => {
   }
 };
 
+/*
 export const saveImageToAsyncStorage = async (imageUrl, userId) => {
   try {
     // Get existing images for the user from AsyncStorage
@@ -62,7 +63,7 @@ export const saveImageToAsyncStorage = async (imageUrl, userId) => {
     throw error;
   }
  };
-
+*/
 
 export const fetchMonsterDetailsFromFirestore = async (monsterId, userId) => {
   try {
@@ -152,9 +153,11 @@ export const fetchMonsterImageURL = async (monsterId, userId) => {
 
 
     const url = await getDownloadURL(imageRef);
+    /*
     // Save the image URL to AsyncStorage
     saveImageToAsyncStorage(url, userId);
     console.log(`MONSTERUTILS: Saved image URL to AsyncStorage: ${url} for user ID: ${userId}`);
+    */
 
     return url;
   } catch (error) {

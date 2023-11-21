@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Button, StyleSheet, ImageBackground, FlatList, Image, TouchableOpacity } from 'react-native';
+import { View, Text, Button, StyleSheet, ImageBackground, FlatList, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { findMonster, fetchMonsterImageURL } from '../utils/monsterUtils';
 
 const backgroundImage = require('../assets/images/horrible-monster-2.jpg');
 
@@ -48,27 +49,6 @@ const GalleryScreen = ({ navigation }) => {
     setNumColumns(updatedNumColumns);
   }, [/* Dependencies for the update, if any */]);
 
-    // Function to refresh monsters when called
-    const refreshMonsters = async () => {
-      try {
-        const userId = await AsyncStorage.getItem('userId');
-        const monstersData = await AsyncStorage.getItem(`monsters_${userId}`);
-        const monsterImages = await AsyncStorage.getItem(`images_${userId}`);
-
-        setMonsters(monstersData ? JSON.parse(monstersData) : []);
-        setImages(monsterImages ? JSON.parse(monsterImages) : []);
-
-        console.log('GALLERYSCREEN: imageURLs from AsyncStorage:', monsterImages);
-
-        // Extract names from each monster and log only names
-        const monsterNames = (monstersData ? JSON.parse(monstersData) : []).map(monster => monster.name);
-        console.log('GALLERYSCREEN: Monster Names from AsyncStorage:', monsterNames);
-
-      } catch (error) {
-        console.error('Error retrieving monsters from AsyncStorage:', error);
-      }
-    };
-
     // Use useFocusEffect to refresh monsters when the screen is focused
     useFocusEffect(
       React.useCallback(() => {
@@ -85,6 +65,39 @@ const sortMonsters = (monsters) => {
     return [...monsters].sort((a, b) => a.id - b.id);
   }
 };
+
+// Function to get images based on monster IDs
+const getImages = async (monsterIds) => {
+  const images = [];
+  for (const monsterId of monsterIds) {
+    const imageUrl = await fetchMonsterImageURL(monsterId);
+    images.push(imageUrl);
+  }
+  return images;
+};
+
+//use the getImages function to get the images for the monsters
+const refreshMonsters = async () => {
+  try {
+    const userId = await AsyncStorage.getItem('userId');
+    const monstersData = await AsyncStorage.getItem(`monsters_${userId}`);
+
+    const monsters = monstersData ? JSON.parse(monstersData) : [];
+
+    const sortedMonsters = sortMonsters(monsters);
+
+    // Set the sorted monsters first
+    setMonsters(sortedMonsters);
+
+    const monsterIds = sortedMonsters.map(monster => monster.id);
+    const images = await getImages(monsterIds);
+
+    setImages(images);
+  } catch (error) {
+    console.error('Error retrieving monsters from AsyncStorage:', error);
+  }
+};
+
 return (
   <View style={styles.container}>
     <ImageBackground source={backgroundImage} style={styles.backgroundImage} resizeMode="cover">
@@ -100,20 +113,26 @@ return (
       <View style={styles.contentContainer}>
         <Text style={styles.text}>My collected QReeps!</Text>
         <FlatList
-          data={[...monsters, ...placeholders]}
-          keyExtractor={(item, index) => `monster_${index}`}
-          numColumns={numColumns}
-          renderItem={({ item, index }) => (
-            item ? (
-              <View style={styles.monsterContainer}>
-                <Image source={{ uri: images[index] }} style={styles.image} />
-                  <Text style={styles.monsterName}>{item.name}</Text>
-              </View>
-            ) : (
-              <View style={[styles.monsterContainer, styles.invisible]} />
-            )
-          )}
-        />
+  data={[...monsters, ...placeholders]}
+  keyExtractor={(item, index) => `monster_${index}`}
+  numColumns={numColumns}
+  renderItem={({ item, index }) => (
+    item ? (
+      <View style={styles.monsterContainer}>
+        {images[index] ? (
+          <Image source={{ uri: images[index] }} style={styles.image} />
+        ) : (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="small" color="black" />
+          </View>
+        )}
+        <Text style={styles.monsterName}>{item.name}</Text>
+      </View>
+    ) : (
+      <View style={[styles.monsterContainer, styles.invisible]} />
+    )
+  )}
+/>
       </View>
     </ImageBackground>
   </View>
@@ -150,6 +169,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '33%', // Set the width to 33% for three columns
     padding: 8, // Add padding to separate the columns
+  },
+  loadingContainer: {
+    width: '100%',
+    height: 120,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 4,
+    borderRadius: 90,
+    borderWidth: 2,
+    borderColor: 'black',
   },
   image: {
     width: '100%', // Set the image width to 100% to fit the container
