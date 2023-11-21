@@ -85,6 +85,15 @@ const sortMonsters = (monsters) => {
     return [...monsters].sort((a, b) => a.id - b.id);
   }
 };
+
+// Function to find duplicate monsters and count their occurrences
+const findDuplicates = (array) => {
+  const counts = {};
+  array.forEach((item) => {
+    counts[item.id] = (counts[item.id] || 0) + 1;
+  });
+  return counts;
+};
 return (
   <View style={styles.container}>
     <ImageBackground source={backgroundImage} style={styles.backgroundImage} resizeMode="cover">
@@ -113,16 +122,17 @@ return (
               <View style={[styles.monsterContainer, styles.invisible]} />
             )
           )}
-        />
-        <Button title="Go to Home screen" onPress={() => navigation.navigate('Home')} />
+        /> 
+        
       </View>
-    </ImageBackground>
-  </View>
+    </ImageBackground> 
+  </View> 
+  // <Button title="Go to Home screen" onPress={() => navigation.navigate('Home')} /> 
 );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  container: { 
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
@@ -143,7 +153,7 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: 'bold', 
     marginBottom: 20,
   },
   monsterContainer: {

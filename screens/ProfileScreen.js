@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ImageBackground, Switch } from 'react-native';
-import { getAuth, signOut } from 'firebase/auth'; // Import Firebase authentication methods
+import { getAuth, signOut, updatePassword, reauthenticateWithCredential } from 'firebase/auth'; // Import Firebase authentication methods
 import { MaterialIcons } from '@expo/vector-icons';
 import AchievementsModal from '../modals/AchievementsModal';
 import { Audio } from 'expo-av';
@@ -120,6 +120,10 @@ const backgroundImage = require('../assets/images/paper-decorations-halloween-pa
               <Text style={styles.buttonText}>SIGN OUT</Text>
               <MaterialIcons name="logout" size={24} color="white" />
             </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Home')}>
+              <Text style={styles.buttonText}>CHANGE PASSWORD</Text>
+              <MaterialIcons name="logout" size={24} color="white" />
+            </TouchableOpacity>
             <TouchableOpacity onPress={openAchievementsModal} style={styles.achievementsButton}>
               <Text style={styles.achievementsButtonText}>ACHIEVEMENTS</Text>
             </TouchableOpacity>
@@ -129,7 +133,7 @@ const backgroundImage = require('../assets/images/paper-decorations-halloween-pa
             <Text style={styles.clearButtonText}>CLEAR AsyncStorage</Text>
           </TouchableOpacity>
 
-
+          
           </View>
         </ImageBackground>
         <AchievementsModal
@@ -139,7 +143,7 @@ const backgroundImage = require('../assets/images/paper-decorations-halloween-pa
       </View>
     );
   };
-
+// <Button title="Go to Home screen" onPress={() => navigation.navigate('Home')} /> 
 const styles = StyleSheet.create({
   container: {
     flex: 1,

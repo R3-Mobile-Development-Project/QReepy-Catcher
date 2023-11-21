@@ -8,7 +8,7 @@ import 'firebase/auth';
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-//import { auth } from 'firebase/app';
+import { auth } from 'firebase/app';
 //import 'firebase/auth';
 import { firebaseConfig } from './firebaseConfig';
 import HomeScreen from './screens/HomeScreen';
@@ -18,7 +18,7 @@ import ScanningScreen from './screens/ScanningScreen';
 import SplashScreen from './screens/SplashScreen';
 import GalleryScreen from './screens/GalleryScreen';
 import MusicPlayer from './MusicPlayer';
-
+import ChangePasswordScreen from './screens/ChangePasswordScreen';
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
@@ -110,6 +110,7 @@ export default function App() {
           <Tab.Screen name="Scanner" component={ScanningScreen} options={{ headerShown: false }} />
           <Tab.Screen name="Gallery" component={GalleryScreen} options={{ headerShown: false }} />
           <Tab.Screen name="Profile" component={ProfileScreen} options={{ headerShown: false }} />
+          <Tab.Screen name="ChPw" component={ChangePasswordScreen} options={{headerShown:false}} />
           {/* Add other tab screens as needed */}
         </Tab.Navigator>
       ) : (

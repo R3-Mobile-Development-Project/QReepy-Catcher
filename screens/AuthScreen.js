@@ -1,14 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  ImageBackground,
-  StyleSheet,
-  TouchableOpacity,
-  KeyboardAvoidingView,
-  Platform,
-  ActivityIndicator
+import {View,Text,TextInput,ImageBackground,StyleSheet,TouchableOpacity,KeyboardAvoidingView,Platform,ActivityIndicator
 } from 'react-native';
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth'; // Import Firebase authentication methods
 import firebase from 'firebase/app';
@@ -19,6 +10,7 @@ import { StatusBar } from 'expo-status-bar';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Audio } from 'expo-av';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 const AuthScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
