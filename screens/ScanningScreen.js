@@ -110,8 +110,8 @@ export default function ScanningScreen({ navigation }) {
   
     if (foundMonsterId >= 1 && foundMonsterId <= 50) {
       // Valid monster found
+      setIsScanningActive(false); // Stop scanning after a scan attempt
       console.log(`SCANNINGSCREEN: Found monster with ID: ${foundMonsterId}`);
-  
       try {
         const fetchedMonsterInfo = await fetchMonsterDetailsFromFirestore(foundMonsterId);
         const fetchedImageURL = await fetchMonsterImageURL(foundMonsterId);
@@ -129,7 +129,7 @@ export default function ScanningScreen({ navigation }) {
       // No valid monster found
       setNoMonsterFound(true);
       setShowMessage(true);
-      console.log(`No monster found.`);
+      console.log(`SCANNINGSCREEN: No monster found.`);
     }
   
     setLastScannedData(data);
