@@ -14,7 +14,7 @@ const GalleryScreen = ({ navigation }) => {
   const [sortingMethod, setSortingMethod] = useState('id');
   const placeholders = Array.from({ length: (3 - monsters.length % 3) % 3 });
 
-  const sortMonstersAndImages = () => {
+  const sortMonstersAndImages = async () => {
     // Pair each monster with its image
     const paired = monsters.map((monster, index) => ({ monster, image: images[index] }));
 
@@ -31,11 +31,39 @@ const GalleryScreen = ({ navigation }) => {
 
     setMonsters(sortedMonsters);
     setImages(sortedImages);
+
+    // Save the sorting method to AsyncStorage
+    try {
+      await AsyncStorage.setItem('sortingMethod', sortingMethod);
+    } catch (error) {
+      console.error('Error saving sorting method to AsyncStorage:', error);
+    }
   };
+
+  /*
+  useEffect(() => {
+    // Retrieve the sorting method from AsyncStorage
+    const getSortingMethod = async () => {
+      try {
+        const savedSortingMethod = await AsyncStorage.getItem('sortingMethod');
+        if (savedSortingMethod) {
+          setSortingMethod(savedSortingMethod);
+        }
+      } catch (error) {
+        console.error('Error retrieving sorting method from AsyncStorage:', error);
+      }
+    };
+    getSortingMethod(); // Call the function to retrieve the sorting method
+    // Sort monsters and images when the sorting method changes
+  sortMonstersAndImages();
+}, [sortingMethod]);
+*/
+
 
   useEffect(() => {
     sortMonstersAndImages();
   }, [sortingMethod]); // Re-sort whenever the sorting method changes
+
 
   const calculateNumColumns = () => {
     // Implement your logic to calculate the number of columns

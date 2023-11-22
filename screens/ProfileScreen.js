@@ -7,6 +7,7 @@ import { Audio } from 'expo-av';
 import MusicPlayer from '../MusicPlayer';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Alert } from 'react-native';
+import Modal from 'react-native-modal';
 
 const backgroundImage = require('../assets/images/paper-decorations-halloween-pack_23-2148635839.jpg');
 
@@ -15,6 +16,7 @@ const backgroundImage = require('../assets/images/paper-decorations-halloween-pa
     const [muteBackgroundMusic, setMuteBackgroundMusic] = useState(false);
     const [muteAllSounds, setMuteAllSounds] = useState(false);
     const [isMusicMuted, setIsMusicMuted] = useState(false);
+    const [isModalVisible, setModalVisible] = useState(false);
 
     const handleLogout = async () => {
       playSignoutSound(); // Play button sound on logout button press
@@ -32,11 +34,28 @@ const backgroundImage = require('../assets/images/paper-decorations-halloween-pa
       }
     };
 
+    const toggleModal = () => {
+      setModalVisible(!isModalVisible);
+      playButtonSound(); // Play button sound on delete button press
+    };
+
     const playButtonSound = async () => {
       const buttonSound = new Audio.Sound();
 
       try {
         const buttonSource = require('../assets/sounds/Menu_Selection_Click.wav'); // Replace with your button sound file path
+        await buttonSound.loadAsync(buttonSource);
+        await buttonSound.playAsync();
+      } catch (error) {
+        console.error('Error playing button sound:', error);
+      }
+    }
+
+    const playDeleteSound = async () => {
+      const buttonSound = new Audio.Sound();
+
+      try {
+        const buttonSource = require('../assets/sounds/unlink.wav'); // Replace with your button sound file path
         await buttonSound.loadAsync(buttonSource);
         await buttonSound.playAsync();
       } catch (error) {
@@ -75,14 +94,21 @@ const backgroundImage = require('../assets/images/paper-decorations-halloween-pa
     };
 
     // Function to clear monsters from AsyncStorage for a specific user
-    const clearMonstersForUser = async (userId) => {
+    const clearMonstersForUser = async () => {
+      toggleModal(); // Show the confirmation modal
+    };
+
+    const deleteMonstersConfirmed = async () => {
       try {
-        const userId = await AsyncStorage.getItem('userId');
-        await AsyncStorage.removeItem(`monsters_${userId}`);
-        await AsyncStorage.removeItem(`images_${userId}`);
-        console.log(`Monsters for user ${userId} cleared successfully!`);
+      const userId = await AsyncStorage.getItem('userId');
+      await AsyncStorage.removeItem(`monsters_${userId}`);
+      await AsyncStorage.removeItem(`images_${userId}`);
+      playDeleteSound(); // Play delete sound on delete button press
+      console.log(`Monsters for user ${userId} cleared successfully!`);
+      toggleModal(); // Close the modal after deletion
+      Alert.alert('All QReeps have been deleted!');
       } catch (error) {
-        console.error(`Error clearing monsters for user ${userId} from AsyncStorage:`, error);
+        console.error('Error deleting monsters:', error);
       }
     };
 
@@ -126,8 +152,27 @@ const backgroundImage = require('../assets/images/paper-decorations-halloween-pa
 
             {/* Clear AsyncStorage Button */}
           <TouchableOpacity onPress={clearMonstersForUser} style={styles.clearButton}>
-            <Text style={styles.clearButtonText}>CLEAR AsyncStorage</Text>
+            <Text style={styles.clearButtonText}>DELETE ALL QREEPS</Text>
           </TouchableOpacity>
+
+          {/* Confirmation Modal */}
+          <Modal
+            isVisible={isModalVisible}
+            onBackButtonPress={toggleModal}
+          >
+            <View style={styles.modalContent}>
+              <Text style={styles.modalText}>Are you sure you want to delete all your QReeps?</Text>
+              <Text style={styles.modalText}>This cannot be undone.</Text>
+              <View style={styles.modalButtons}>
+                <TouchableOpacity onPress={toggleModal} style={styles.modalCancelButton}>
+                  <Text style={styles.modalCancelButtonText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={deleteMonstersConfirmed} style={styles.modalDeleteButton}>
+                  <Text style={styles.modalDeleteButtonText}>Delete</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
 
 
           </View>
@@ -220,6 +265,41 @@ const styles = StyleSheet.create({
   },
   clearButtonText: {
     fontSize: 18,
+    fontWeight: 'bold',
+  },
+  modalContent: {
+    backgroundColor: 'lightgrey',
+    padding: 20,
+    borderRadius: 10,
+    borderColor: 'red',
+    borderWidth: 5,
+  },
+  modalText: {
+    fontSize: 20,
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  modalCancelButton: {
+    backgroundColor: 'grey',
+    padding: 10,
+    borderRadius: 5,
+    marginRight: 10,
+  },
+  modalCancelButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  modalDeleteButton: {
+    backgroundColor: 'red',
+    padding: 10,
+    borderRadius: 5,
+  },
+  modalDeleteButtonText: {
+    color: 'white',
     fontWeight: 'bold',
   },
 });
