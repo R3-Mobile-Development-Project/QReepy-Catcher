@@ -141,26 +141,26 @@ return (
       <View style={styles.contentContainer}>
         <Text style={styles.text}>My collected QReeps!</Text>
         <FlatList
-  data={[...monsters, ...placeholders]}
-  keyExtractor={(item, index) => `monster_${index}`}
-  numColumns={numColumns}
-  renderItem={({ item, index }) => (
-    item ? (
-      <View style={styles.monsterContainer}>
-        {images[index] ? (
-          <Image source={{ uri: images[index] }} style={styles.image} />
-        ) : (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator size="small" color="black" />
+          data={[...monsters, ...placeholders]}
+          keyExtractor={(item, index) => `monster_${index}`}
+          numColumns={numColumns}
+          renderItem={({ item, index }) => (
+          item ? (
+          <View style={styles.monsterContainer}>
+            {images[index] ? (
+              <Image source={{ uri: images[index] }} style={styles.image} />
+              ) : (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="small" color="black" />
+              </View>
+              )}
+            <Text style={styles.monsterName}>{item.name}</Text>
           </View>
-        )}
-        <Text style={styles.monsterName}>{item.name}</Text>
-      </View>
-    ) : (
-      <View style={[styles.monsterContainer, styles.invisible]} />
-    )
-  )}
-/>
+        ) : (
+        <View style={[styles.monsterContainer, styles.invisible]} />
+        )
+      )}
+    />
       </View>
     </ImageBackground>
   </View>

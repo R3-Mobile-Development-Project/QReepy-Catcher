@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
         bottom: 20,
         width: 70,
         height: 70,
-        borderRadius: 25,
+        borderRadius: 35,
         borderColor: 'black',
         borderWidth: 3,
         backgroundColor: 'salmon',

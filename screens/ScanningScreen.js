@@ -96,7 +96,7 @@ export default function ScanningScreen({ navigation }) {
   
     setIsDebouncingScan(true); // Start debounce cooldown
     // Set a timeout to clear the debounce state after a short period
-    setTimeout(() => setIsDebouncingScan(false), 500); // Adjust the cooldown time as needed
+    setTimeout(() => setIsDebouncingScan(false), 2000); // Adjust the cooldown time as needed
   
   
     // Check for duplicate scans
