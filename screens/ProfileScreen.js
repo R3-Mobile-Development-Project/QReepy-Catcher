@@ -49,6 +49,14 @@ const backgroundImage = require('../assets/images/paper-decorations-halloween-pa
       } catch (error) {
         console.error('Error playing button sound:', error);
       }
+      try {
+        setTimeout(async () => {
+      await buttonSound.unloadAsync();
+        }, 500);
+      }
+      catch (error) {
+        console.error('Error unloading button sound:', error);
+      }
     }
 
     const playDeleteSound = async () => {
@@ -60,6 +68,13 @@ const backgroundImage = require('../assets/images/paper-decorations-halloween-pa
         await buttonSound.playAsync();
       } catch (error) {
         console.error('Error playing button sound:', error);
+      } try {
+        setTimeout(async () => {
+      await buttonSound.unloadAsync();
+        }, 500);
+      }
+      catch (error) {
+        console.error('Error unloading button sound:', error);
       }
     }
 
@@ -72,6 +87,13 @@ const backgroundImage = require('../assets/images/paper-decorations-halloween-pa
         await buttonSound.playAsync();
       } catch (error) {
         console.error('Error playing button sound:', error);
+      } try {
+        setTimeout(async () => {
+      await buttonSound.unloadAsync();
+        }, 500);
+      }
+      catch (error) {
+        console.error('Error unloading button sound:', error);
       }
     }
 

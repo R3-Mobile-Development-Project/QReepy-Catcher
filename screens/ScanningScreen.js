@@ -107,7 +107,7 @@ export default function ScanningScreen({ navigation }) {
       return;
     }
     const foundMonsterId = findMonster(); // Assuming this function processes 'data' to find a monster
-  
+
     if (foundMonsterId >= 1 && foundMonsterId <= 50) {
       // Valid monster found
       setIsScanningActive(false); // Stop scanning after a scan attempt
@@ -115,10 +115,10 @@ export default function ScanningScreen({ navigation }) {
       try {
         const fetchedMonsterInfo = await fetchMonsterDetailsFromFirestore(foundMonsterId);
         const fetchedImageURL = await fetchMonsterImageURL(foundMonsterId);
-  
+
         setMonsterInfo(fetchedMonsterInfo);
         setImageURL(fetchedImageURL);
-  
+
         openModal();
         // Log for successful scan
      //   console.log(`Bar code with type ${type} and data ${data} has been scanned.`);
@@ -131,7 +131,6 @@ export default function ScanningScreen({ navigation }) {
       setShowMessage(true);
       console.log(`SCANNINGSCREEN: No monster found.`);
     }
-  
     setLastScannedData(data);
     setIsScanningActive(false); // Stop scanning after a scan attempt
   };

@@ -54,8 +54,14 @@ const AuthScreen = ({ navigation }) => {
       await successSound.playAsync();
     } catch (error) {
       console.error('Error playing success sound:', error);
+    } try {
+      setTimeout(async () => {
+    await successSound.unloadAsync();
+      }, 1000);
     }
- //   successSound.unloadAsync(); // Unload the sound from memory
+    catch (error) {
+      console.error('Error unloading button sound:', error);
+    }
   };
 
   const playErrorSound = async () => {
@@ -67,8 +73,11 @@ const AuthScreen = ({ navigation }) => {
       await errorSound.playAsync();
     } catch (error) {
       console.error('Error playing error sound:', error);
+    } finally {
+      setTimeout(async () => {
+    await errorSound.unloadAsync();
+      }, 450);
     }
- //   errorSound.unloadAsync(); // Unload the sound from memory
   };
 
   const playButtonSound = async () => {
@@ -80,8 +89,14 @@ const AuthScreen = ({ navigation }) => {
       await buttonSound.playAsync();
     } catch (error) {
       console.error('Error playing button sound:', error);
+    } try {
+      setTimeout(async () => {
+    await buttonSound.unloadAsync();
+      }, 500);
     }
- //   buttonSound.unloadAsync(); // Unload the sound from memory
+    catch (error) {
+      console.error('Error unloading button sound:', error);
+    }
   }
 
   const handleSignup = async () => {
