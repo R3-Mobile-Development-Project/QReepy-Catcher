@@ -28,7 +28,7 @@ const ScanningModal = ({ isVisible, onClose, openGallery, monsterInfo, imageURL 
         <View style={styles.infoModalContainer}>
           <View style={[styles.infoModalTextContainer, { backgroundColor: `rgb(${monsterColor.join(', ')})` }]}>
           <Text style={styles.infoModalText}>
-            You can sell your catch for a Qreepy Coin,
+            You can sell your catch for a QReepy Coin,
             and later spend your Coins by purchasing Qreepy Eggs from the store!
           </Text>
           <Text style={styles.infoModalText}>

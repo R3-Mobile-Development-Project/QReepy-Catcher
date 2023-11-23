@@ -16,9 +16,9 @@ const AchievementsModal = ({ visible, onClose }) => {
           <View style={styles.modalLine} />
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
         <View style={styles.achievementContainer}>
-          <Text style={styles.achievementText}>Here is some content for the modal</Text>
-          <Text style={styles.achievementText}>Here is some more content for the modal</Text>
-          <Text style={styles.achievementText}>Here is even more content for the modal</Text>
+          <Text style={styles.achievementText}>Achievements coming soon!</Text>
+          <Text style={styles.achievementText}>Achievements coming soon!</Text>
+          <Text style={styles.achievementText}>Achievements coming soon!</Text>
           {/* Add your achievements content here */}
           <View style={styles.modalLine} />
         </View>

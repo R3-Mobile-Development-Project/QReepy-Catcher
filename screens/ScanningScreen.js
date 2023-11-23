@@ -40,9 +40,11 @@ const loadScannedBarcodes = async () => {
     if (storedBarcodes) {
       setScannedBarcodes(JSON.parse(storedBarcodes));
     }
+    return storedBarcodes;
   } catch (error) {
     console.error('Error loading scanned barcodes from AsyncStorage:', error);
   }
+  
 };
 
 useEffect(() => {
@@ -76,7 +78,6 @@ const saveScannedBarcodes = async () => {
       setCameraActive(true);
       }, 200);
       setSliderValue(0);
-      setZoom(0);
     } else {
         setCameraActive(false);
         setScanned(false); // Reset the scanned state when the screen is not focused
@@ -128,11 +129,16 @@ const saveScannedBarcodes = async () => {
   };
 
   const handleBarCodeScanned = async ({ type, data }) => {
-  if (!isScanningActive || isDebouncingScan || scannedBarcodes.includes(data)) return;
+    // Ignore scans if not scanning or if debouncing or if barcode already scanned
+  if (!isScanningActive || isDebouncingScan || scannedBarcodes.includes(data)){
 
-  // Check if scanned barcode is a duplicate to one in async storage
-  
-
+    //set setScanningMessage to "barcode already scanned"
+  setScanningMessage('Barcode already scanned, try scanning another code.');
+  setIsScanningActive(false);
+  setShowMessage(true);
+//  console.log('SCANNINGSCREEN: Scanned barcodes:', scannedBarcodes);
+  return;
+  }
 
   console.log('SCANNINGSCREEN: Scanned barcode:', data, 'of type:', type);
 
@@ -156,25 +162,6 @@ const saveScannedBarcodes = async () => {
       return;
     }
     */
-
-    // Check if the scanned code matches one of the codes stored in AsyncStorage
-    
-  try {
-    const storedCodes = await AsyncStorage.getItem('lastScannedBarcodes');
-    if (storedCodes) {
-      const storedCodesArray = JSON.parse(storedCodes);
-      if (storedCodesArray.includes(data)) {
-        // Code matches, display your message
-        setScanningMessage('Code already scanned.');
-        setShowMessage(true);
-        setIsScanningActive(false);
-        return;
-      }
-    }
-  } catch (error) {
-    console.error('Error checking stored codes:', error);
-  }
-  
 
     const foundMonsterId = findMonster(); // Assuming this function processes 'data' to find a monster
 
@@ -334,7 +321,7 @@ const styles = StyleSheet.create({
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'flex-end',
-      paddingBottom: 20,
+      paddingBottom: 40,
     },
     torchToggleButton: {
       alignItems: 'center',
@@ -383,7 +370,7 @@ const styles = StyleSheet.create({
     sliderStyle: {
       width: 250, // This controls the length of slider (position moves also)
       position: 'absolute',
-      bottom: 40, // Distance from the bottom
+      bottom: 25, // Distance from the bottom
       right: -60, // This controls the position of slider (left or right)
       transform: [
         { rotate: '-90deg' },

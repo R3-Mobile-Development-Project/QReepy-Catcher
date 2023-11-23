@@ -35,21 +35,30 @@ const HomeScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
+      <Text style={styles.text}>This game is a work in progress!</Text>
       <ImageBackground
       source={backgroundImage}
       style={styles.backgroundImage}
       resizeMode="repeat"
     >
       <View style={styles.contentContainer}>
-      <Text style={styles.text}>Welcome to the Home Screen!</Text>
+      <Text style={styles.text}>Welcome to QReepy Catcher!</Text>
+      <View style={styles.textContainer}>
+        <Text style={styles.text}>Use the SCANNER to catch some QReeps by scanning QR and barcodes.</Text>
+        <Text style={styles.text}>You can check out all caught QReeps in your COLLECTION.</Text>
+        <Text style={styles.text}></Text>
+        <Text style={styles.text}>More coming soon!</Text>
+      </View>
+      {/*}
       <Button
         title="Go to Profile"
         onPress={() => navigation.navigate('Profile')}
       />
+      */}
       <TouchableOpacity onPress={openCreditsModal} style={styles.creditsButton}>
           <Text style={styles.creditsButtonText}>CREDITS</Text>
       </TouchableOpacity>
-    </View>
+      </View>
       </ImageBackground>
       <CreditsModal visible={creditsModalVisible} onClose={closeCreditsModal} />
     </View>
@@ -67,7 +76,12 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.7)',
+    backgroundColor: 'rgba(255,255,255,0.8)',
+  },
+  textContainer: {
+    margin: 10,
+    padding: 10,
+    alignItems: 'center',
   },
   backgroundImage: {
     flex: 1,
@@ -77,7 +91,7 @@ const styles = StyleSheet.create({
     alignContent: 'center',
   },
   text: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: 'bold',
   },
   creditsButton: {

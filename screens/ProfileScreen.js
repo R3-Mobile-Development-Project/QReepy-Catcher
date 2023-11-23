@@ -124,12 +124,14 @@ const backgroundImage = require('../assets/images/paper-decorations-halloween-pa
       try {
       const userId = await AsyncStorage.getItem('userId');
       await AsyncStorage.removeItem(`monsters_${userId}`);
-      await AsyncStorage.removeItem(`lastScannedBarcodes`)
+      //Remove barcodes from AsyncStorage
+      await AsyncStorage.removeItem(`lastScannedBarcodes`);
+
     //  await AsyncStorage.removeItem(`images_${userId}`);
       playDeleteSound(); // Play delete sound on delete button press
       console.log(`Monsters for user ${userId} cleared successfully!`);
       toggleModal(); // Close the modal after deletion
-      Alert.alert('All QReeps have been deleted!');
+      Alert.alert('QReeps have been deleted! Please relog for all changes to take effect.');
       } catch (error) {
         console.error('Error deleting monsters:', error);
       }
