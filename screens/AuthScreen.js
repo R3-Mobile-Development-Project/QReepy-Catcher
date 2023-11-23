@@ -218,7 +218,7 @@ const AuthScreen = ({ navigation }) => {
               )}
         </TouchableOpacity>
         <Text> Don't have an account yet? </Text>
-        <Text> Fill in the fields and sign up from the button below! </Text>
+        <Text> Fill in the fields and sign up! </Text>
         <TouchableOpacity
           style={[styles.button, styles.signupButton]}
           onPress={handleSignup}

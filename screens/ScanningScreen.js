@@ -9,6 +9,7 @@ import { Audio } from 'expo-av';
 import Slider from '@react-native-community/slider';
 import ScanningModal from '../modals/ScanningModal';
 import { findMonster, fetchMonsterDetailsFromFirestore, fetchMonsterImageURL } from '../utils/monsterUtils';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function ScanningScreen({ navigation }) {
   const [hasCameraPermission, setHasCameraPermission] = useState(null);
@@ -29,11 +30,43 @@ export default function ScanningScreen({ navigation }) {
   const [isScanningActive, setIsScanningActive] = useState(false);
   const [lastScannedData, setLastScannedData] = useState(null);
   const [isDebouncingScan, setIsDebouncingScan] = useState(false);
+  const [scannedBarcodes, setScannedBarcodes] = useState([]);
+  const [scanningMessage, setScanningMessage] = useState('');
+
+  // Function to load the last 10 scanned barcodes from AsyncStorage
+const loadScannedBarcodes = async () => {
+  try {
+    const storedBarcodes = await AsyncStorage.getItem('lastScannedBarcodes');
+    if (storedBarcodes) {
+      setScannedBarcodes(JSON.parse(storedBarcodes));
+    }
+  } catch (error) {
+    console.error('Error loading scanned barcodes from AsyncStorage:', error);
+  }
+};
+
+useEffect(() => {
+  // Load the last 10 scanned barcodes when the component mounts
+  loadScannedBarcodes();
+}, []);
+
+// Function to save the last 10 scanned barcodes to AsyncStorage
+const saveScannedBarcodes = async () => {
+  try {
+    const slicedBarcodes = scannedBarcodes.slice(-10);
+    await AsyncStorage.setItem('lastScannedBarcodes', JSON.stringify(slicedBarcodes));
+    console.log('SCANNINGSCREEN: Scanned barcodes saved to AsyncStorage:', slicedBarcodes);
+  } catch (error) {
+    console.error('Error saving scanned barcodes to AsyncStorage:', error);
+  }
+};
 
   const initiateScanning = () => {
     setLastScannedData(null);
     setIsScanningActive(true);
     setIsDebouncingScan(false); // Reset debounce state
+    setScanningMessage('SCANNING FOR QREEPS...');
+    setShowMessage(true); // Show scanning message
   };
 
   useEffect(() => {
@@ -92,25 +125,52 @@ export default function ScanningScreen({ navigation }) {
   };
 
   const handleBarCodeScanned = async ({ type, data }) => {
-    if (!isScanningActive || isDebouncingScan) return;
-  
+  if (!isScanningActive || isDebouncingScan || scannedBarcodes.includes(data)) return;
+
+  console.log('SCANNINGSCREEN: Scanned barcode:', data, 'of type:', type);
+
+  // Update the list of scanned barcodes
+  setScannedBarcodes((prevScannedBarcodes) => [...prevScannedBarcodes, data]);
+
+  // Save the last 10 scanned barcodes to AsyncStorage
+  saveScannedBarcodes();
+
     setIsDebouncingScan(true); // Start debounce cooldown
     // Set a timeout to clear the debounce state after a short period
     setTimeout(() => setIsDebouncingScan(false), 2000); // Adjust the cooldown time as needed
-  
-  
+
     // Check for duplicate scans
     if (data === lastScannedData) {
       console.log('SCANNINGSCREEN: Duplicate scan detected');
+      setScanningMessage('You scanned the same code again.');
       setShowMessage(true);
       setIsScanningActive(false); // Stop scanning after detecting a duplicate
       return;
     }
+
+    // Check if the scanned code matches one of the codes stored in AsyncStorage
+  try {
+    const storedCodes = await AsyncStorage.getItem('storedCodes');
+    if (storedCodes) {
+      const storedCodesArray = JSON.parse(storedCodes);
+      if (storedCodesArray.includes(data)) {
+        // Code matches, display your message
+        setScanningMessage('Code already scanned.');
+        setShowMessage(true);
+        setIsScanningActive(false);
+        return;
+      }
+    }
+  } catch (error) {
+    console.error('Error checking stored codes:', error);
+  }
+
     const foundMonsterId = findMonster(); // Assuming this function processes 'data' to find a monster
 
     if (foundMonsterId >= 1 && foundMonsterId <= 50) {
       // Valid monster found
       setIsScanningActive(false); // Stop scanning after a scan attempt
+      setShowMessage(false); // Hide the scanning message
       console.log(`SCANNINGSCREEN: Found monster with ID: ${foundMonsterId}`);
       try {
         const fetchedMonsterInfo = await fetchMonsterDetailsFromFirestore(foundMonsterId);
@@ -129,6 +189,8 @@ export default function ScanningScreen({ navigation }) {
       // No valid monster found
       setNoMonsterFound(true);
       setShowMessage(true);
+      setScanningMessage('No monster found, try a different code.');
+      setIsScanningActive(false);
       console.log(`SCANNINGSCREEN: No monster found.`);
     }
     setLastScannedData(data);
@@ -220,17 +282,15 @@ export default function ScanningScreen({ navigation }) {
 {/* ALLA OLEVA NÄYTTÄÄ VIESTIN, JOS EI TULE MONSTERIA. VOI TESTEISSÄ KOMMENTOIDA POIS */}
 {/* --------------------------------------------------------------- */}
 {showMessage && (
-  <View style={styles.messageContainer}>
-    {noMonsterFound ? (
-      <Text style={styles.messageText}>No monster found.</Text>
-    ) : (
-      <Text style={styles.messageText}>You scanned the same code again.</Text>
+      <View style={styles.messageContainer}>
+        <Text style={styles.messageText}>{scanningMessage}</Text>
+        {/*
+        <TouchableOpacity onPress={hideMessage} style={styles.hideMessageButton}>
+          <Text style={styles.hideMessageText}>OK</Text>
+        </TouchableOpacity>
+        */}
+      </View>
     )}
-    <TouchableOpacity onPress={hideMessage} style={styles.hideMessageButton}>
-      <Text style={styles.hideMessageText}>OK</Text>
-    </TouchableOpacity>
-  </View>
-)}
 {/* --------------------------------------------------------------- */}
       {modalVisible && (
       <ScanningModal
@@ -270,15 +330,16 @@ const styles = StyleSheet.create({
     },
     messageContainer: {
       position: 'absolute',
-      backgroundColor: 'rgba(255, 255, 255, 0.8)',
-      padding: 20,
-      borderRadius: 10,
-      top: '40%',
-      left: '10%',
-      right: '10%',
+      backgroundColor: 'rgba(255, 255, 255, 0.3)',
+      padding: 10,
+      borderRadius: 0,
+      top: '10%',
+      left: '0%',
+      right: '0%',
       alignItems: 'center',
     },
     messageText: {
+      color: 'white',
       fontSize: 18,
       textAlign: 'center',
     },

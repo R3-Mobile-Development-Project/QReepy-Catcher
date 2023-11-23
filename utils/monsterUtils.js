@@ -6,13 +6,13 @@ export const findMonster = () => {
   const randomNumber = Math.random() * 100;
   let foundMonsterId;
 
-  if (randomNumber < 2) {
+  if (randomNumber < 1) {
     // Epic monster
     foundMonsterId = Math.floor(Math.random() * 5) + 46; // ID:t 46-50
-  } else if (randomNumber < 10) {
+  } else if (randomNumber < 5) {
     // Rare monster
     foundMonsterId = Math.floor(Math.random() * 15) + 31; // ID:t 31-45
-  } else if (randomNumber < 40) {
+  } else if (randomNumber < 30) {
     // Common monster
     foundMonsterId = Math.floor(Math.random() * 30) + 1; // ID:t 1-30
   }
@@ -126,6 +126,7 @@ export const fetchMonsterDetailsFromFirestore = async (monsterId, userId) => {
       // Save the monster to AsyncStorage
       saveMonsterToAsyncStorage(monsterObject, userId);
       console.log(`MONSTERUTILS: Saved monster to AsyncStorage: ${monsterObject.name} for user ID: ${userId}`);
+      console.log(`MONSTERUTILS`);
 
     //  console.log(monsterObject);
       tempMonsters.push(monsterObject);

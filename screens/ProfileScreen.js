@@ -124,7 +124,8 @@ const backgroundImage = require('../assets/images/paper-decorations-halloween-pa
       try {
       const userId = await AsyncStorage.getItem('userId');
       await AsyncStorage.removeItem(`monsters_${userId}`);
-      await AsyncStorage.removeItem(`images_${userId}`);
+      await AsyncStorage.removeItem(`lastScannedBarcodes`)
+    //  await AsyncStorage.removeItem(`images_${userId}`);
       playDeleteSound(); // Play delete sound on delete button press
       console.log(`Monsters for user ${userId} cleared successfully!`);
       toggleModal(); // Close the modal after deletion
