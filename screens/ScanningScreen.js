@@ -55,7 +55,8 @@ const saveScannedBarcodes = async () => {
   try {
     const slicedBarcodes = scannedBarcodes.slice(-10);
     await AsyncStorage.setItem('lastScannedBarcodes', JSON.stringify(slicedBarcodes));
-    console.log('SCANNINGSCREEN: Scanned barcodes saved to AsyncStorage:', slicedBarcodes);
+    const savedBarcodes = await AsyncStorage.getItem('lastScannedBarcodes');
+    console.log('SCANNINGSCREEN: Scanned barcodes saved to AsyncStorage:', savedBarcodes);
   } catch (error) {
     console.error('Error saving scanned barcodes to AsyncStorage:', error);
   }
@@ -74,6 +75,8 @@ const saveScannedBarcodes = async () => {
       setTimeout(() => {
       setCameraActive(true);
       }, 200);
+      setSliderValue(0);
+      setZoom(0);
     } else {
         setCameraActive(false);
         setScanned(false); // Reset the scanned state when the screen is not focused
@@ -127,6 +130,10 @@ const saveScannedBarcodes = async () => {
   const handleBarCodeScanned = async ({ type, data }) => {
   if (!isScanningActive || isDebouncingScan || scannedBarcodes.includes(data)) return;
 
+  // Check if scanned barcode is a duplicate to one in async storage
+  
+
+
   console.log('SCANNINGSCREEN: Scanned barcode:', data, 'of type:', type);
 
   // Update the list of scanned barcodes
@@ -139,6 +146,7 @@ const saveScannedBarcodes = async () => {
     // Set a timeout to clear the debounce state after a short period
     setTimeout(() => setIsDebouncingScan(false), 2000); // Adjust the cooldown time as needed
 
+    /*
     // Check for duplicate scans
     if (data === lastScannedData) {
       console.log('SCANNINGSCREEN: Duplicate scan detected');
@@ -147,10 +155,12 @@ const saveScannedBarcodes = async () => {
       setIsScanningActive(false); // Stop scanning after detecting a duplicate
       return;
     }
+    */
 
     // Check if the scanned code matches one of the codes stored in AsyncStorage
+    
   try {
-    const storedCodes = await AsyncStorage.getItem('storedCodes');
+    const storedCodes = await AsyncStorage.getItem('lastScannedBarcodes');
     if (storedCodes) {
       const storedCodesArray = JSON.parse(storedCodes);
       if (storedCodesArray.includes(data)) {
@@ -164,6 +174,7 @@ const saveScannedBarcodes = async () => {
   } catch (error) {
     console.error('Error checking stored codes:', error);
   }
+  
 
     const foundMonsterId = findMonster(); // Assuming this function processes 'data' to find a monster
 
@@ -258,11 +269,13 @@ const saveScannedBarcodes = async () => {
             </TouchableOpacity>
           </View>
      {/*     <View style={styles.scannerFrame} /> */}
+          <View style={styles.scannerButtonContainer}>
             <TouchableOpacity onPress={initiateScanning} style={styles.barcodeScannerButton}>
               <MaterialCommunityIcons name="barcode-scan" size={60} color="white" />
             </TouchableOpacity>
+          </View>
           <Slider
-            style={{ width: '60%', marginVertical: 60, marginLeft: 80 }}
+            style={styles.sliderStyle}
             minimumValue={0}
             maximumValue={1}
             minimumTrackTintColor="#FFFFFF"
@@ -270,6 +283,7 @@ const saveScannedBarcodes = async () => {
             thumbTintColor="teal"
             value={sliderValue}
             onValueChange={handleZoomChange}
+            vertical={true}
           />
         </Camera>
       ) : (
@@ -314,6 +328,14 @@ const styles = StyleSheet.create({
       justifyContent: 'top',
       paddingTop: 20,
     },
+    scannerButtonContainer: {
+      flex: 1,
+      backgroundColor: 'transparent',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'flex-end',
+      paddingBottom: 20,
+    },
     torchToggleButton: {
       alignItems: 'center',
       justifyContent: 'center',
@@ -357,5 +379,15 @@ const styles = StyleSheet.create({
       alignItems: 'center',
       justifyContent: 'center',
       marginTop:10,
+    },
+    sliderStyle: {
+      width: 250, // This controls the length of slider (position moves also)
+      position: 'absolute',
+      bottom: 40, // Distance from the bottom
+      right: -60, // This controls the position of slider (left or right)
+      transform: [
+        { rotate: '-90deg' },
+        { translateX: 150 } // Adjust this value to fine-tune the horizontal position
+      ],
     },
   });
