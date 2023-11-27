@@ -1,13 +1,48 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Button, StyleSheet, ImageBackground, TouchableOpacity } from 'react-native';
 import { Audio } from 'expo-av';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { MaterialIcons } from '@expo/vector-icons';
 import CreditsModal from '../modals/CreditsModal';
+import { useFocusEffect } from '@react-navigation/native';
 
 const backgroundImage = require('../assets/images/doodle-monsters-set_90220-166.jpg');
 
 const HomeScreen = ({ navigation }) => {
   const [creditsModalVisible, setCreditsModalVisible] = useState(false);
   const [sound, setSound] = useState();
+  const [userCoins, setUserCoins] = useState(0);
+
+    const fetchUserData = async () => {
+      try {
+        // Fetch userId from AsyncStorage
+        const userId = await AsyncStorage.getItem('userId');
+        // Fetch user's coin quantity using the userId (replace with your actual logic)
+        const coinQuantity = await fetchCoinQuantity(userId);
+        // Set the userCoins state with the fetched coin quantity
+        setUserCoins(coinQuantity);
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    };
+
+  const fetchCoinQuantity = async (userId) => {
+    // fetch coins from async storage using the userId
+    const coins = await AsyncStorage.getItem(`coins_${userId}`);
+    // If coins exist, return the quantity as a number
+    if (coins) {
+      return parseInt(coins);
+    }
+    // If coins do not exist, return 0
+    return 0;
+  };
+
+  // Use useFocusEffect to refresh monsters when the screen is focused
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchUserData();
+    }, [])
+  );
 
   useEffect(() => {
     return sound
@@ -58,6 +93,10 @@ const HomeScreen = ({ navigation }) => {
       <TouchableOpacity onPress={openCreditsModal} style={styles.creditsButton}>
           <Text style={styles.creditsButtonText}>CREDITS</Text>
       </TouchableOpacity>
+      <View style={styles.coinContainer}>
+        <MaterialIcons name="toll" size={64} color="purple" />
+        <Text style={styles.coinText}>{userCoins}</Text>
+      </View>
       </View>
       </ImageBackground>
       <CreditsModal visible={creditsModalVisible} onClose={closeCreditsModal} />
@@ -112,6 +151,20 @@ const styles = StyleSheet.create({
   image: {
     width: 200, // Set the width as per your requirements
     height: 200, // Set the height as per your requirements
+  },
+  coinContainer: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  coinText: {
+    fontSize: 34,
+    fontWeight: 'bold',
+    marginLeft: 5,
+    marginRight: 10,
+    color: 'purple',
   },
 });
 

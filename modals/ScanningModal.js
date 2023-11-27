@@ -102,16 +102,20 @@ const ScanningModal = ({ isVisible, onClose, openGallery, monsterInfo, imageURL 
     try {
       // Retrieve the userId from AsyncStorage
       const userId = await AsyncStorage.getItem('userId');
-
       // Retrieve the monsters for the user from AsyncStorage
       const monstersData = await AsyncStorage.getItem(`monsters_${userId}`);
       const currentMonsters = monstersData ? JSON.parse(monstersData) : [];
-
       // Remove the last monster from the array and update AsyncStorage
       currentMonsters.pop();
       const lastMonster = currentMonsters
       await AsyncStorage.setItem(`monsters_${userId}`, JSON.stringify(currentMonsters));
       console.log('SCANNINGMODAL: Monster sold and removed from AsyncStorage:', lastMonster?.name, 'for user ID:', userId);
+
+      const coinQuantity = await AsyncStorage.getItem(`coins_${userId}`);
+      const currentCoins = coinQuantity ? JSON.parse(coinQuantity) : 0;
+      const newCoins = currentCoins + 1;
+      await AsyncStorage.setItem(`coins_${userId}`, JSON.stringify(newCoins));
+      console.log('SCANNINGMODAL: Coins updated to:', newCoins, 'for user ID:', userId);
 
       } catch (error) {
         console.error('Error selling monster:', error);
@@ -156,7 +160,6 @@ const ScanningModal = ({ isVisible, onClose, openGallery, monsterInfo, imageURL 
           )}
 
           {imageLoading && <Text>Loading image...</Text>}
-
           {monsterInfo.map((monster, index) => (
             <View key={index}>
               <Text style={styles.name}>{monster.name}</Text>
