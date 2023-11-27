@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Button, StyleSheet, ImageBackground, FlatList, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, Button, StyleSheet, ImageBackground, FlatList, Image, TouchableOpacity, ActivityIndicator, Modal } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -13,6 +13,13 @@ const GalleryScreen = ({ navigation }) => {
   const [numColumns, setNumColumns] = useState(3);
   const [sortingMethod, setSortingMethod] = useState('id');
   const placeholders = Array.from({ length: (3 - monsters.length % 3) % 3 });
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedMonster, setSelectedMonster] = useState(null);
+
+  const handleItemPress = (monster) => {
+    setSelectedMonster(monster);
+    setIsModalVisible(true);
+  };
 
   const sortMonstersAndImages = async () => {
     // Pair each monster with its image
@@ -129,14 +136,14 @@ const refreshMonsters = async () => {
 return (
   <View style={styles.container}>
     <ImageBackground source={backgroundImage} style={styles.backgroundImage} resizeMode="cover">
-    <View style={styles.sortingContainer}>
-  <TouchableOpacity onPress={() => setSortingMethod('id')}>
-    <Icon name="sort" size={30} color="black" />
-  </TouchableOpacity>
-  <TouchableOpacity onPress={() => setSortingMethod('name')}>
-    <Icon name="sort-by-alpha" size={30} color="black" />
-  </TouchableOpacity>
-</View>
+      <View style={styles.sortingContainer}>
+        <TouchableOpacity onPress={() => setSortingMethod('id')}>
+          <Icon name="sort" size={30} color="black" />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => setSortingMethod('name')}>
+          <Icon name="sort-by-alpha" size={30} color="black" />
+        </TouchableOpacity>
+      </View>
 
       <View style={styles.contentContainer}>
         <Text style={styles.text}>My collected QReeps!</Text>
@@ -144,27 +151,63 @@ return (
           data={[...monsters, ...placeholders]}
           keyExtractor={(item, index) => `monster_${index}`}
           numColumns={numColumns}
-          renderItem={({ item, index }) => (
-          item ? (
-          <View style={styles.monsterContainer}>
-            {images[index] ? (
-              <Image source={{ uri: images[index] }} style={styles.image} />
+          renderItem={({ item, index }) => {
+            if (!item) {
+              // Render an invisible view for the placeholder
+              return <View style={[styles.monsterContainer, styles.invisible]} />;
+            }
+
+            // Render the actual monster item
+            return (
+              <View style={styles.monsterContainer}>
+              {images[index] ? (
+                <TouchableOpacity onPress={() => handleItemPress(item)}>
+                  <Image 
+  source={{ uri: images[index] }}
+  style={{ width: 100, height: 100 }}  // Set fixed width and height for testing
+  resizeMode="contain"
+/>
+                </TouchableOpacity>
               ) : (
-              <View style={styles.loadingContainer}>
-                <ActivityIndicator size="small" color="black" />
-              </View>
+                <View style={styles.loadingContainer}>
+                  <ActivityIndicator size="small" color="black" />
+                </View>
               )}
-            <Text style={styles.monsterName}>{item.name}</Text>
-          </View>
-        ) : (
-        <View style={[styles.monsterContainer, styles.invisible]} />
-        )
-      )}
-    />
+              <Text style={styles.monsterName}>{item.name}</Text>
+            </View>
+            
+            );
+          }}
+        />
       </View>
     </ImageBackground>
+
+    {/* Modal for displaying monster details */}
+    <Modal
+      animationType="slide"
+      transparent={true}
+      visible={isModalVisible}
+      onRequestClose={() => setIsModalVisible(false)}
+    >
+      <View style={styles.modalView}>
+        {selectedMonster && (
+          <>
+            <Text style={styles.modalText}>{selectedMonster.name}</Text>
+            {/* Include other details of selectedMonster here */}
+            {/* ... */}
+          </>
+        )}
+        <Button
+          title="Close"
+          onPress={() => setIsModalVisible(false)}
+        />
+      </View>
+    </Modal>
   </View>
 );
+
+
+
 };
 
 const styles = StyleSheet.create({
@@ -235,6 +278,25 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     width: '100%',
     padding: 10,
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 35,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: "center"
   },
 });
 

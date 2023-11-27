@@ -241,14 +241,21 @@ const saveScannedBarcodes = async () => {
   return (
     <View style={{ flex: 1 }}>
       {cameraActive ? (
-        <Camera
-          style={{ flex: 1 }}
-          type={type}
-          ref={cameraRef}
-          flashMode={torchOn}
-          zoom={zoom}
-          onBarCodeScanned={isScanningActive ? handleBarCodeScanned : undefined}
-    //   onBarCodeScanned={handleBarCodeScanned}
+ <Camera
+ style={{ flex: 1 }}
+ type={type}
+ ref={cameraRef}
+ flashMode={torchOn}
+ zoom={zoom}
+ autoFocus={Camera.Constants.AutoFocus.on} // Enable autofocus
+ onBarCodeScanned={isScanningActive ? handleBarCodeScanned : undefined}
+ onCameraReady={() => {
+   // Handle any initialization or focus adjustments when the camera is ready
+ }}
+ onMountError={(error) => {
+   // Handle any errors when mounting the camera
+   console.log('Camera mount error:', error);
+ }}
         >
           <View style={styles.buttonContainer}>
             <TouchableOpacity onPress={handleTorchToggle} style={styles.torchToggleButton}>
