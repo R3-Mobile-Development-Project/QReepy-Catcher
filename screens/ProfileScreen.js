@@ -1,22 +1,22 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ImageBackground, Switch } from 'react-native';
-import { getAuth, signOut } from 'firebase/auth'; // Import Firebase authentication methods
+import { View, Text, StyleSheet, TouchableOpacity, ImageBackground, Switch, Alert } from 'react-native';
+import { getAuth, signOut } from 'firebase/auth';
 import { MaterialIcons } from '@expo/vector-icons';
 import AchievementsModal from '../modals/AchievementsModal';
 import { Audio } from 'expo-av';
-import MusicPlayer from '../MusicPlayer';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Alert } from 'react-native';
 import Modal from 'react-native-modal';
+import { useMusic } from '../MusicContext'; // Import useMusic hook
 
 const backgroundImage = require('../assets/images/paper-decorations-halloween-pack_23-2148635839.jpg');
 
-  const ProfileScreen = () => {
+const ProfileScreen = () => {
     const [achievementsModalVisible, setAchievementsModalVisible] = useState(false);
     const [muteBackgroundMusic, setMuteBackgroundMusic] = useState(false);
     const [muteAllSounds, setMuteAllSounds] = useState(false);
     const [isMusicMuted, setIsMusicMuted] = useState(false);
     const [isModalVisible, setModalVisible] = useState(false);
+    const { playMusic, stopMusic } = useMusic(); // Use the useMusic hook
 
     const handleLogout = async () => {
       playSignoutSound(); // Play button sound on logout button press
@@ -108,7 +108,15 @@ const backgroundImage = require('../assets/images/paper-decorations-halloween-pa
     };
 
     const handleBackgroundMusicToggle = () => {
-      setMuteBackgroundMusic((prev) => !prev);
+      setMuteBackgroundMusic(prevState => {
+        const newState = !prevState;
+        if (newState) {
+          stopMusic();
+        } else {
+          playMusic();
+        }
+        return newState;
+      });
     };
 
     const handleAllSoundsToggle = () => {
@@ -148,24 +156,18 @@ const backgroundImage = require('../assets/images/paper-decorations-halloween-pa
             <Text style={styles.text}>Welcome to your profile!</Text>
 
 
-      {/* Mute Background Music Switch */}
-      <View style={styles.switchContainer}>
-        <Text style={styles.switchLabel}>Mute Background Music</Text>
-        <Switch
-          value={muteBackgroundMusic}
-          onValueChange={handleBackgroundMusicToggle}
-          trackColor={{ false: '#767577', true: '#81b0ff' }}
-          thumbColor={muteBackgroundMusic ? '#f5dd4b' : '#f4f3f4'}
-          ios_backgroundColor="#3e3e3e"
-        />
-      </View>
+{/* Mute Background Music Switch */}
+<View style={styles.switchContainer}>
+    <Text style={styles.switchLabel}>Mute Background Music</Text>
+    <Switch
+        value={muteBackgroundMusic}
+        onValueChange={handleBackgroundMusicToggle}
+        trackColor={{ false: '#767577', true: '#81b0ff' }}
+        thumbColor={muteBackgroundMusic ? '#f5dd4b' : '#f4f3f4'}
+        ios_backgroundColor="#3e3e3e"
+    />
+</View>
 
-      {/*
-      <MusicPlayer
-        muteBackgroundMusic={muteBackgroundMusic}
-        isMuted={isMusicMuted}
-      />
-      */}
 
             <TouchableOpacity style={styles.button} onPress={handleLogout}>
               <Text style={styles.buttonText}>SIGN OUT</Text>

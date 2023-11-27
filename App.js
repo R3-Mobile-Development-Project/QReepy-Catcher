@@ -17,7 +17,7 @@ import ProfileScreen from './screens/ProfileScreen';
 import ScanningScreen from './screens/ScanningScreen';
 import SplashScreen from './screens/SplashScreen';
 import GalleryScreen from './screens/GalleryScreen';
-import MusicPlayer from './MusicPlayer';
+import { MusicProvider } from './MusicContext'; // Import MusicProvider from MusicContext
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
@@ -53,7 +53,10 @@ export default function App() {
   }, []);
 
   return (
+
     <NavigationContainer>
+        <MusicProvider>
+
       <StatusBar style="auto" />
       {showSplash ? (
         <SplashScreen />
@@ -117,8 +120,11 @@ export default function App() {
           <Stack.Screen name="Login" component={AuthScreen} options={{ headerShown: false }} />
         </Stack.Navigator>
       )}
-    <MusicPlayer />
+        </MusicProvider>
+
     </NavigationContainer>
+ 
+
   );
 }
 
