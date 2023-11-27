@@ -1,5 +1,5 @@
 import React, {useState, useEffect } from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, Modal } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity, Modal, ActivityIndicator } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Audio } from 'expo-av';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -159,7 +159,7 @@ const ScanningModal = ({ isVisible, onClose, openGallery, monsterInfo, imageURL 
             />
           )}
 
-          {imageLoading && <Text>Loading image...</Text>}
+          {imageLoading && <ActivityIndicator size="small" color="black" />}
           {monsterInfo.map((monster, index) => (
             <View key={index}>
               <Text style={styles.name}>{monster.name}</Text>

@@ -148,7 +148,7 @@ return (
           item ? (
           <View style={styles.monsterContainer}>
             {images[index] ? (
-              <Image source={{ uri: images[index] }} style={styles.image} />
+                <Image source={{ uri: images[index] }} style={styles.image} />
               ) : (
               <View style={styles.loadingContainer}>
                 <ActivityIndicator size="small" color="black" />

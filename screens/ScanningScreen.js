@@ -55,7 +55,7 @@ useEffect(() => {
 // Function to save the last 10 scanned barcodes to AsyncStorage
 const saveScannedBarcodes = async () => {
   try {
-    const slicedBarcodes = scannedBarcodes.slice(-10);
+    const slicedBarcodes = scannedBarcodes.slice(-1);
     await AsyncStorage.setItem('lastScannedBarcodes', JSON.stringify(slicedBarcodes));
     const savedBarcodes = await AsyncStorage.getItem('lastScannedBarcodes');
     console.log('SCANNINGSCREEN: Scanned barcodes saved to AsyncStorage:', savedBarcodes);
@@ -247,8 +247,8 @@ const saveScannedBarcodes = async () => {
           ref={cameraRef}
           flashMode={torchOn}
           zoom={zoom}
+          autoFocus={Camera.Constants.AutoFocus.on} // Enable autofocus
           onBarCodeScanned={isScanningActive ? handleBarCodeScanned : undefined}
-    //   onBarCodeScanned={handleBarCodeScanned}
         >
           <View style={styles.buttonContainer}>
             <TouchableOpacity onPress={handleTorchToggle} style={styles.torchToggleButton}>
