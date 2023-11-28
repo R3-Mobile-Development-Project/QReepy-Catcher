@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ImageBackground, Switch, Alert } from 'react-native';
 import { getAuth, signOut } from 'firebase/auth';
-import { MaterialIcons } from '@expo/vector-icons';
+import { MaterialIcons,FontAwesome5 } from '@expo/vector-icons';
 import AchievementsModal from '../modals/AchievementsModal';
 import { Audio } from 'expo-av';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -158,27 +158,37 @@ const ProfileScreen = () => {
 
 {/* Mute Background Music Switch */}
 <View style={styles.switchContainer}>
-    <Text style={styles.switchLabel}>Mute Background Music</Text>
-    <Switch
-        value={muteBackgroundMusic}
-        onValueChange={handleBackgroundMusicToggle}
-        trackColor={{ false: '#767577', true: '#81b0ff' }}
-        thumbColor={muteBackgroundMusic ? '#f5dd4b' : '#f4f3f4'}
-        ios_backgroundColor="#3e3e3e"
-    />
+  <Text style={styles.switchLabel}>Mute Background Music</Text>
+  {muteBackgroundMusic ? (
+    <FontAwesome5 name="volume-mute" size={24} color="black" />
+  ) : (
+    <FontAwesome5 name="volume-up" size={24} color="black" />
+  )}
+  <Switch
+    value={muteBackgroundMusic}
+    onValueChange={handleBackgroundMusicToggle}
+    trackColor={{ false: '#767577', true: '#81b0ff' }}
+    thumbColor={muteBackgroundMusic ? '#f5dd4b' : '#f4f3f4'}
+    ios_backgroundColor="#3e3e3e"
+  />
 </View>
+
 
 
             <TouchableOpacity style={styles.button} onPress={handleLogout}>
               <Text style={styles.buttonText}>SIGN OUT</Text>
-              <MaterialIcons name="logout" size={24} color="white" />
+              <MaterialIcons name="logout" size={24} color="black" />
             </TouchableOpacity>
             <TouchableOpacity onPress={openAchievementsModal} style={styles.achievementsButton}>
+            <FontAwesome5  name="trophy" size={24} color="black" />
+
               <Text style={styles.achievementsButtonText}>ACHIEVEMENTS</Text>
             </TouchableOpacity>
 
             {/* Clear AsyncStorage Button */}
           <TouchableOpacity onPress={clearMonstersForUser} style={styles.clearButton}>
+          <FontAwesome5 name="trash-alt" size={24} color="black" />
+
             <Text style={styles.clearButtonText}>DELETE ALL QREEPS</Text>
           </TouchableOpacity>
 
@@ -233,10 +243,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginVertical: 10,
-    backgroundColor: 'rgba(255,255,255,0.8)',
-  },
+    backgroundColor: 'rgba(255,255,255,0.5)', // Semi-transparent white
+    borderRadius: 20, // Adjust this value as needed
+    // Add padding if needed
+    padding: 5, // Optional, adjust as needed
+},
   switchLabel: {
     fontSize: 18,
+    fontWeight: 'bold',
     marginRight: 10,
   },
   button: {
@@ -252,7 +266,8 @@ const styles = StyleSheet.create({
     borderWidth: 3,
   },
   buttonText: {
-    color: 'white',
+    color: 'black',
+    fontWeight: 'bold',
     marginRight: 10,
     fontSize: 18,
   },
