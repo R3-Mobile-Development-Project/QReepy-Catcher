@@ -12,6 +12,9 @@ const StoreModal = ({ visible, onClose }) => {
     const [imageLoading, setImageLoading] = useState(true);
     const [eggUrl, setEggUrl] = useState(null);
     const [userCoins, setUserCoins] = useState(0);
+    const [eggQuantity, setEggQuantity] = useState(0);
+    const eggCost = 1;
+    const totalCost = eggQuantity * eggCost;
 
     useFocusEffect(
         React.useCallback(() => {
@@ -36,6 +39,7 @@ const StoreModal = ({ visible, onClose }) => {
     };
 
     const handleClosePress = () => {
+        setEggQuantity(0);
         playCloseSound();
         onClose();
     };
@@ -107,16 +111,27 @@ const StoreModal = ({ visible, onClose }) => {
         }
     };
 
+    const incrementEggQuantity = () => {
+        setEggQuantity(eggQuantity + 1);
+    };
+
+    const decrementEggQuantity = () => {
+        if (eggQuantity > 1) {
+            setEggQuantity(eggQuantity - 1);
+        }
+    };
+
     const handleBuyEggPress = async () => {
-        // Check if user has enough coins to buy an egg
-        if (userCoins >= 1) {
-            // Deduct 100 coins from the user's coin quantity
+        // Check if user has enough coins to buy the selected quantity of eggs
+   //     const totalCost = eggQuantity * eggCost; // Assuming each egg costs 1 coin
+        if (userCoins >= totalCost) {
+            // Deduct coins from the user's coin quantity
             const userId = await AsyncStorage.getItem('userId');
-            const newCoinQuantity = userCoins - 1;
+            const newCoinQuantity = userCoins - totalCost;
             await AsyncStorage.setItem(`coins_${userId}`, newCoinQuantity.toString());
             setUserCoins(newCoinQuantity);
         } else {
-            // User does not have enough coins to buy an egg
+            // User does not have enough coins to buy the selected quantity of eggs
             alert('Not enough coins!');
         }
     };
@@ -131,6 +146,16 @@ const StoreModal = ({ visible, onClose }) => {
             <View style={styles.modalContainer}>
                 <View style={styles.modalContent}>
                     <View style={styles.modalHeader}>
+                        <View style={styles.quantityContainer}>
+                        {/* plus and minus buttons for egg quantity */}
+                        <TouchableOpacity onPress={decrementEggQuantity} style={styles.quantityButton}>
+                            <Text style={styles.quantityButtonText}>-</Text>
+                        </TouchableOpacity>
+                        <Text style={styles.modalHeaderText}>{eggQuantity}</Text>
+                        <TouchableOpacity onPress={incrementEggQuantity} style={styles.quantityButton}>
+                            <Text style={styles.quantityButtonText}>+</Text>
+                        </TouchableOpacity>
+                        </View>
                         {/* create a button to buy a random egg */}
                         <TouchableOpacity onPress={handleBuyEggPress} style={styles.buyEggButton}>
                             <Text style={styles.modalHeaderText}>Buy Egg</Text>
@@ -155,9 +180,12 @@ const StoreModal = ({ visible, onClose }) => {
                                 </View>
                             )}
                             </View>
+                            {/* display the total cost */}
+                       {/*     <Text style={styles.modalHeaderText}>Total Cost: {eggQuantity} coins</Text>  */}
+                            {/* display the user's coin quantity */}
                             <View style={styles.coinContainer}>
+                            <Text style={styles.coinText}>{userCoins} - {totalCost}</Text>
                             <Image source={require('../assets/images/coin2.png')} style={styles.image} />
-                            <Text style={styles.coinText}>{userCoins}</Text>
                         </View>
                         </ScrollView>
                         <TouchableOpacity onPress={handleClosePress} style={styles.closeButton}>
@@ -191,6 +219,25 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         marginBottom: 20,
+    },
+    quantityContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 20,
+    },
+    quantityButton: {
+        width: 30,
+        height: 30,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 5,
+        borderColor: 'black',
+        borderWidth: 2,
+        marginHorizontal: 10,
+    },
+    quantityButtonText: {
+        fontSize: 20,
+        color: 'white',
     },
     buyEggButton: {
         width: 110,
@@ -256,7 +303,7 @@ const styles = StyleSheet.create({
       },
     closeButton: {
         position: 'absolute',
-        bottom: 20,
+        bottom: 0,
         width: 70,
         height: 70,
         borderRadius: 35,
