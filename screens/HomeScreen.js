@@ -82,6 +82,7 @@ const HomeScreen = ({ navigation }) => {
 
   const closeStoreModal = () => {
     setStoreModalVisible(false);
+    fetchUserData();
   };
 
   return (
