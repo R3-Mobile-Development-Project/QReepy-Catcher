@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, Modal, StyleSheet, TouchableOpacity, ScrollView, Image, ActivityIndicator } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, Modal, StyleSheet, TouchableOpacity, ScrollView, Image, ActivityIndicator, Animated, Easing } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Audio } from 'expo-av';
 import { getFirestore, collection, query, onSnapshot, where, getDocs } from 'firebase/firestore';
@@ -13,13 +13,17 @@ const StoreModal = ({ visible, onClose }) => {
     const [eggUrl, setEggUrl] = useState(null);
     const [userCoins, setUserCoins] = useState(0);
     const [eggQuantity, setEggQuantity] = useState(0);
-    const eggCost = 1;
+    const eggCost = 1; // VAIHDA TÄMÄN ARVOA
     const totalCost = eggQuantity * eggCost;
+
+    const spinValue = useRef(new Animated.Value(0)).current;
 
     useFocusEffect(
         React.useCallback(() => {
+            fetchUserData();
             fetchRandomEgg();
-        }, [])
+            startSpinAnimation();
+        }, [visible])
     );
 
     useEffect(() => {
@@ -27,6 +31,7 @@ const StoreModal = ({ visible, onClose }) => {
             if (closeSound) {
                 closeSound.unloadAsync();
             }
+            spinValue.setValue(0);
         };
     }, [closeSound]);
 
@@ -123,18 +128,42 @@ const StoreModal = ({ visible, onClose }) => {
 
     const handleBuyEggPress = async () => {
         // Check if user has enough coins to buy the selected quantity of eggs
-   //     const totalCost = eggQuantity * eggCost; // Assuming each egg costs 1 coin
         if (userCoins >= totalCost) {
             // Deduct coins from the user's coin quantity
             const userId = await AsyncStorage.getItem('userId');
             const newCoinQuantity = userCoins - totalCost;
             await AsyncStorage.setItem(`coins_${userId}`, newCoinQuantity.toString());
             setUserCoins(newCoinQuantity);
+            setEggQuantity(0);
+            // Fetch a new random egg
+            fetchRandomEgg();
         } else {
             // User does not have enough coins to buy the selected quantity of eggs
             alert('Not enough coins!');
         }
     };
+
+    const startSpinAnimation = () => {
+        Animated.loop(
+            Animated.timing(spinValue, {
+                toValue: 1,
+                duration: 10000, // Adjust the duration as needed
+                easing: Easing.linear,
+                useNativeDriver: true,
+            })
+        ).start();
+    };
+
+    useEffect(() => {
+        if (visible) {
+            startSpinAnimation();
+        }
+    }, [visible]);
+
+    const spin = spinValue.interpolate({
+        inputRange: [0, 1],
+        outputRange: ['0deg', '360deg'],
+    });
 
     return (
         <Modal
@@ -185,7 +214,10 @@ const StoreModal = ({ visible, onClose }) => {
                             {/* display the user's coin quantity */}
                             <View style={styles.coinContainer}>
                             <Text style={styles.coinText}>{userCoins} - {totalCost}</Text>
-                            <Image source={require('../assets/images/coin2.png')} style={styles.image} />
+                            <Animated.Image
+                            source={require('../assets/images/coin2.png')}
+                            style={[styles.image, { transform: [{ rotate: spin }] }]}
+                            />
                         </View>
                         </ScrollView>
                         <TouchableOpacity onPress={handleClosePress} style={styles.closeButton}>
@@ -213,6 +245,8 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         alignItems: 'center',
         justifyContent: 'center',
+        borderWidth: 3,
+        borderColor: 'black',
       },
     modalHeader: {
         flexDirection: 'column',
