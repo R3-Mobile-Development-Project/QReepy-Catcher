@@ -22,7 +22,7 @@ const StoreModal = ({ visible, onClose }) => {
         React.useCallback(() => {
             fetchUserData();
             fetchRandomEgg();
-            startSpinAnimation();
+            spinValue.setValue(0);
         }, [visible])
     );
 
@@ -45,6 +45,7 @@ const StoreModal = ({ visible, onClose }) => {
 
     const handleClosePress = () => {
         setEggQuantity(0);
+        spinValue.setValue(0);
         playCloseSound();
         onClose();
     };
@@ -84,6 +85,18 @@ const StoreModal = ({ visible, onClose }) => {
             const imageRef = ref(storage, `gs://qreepy-catcher.appspot.com/Eggs/egg${randomNumber}.${fileFormat}`);
             const url = await getDownloadURL(imageRef);
             setEggUrl(url);
+            console.log('Egg:', randomNumber);
+
+            // Fetch monster data using the determined monsterId
+            const db = getFirestore();
+            const q = query(collection(db, 'monsters'), where('id', 'in', [randomNumber, randomNumber + 10, randomNumber + 20, randomNumber + 30, randomNumber + 40]));
+
+            const querySnapshot = await getDocs(q);
+            querySnapshot.forEach((doc) => {
+                const monsterData = doc.data();
+                console.log('Monster Data:', monsterData.id);
+            });
+
         } catch (error) {
             console.error('Error fetching random egg:', error);
             throw error;
