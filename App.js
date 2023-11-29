@@ -18,6 +18,7 @@ import ScanningScreen from './screens/ScanningScreen';
 import SplashScreen from './screens/SplashScreen';
 import GalleryScreen from './screens/GalleryScreen';
 import { MusicProvider } from './MusicContext'; // Import MusicProvider from MusicContext
+import BannerAd from './screens/BannerAd'; // Import the BannerAd component
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
@@ -121,6 +122,7 @@ export default function App() {
         </Stack.Navigator>
       )}
         </MusicProvider>
+        <BannerAd />
 
     </NavigationContainer>
  
