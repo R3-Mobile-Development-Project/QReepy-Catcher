@@ -75,6 +75,7 @@ export const fetchMonsterDetailsFromFirestore = async (monsterId, userId) => {
       return;
     }
 
+
   const db = getFirestore();
   const q = query(collection(db, 'monsters'), where('id', '==', monsterId));
 
@@ -119,6 +120,7 @@ export const fetchMonsterDetailsFromFirestore = async (monsterId, userId) => {
         title: doc.data().title,
         nature: doc.data().nature,
         background: doc.data().background,
+        rarity: doc.data().rarity,
         age: doc.data().age,
         dominantColors: parsedColors, // Use default if parsing fails
       };
