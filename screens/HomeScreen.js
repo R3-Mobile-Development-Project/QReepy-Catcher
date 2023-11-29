@@ -111,7 +111,7 @@ const HomeScreen = ({ navigation }) => {
           <Text style={styles.creditsButtonText}>CREDITS</Text>
       </TouchableOpacity>
       <View style={styles.coinContainer}>
-        <Image source={require('../assets/images/coin2.png')} style={styles.image} />
+        <Image source={require('../assets/images/coin4.png')} style={styles.image} />
         <Text style={styles.coinText}>{userCoins}</Text>
       </View>
       <TouchableOpacity onPress={openStoreModal} style={styles.storeButton}>
@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   coinText: {
-    fontSize: 34,
+    fontSize: 18,
     fontWeight: 'bold',
     marginLeft: 5,
     marginRight: 10,

@@ -126,6 +126,8 @@ const backgroundImage = require('../assets/images/paper-decorations-halloween-pa
       await AsyncStorage.removeItem(`monsters_${userId}`);
       //Remove barcodes from AsyncStorage
       await AsyncStorage.removeItem(`lastScannedBarcodes`);
+      //Remove eggs from AsyncStorage
+      await AsyncStorage.removeItem(`boughtEggs_${userId}`);
 
     //  await AsyncStorage.removeItem(`images_${userId}`);
       playDeleteSound(); // Play delete sound on delete button press

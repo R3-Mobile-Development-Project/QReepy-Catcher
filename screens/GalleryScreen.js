@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Button, StyleSheet, ImageBackground, FlatList, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, Button, StyleSheet, ImageBackground, FlatList, Image, TouchableOpacity, ActivityIndicator, Modal } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { Ionicons } from '@expo/vector-icons';
 import { findMonster, fetchMonsterImageURL } from '../utils/monsterUtils';
+import { Audio } from 'expo-av';
+import EggModal from '../modals/EggModal';
 
 const backgroundImage = require('../assets/images/horrible-monster-2.jpg');
 
@@ -13,6 +16,35 @@ const GalleryScreen = ({ navigation }) => {
   const [numColumns, setNumColumns] = useState(3);
   const [sortingMethod, setSortingMethod] = useState('id');
   const placeholders = Array.from({ length: (3 - monsters.length % 3) % 3 });
+  const [sound, setSound] = useState();
+
+  const [eggModalVisible, setEggModalVisible] = useState(false);
+
+  useEffect(() => {
+    return sound
+      ? () => {
+          sound.unloadAsync();
+        }
+      : undefined;
+  }, [sound]);
+
+  const playButtonSound = async () => {
+    const { sound } = await Audio.Sound.createAsync(
+      require('../assets/sounds/Menu_Selection_Click.wav')
+    );
+    setSound(sound);
+    await sound.playAsync();
+  };
+
+  const openEggModal = async () => {
+    playButtonSound();
+    setEggModalVisible(true);
+  };
+
+  const closeEggModal = async () => {
+    playButtonSound();
+    setEggModalVisible(false);
+  };
 
   const sortMonstersAndImages = async () => {
     // Pair each monster with its image
@@ -133,6 +165,9 @@ return (
   <TouchableOpacity onPress={() => setSortingMethod('id')}>
     <Icon name="sort" size={30} color="black" />
   </TouchableOpacity>
+  <TouchableOpacity onPress={openEggModal}>
+    <Ionicons name="egg-outline" size={30} color="black" />
+  </TouchableOpacity>
   <TouchableOpacity onPress={() => setSortingMethod('name')}>
     <Icon name="sort-by-alpha" size={30} color="black" />
   </TouchableOpacity>
@@ -163,6 +198,7 @@ return (
     />
       </View>
     </ImageBackground>
+    <EggModal visible={eggModalVisible} onClose={closeEggModal} />
   </View>
 );
 };

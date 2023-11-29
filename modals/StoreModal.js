@@ -15,6 +15,10 @@ const StoreModal = ({ visible, onClose }) => {
     const [eggQuantity, setEggQuantity] = useState(0);
     const eggCost = 1; // VAIHDA TÄMÄN ARVOA
     const totalCost = eggQuantity * eggCost;
+    const [eggBought, setEggBought] = useState(false);
+    const [message, setMessage] = useState('');
+    const [timer, setTimer] = useState(null);
+    const [fetchingEgg, setFetchingEgg] = useState(false);
 
     const spinValue = useRef(new Animated.Value(0)).current;
 
@@ -44,6 +48,7 @@ const StoreModal = ({ visible, onClose }) => {
     };
 
     const handleClosePress = () => {
+        setEggBought(false); // Reset egg state on modal close
         setEggQuantity(0);
         spinValue.setValue(0);
         playCloseSound();
@@ -55,7 +60,7 @@ const StoreModal = ({ visible, onClose }) => {
         const coins = await AsyncStorage.getItem(`coins_${userId}`);
         // If coins exist, return the quantity as a number
         if (coins) {
-            return parseInt(coins);
+            return parseInt(coins); //VAIHDA COINSIN ARVO HALUTTUUN SUMMAAN JA OSTA MUNA NIIN PÄIVITTYY
         }
         // If coins do not exist, return 0
         return 0;
@@ -96,7 +101,6 @@ const StoreModal = ({ visible, onClose }) => {
                 const monsterData = doc.data();
                 console.log('Monster Data:', monsterData.id);
             });
-
         } catch (error) {
             console.error('Error fetching random egg:', error);
             throw error;
@@ -139,20 +143,69 @@ const StoreModal = ({ visible, onClose }) => {
         }
     };
 
+    // play the sell sound effect
+    const playSellSound = async () => {
+        const { sound } = await Audio.Sound.createAsync(
+            require('../assets/sounds/ETRA_TOIMII.wav')
+        );
+        setCloseSound(sound);
+        await sound.playAsync();
+    };
+
     const handleBuyEggPress = async () => {
+        if (fetchingEgg) {
+            return;
+        }
+        if (eggQuantity > 0) {
         // Check if user has enough coins to buy the selected quantity of eggs
         if (userCoins >= totalCost) {
+            playSellSound();
             // Deduct coins from the user's coin quantity
             const userId = await AsyncStorage.getItem('userId');
             const newCoinQuantity = userCoins - totalCost;
             await AsyncStorage.setItem(`coins_${userId}`, newCoinQuantity.toString());
             setUserCoins(newCoinQuantity);
+
+            // Save the bought egg to AsyncStorage
+            const boughtEggs = await AsyncStorage.getItem(`boughtEggs_${userId}`);
+            const newBoughtEggs = boughtEggs ? JSON.parse(boughtEggs) : [];
+
+            // Add the bought egg data to the array
+            for (let i = 0; i < eggQuantity; i++) {
+                newBoughtEggs.push({
+                    eggUrl,
+                    // Add other relevant egg data if needed
+                });
+            }
+
+            // Save the updated array back to AsyncStorage
+            await AsyncStorage.setItem(`boughtEggs_${userId}`, JSON.stringify(newBoughtEggs));
+            console.log('Saved bought eggs to AsyncStorage:', newBoughtEggs);
+
             setEggQuantity(0);
-            // Fetch a new random egg
-            fetchRandomEgg();
+            // Update state to indicate the egg has been bought
+            setEggBought(true);
+            if(eggQuantity > 1) {
+            setMessage(`+${eggQuantity} eggs added to your Collection`);
+            } else {
+            setMessage(`+${eggQuantity} egg added to your Collection`);
+            }
+            // Reset the message after 3 seconds
+            const newTimer = setTimeout(() => {
+                fetchRandomEgg();
+                setEggBought(false);
+                setFetchingEgg(false);
+                setMessage('');
+            }, 3000);
+            setTimer(newTimer);
+            setFetchingEgg(true);
         } else {
             // User does not have enough coins to buy the selected quantity of eggs
             alert('Not enough coins!');
+        }
+        } else {
+            // User has not selected a quantity of eggs
+            alert('Please select a quantity of eggs!');
         }
     };
 
@@ -163,15 +216,16 @@ const StoreModal = ({ visible, onClose }) => {
                 duration: 10000, // Adjust the duration as needed
                 easing: Easing.linear,
                 useNativeDriver: true,
+             //   resetBeforeIteration: true,
             })
         ).start();
     };
 
     useEffect(() => {
-        if (visible) {
+        if (visible || eggBought) {
             startSpinAnimation();
         }
-    }, [visible]);
+    }, [visible, eggBought]);
 
     const spin = spinValue.interpolate({
         inputRange: [0, 1],
@@ -199,7 +253,11 @@ const StoreModal = ({ visible, onClose }) => {
                         </TouchableOpacity>
                         </View>
                         {/* create a button to buy a random egg */}
-                        <TouchableOpacity onPress={handleBuyEggPress} style={styles.buyEggButton}>
+                        <TouchableOpacity
+                            onPress={handleBuyEggPress}
+                            style={styles.buyEggButton}
+                            disabled={fetchingEgg}
+                            >
                             <Text style={styles.modalHeaderText}>Buy Egg</Text>
                         </TouchableOpacity>
 
@@ -208,12 +266,12 @@ const StoreModal = ({ visible, onClose }) => {
                             <View style={styles.eggContainer}>
                             {eggUrl ? (
                                 <Image
-                                source={{ uri: eggUrl }}
-                                style={styles.eggImage}
-                                onLoad={() => setImageLoading(false)}
-                                onError={(error) => {
-                                    console.error('Error loading image:', error);
-                                    setImageLoading(false);
+                                    source={{ uri: eggUrl }}
+                                    style={[styles.eggImage, eggBought && styles.greyedImage]}
+                                    onLoad={() => setImageLoading(false)}
+                                    onError={(error) => {
+                                        console.error('Error loading image:', error);
+                                        setImageLoading(false);
                                     }}
                                 />
                                 ) : (
@@ -228,7 +286,7 @@ const StoreModal = ({ visible, onClose }) => {
                             <View style={styles.coinContainer}>
                             <Text style={styles.coinText}>{userCoins} - {totalCost}</Text>
                             <Animated.Image
-                            source={require('../assets/images/coin2.png')}
+                            source={require('../assets/images/coin4.png')}
                             style={[styles.image, { transform: [{ rotate: spin }] }]}
                             />
                         </View>
@@ -239,6 +297,11 @@ const StoreModal = ({ visible, onClose }) => {
                     </View>
                 </View>
             </View>
+            {eggBought && (
+                <View style={styles.messageContainer}>
+                    <Text style={styles.messageText}>{message}</Text>
+                </View>
+            )}
         </Modal>
     );
 }
@@ -363,6 +426,26 @@ const styles = StyleSheet.create({
       closeButtonText: {
         fontSize: 18,
       },
+      greyedImage: {
+        // Apply styles to make the image appear greyed out
+        opacity: 0.5,
+    },
+    messageContainer: {
+        position: 'absolute',
+        top: '50%', // Adjust as needed
+        left: 0,
+        right: 0,
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 999, // Ensure it's above other components
+    },
+    messageText: {
+        fontSize: 18,
+        color: 'white',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        padding: 10,
+        borderRadius: 5,
+    },
 });
 
 export default StoreModal;
