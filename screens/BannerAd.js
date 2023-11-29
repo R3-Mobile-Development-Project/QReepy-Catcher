@@ -1,7 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, Animated, Easing } from 'react-native';
-import { Linking } from 'react-native';
-import { TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Animated, Easing,TouchableOpacity,Linking } from 'react-native';
 
 const BannerAd = () => {
   const animatedValue = new Animated.Value(0);
