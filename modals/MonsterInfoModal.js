@@ -93,8 +93,8 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
   image: {
-    width: 120, // Set the image width to 100% to fit the container
-    height: 120,
+    width: 300, // Set the image width to 100% to fit the container
+    height: 300,
     marginBottom: 20,
     borderRadius: 90,
     borderWidth: 2,
@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
   background: {
     fontSize: 14,
     color: 'black',
-    marginBottom: 80,
+    marginBottom: 64,
     backgroundColor: 'rgba(255, 255, 255, 0.3)', // Transparent white background
         paddingLeft: 4,
         paddingRight: 4,
