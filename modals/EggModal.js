@@ -13,11 +13,11 @@ const EggModal = ({ visible, onClose }) => {
     const [caughtMonsters, setCaughtMonsters] = useState(0); // New state to track monsters caught
     const [isHatched, setIsHatched] = useState(false); // New state to track if the egg is hatched
     const [isTrackingEgg, setIsTrackingEgg] = useState(false);
-    const neededMonsters = 15;
+    const neededMonsters = 3;
 
-    const [hatchedEggState, setHatchedEggState] = useState({ index: null, borderColor: 'red' });
+    //const [hatchedEggState, setHatchedEggState] = useState({ index: null, borderColor: 'red' });
 
-    const borderColor = useRef(new Animated.Value(0)).current;
+    //const borderColor = useRef(new Animated.Value(0)).current;
 
     useFocusEffect(
         React.useCallback(() => {
@@ -54,10 +54,12 @@ const EggModal = ({ visible, onClose }) => {
         fetchSavedEggs();
     }, [visible]);
 
+    /*
     const animatedBorderColor = borderColor.interpolate({
         inputRange: [0, 1],
         outputRange: [hatchedEggState.borderColor, 'green'],
     });
+*/
 
     useEffect(() => {
         // Fetch the initial count of caught monsters when the component mounts
@@ -68,8 +70,10 @@ const EggModal = ({ visible, onClose }) => {
         try {
             const userId = await AsyncStorage.getItem('userId');
             const caughtMonsters = await AsyncStorage.getItem(`caughtMonsters_${userId}`);
-            // Set the initial count of caught monsters
-            setCaughtMonsters(caughtMonsters ? parseInt(caughtMonsters) : 0);
+            // Parse the caughtMonsters array and get its length
+            const parsedCaughtMonsters = caughtMonsters ? JSON.parse(caughtMonsters).length : 0;
+            // Set the count of caught monsters
+            setCaughtMonsters(parsedCaughtMonsters);
         } catch (error) {
             console.error('Error fetching caught monsters count:', error);
         }
@@ -87,39 +91,79 @@ const EggModal = ({ visible, onClose }) => {
         }
     };
 
-      const startHatching = async (index) => {
-        if(!isTrackingEgg) {
+    const startHatching = async (index) => {
+        if (!isTrackingEgg) {
             const userId = await AsyncStorage.getItem('userId');
-
+            
+            // Clear caughtMonsters array
+            const parsedExistingMonsters = [];
+            await AsyncStorage.setItem(`caughtMonsters_${userId}`, JSON.stringify(parsedExistingMonsters));
+    
+            const storedMonsterIdsString = await AsyncStorage.getItem(`caughtMonsters_${userId}`);
+            console.log(`EGGMODAL: ${storedMonsterIdsString} monsters caught for user ID: ${userId}`);
+    
+            setCaughtMonsters(0);
             setIsTrackingEgg(true);
+            
             // If not already hatching, start the process
-                    setIsHatching(true);
-                    // Save the selected egg index to AsyncStorage
-                    await AsyncStorage.setItem(`selectedEggIndex_${userId}`, index.toString());
-                    // Save the isTrackingEgg state to AsyncStorage
-                    await AsyncStorage.setItem(`isTrackingEgg_${userId}`, 'true');
-
-                    // Check if the number of caught monsters is 20
-                    if (caughtMonsters === neededMonsters) {
-                        setIsHatched(true);
-                        setHatchedEggState({ index, borderColor: 'green' });
-                        setCaughtMonsters(0);
-                        setIsTrackingEgg(false);
-
-                        // Optionally, you might want to clear the storage here
-                        caughtMonsters = await AsyncStorage.clear(`caughtMonsters_${userId}`);
-                        console.log(`EGGMODAL: Cleared caught monsters: ${caughtMonsters}`);
-                    }
+            setIsHatching(true);
+            
+            // Save the selected egg index to AsyncStorage
+            await AsyncStorage.setItem(`selectedEggIndex_${userId}`, index.toString());
+            
+            // Save the isTrackingEgg state to AsyncStorage
+            await AsyncStorage.setItem(`isTrackingEgg_${userId}`, 'true');
+    
+            // Check if the number of caught monsters is 20
+            if (caughtMonsters >= neededMonsters) {
+                setIsHatched(true);
+                // setHatchedEggState({ index, borderColor: 'green' });
+                setCaughtMonsters(0);
+                setIsTrackingEgg(false);
+    
+                // Optionally, you might want to clear the storage here
+                await AsyncStorage.removeItem(`caughtMonsters_${userId}`);
+                console.log(`EGGMODAL: Cleared caught monsters for user ID: ${userId}`);
             }
-        };
+        }
+    };
+    
 
         const selectEgg = (index) => {
             if (!isTrackingEgg) {
                 setSelectedEggIndex(index);
+            } else if (caughtMonsters < neededMonsters){
+                alert('Catch QReeps to hatch the egg!');
             } else {
-                console.log('An egg is currently hatching. Please wait until it is finished.');
+                hatchEgg(index);
             }
          };
+
+    //function for hatching the egg, getting the monster, saving the monster, clearing the caught monsters and deleting the egg
+    const hatchEgg = async (index) => {
+        if (isHatching) {
+            setIsHatching(false);
+            setIsHatched(true);
+            setIsTrackingEgg(false);
+            setCaughtMonsters(0);
+            const userId = await AsyncStorage.getItem('userId');
+            await AsyncStorage.setItem(`caughtMonsters_${userId}`, JSON.stringify(0));
+            await AsyncStorage.removeItem(`selectedEggIndex_${userId}`);
+            await AsyncStorage.setItem(`isTrackingEgg_${userId}`, false);
+            //fetch monster from firestore and image from storage
+            //save monster to async storage
+
+            //delete egg from async storage
+            const boughtEggs = await AsyncStorage.getItem(`boughtEggs_${userId}`);
+            const parsedBoughtEggs = JSON.parse(boughtEggs);
+            parsedBoughtEggs.splice(index, 1);
+            await AsyncStorage.setItem(`boughtEggs_${userId}`, JSON.stringify(parsedBoughtEggs));
+            setSavedEggs(parsedBoughtEggs);
+
+            
+        }
+    }
+
 
     return (
         <Modal
@@ -132,40 +176,46 @@ const EggModal = ({ visible, onClose }) => {
                 <View style={styles.modalContent}>
                     <Text style={styles.modalHeaderText}>Saved Eggs</Text>
                     <FlatList
-   data={[...savedEggs, ...placeholders]}
-   numColumns={numColumns}
-   renderItem={({ item, index }) => (
-       item ? (
-           <View style={styles.eggContainer}>
-               <TouchableOpacity 
-                  onPress={() => selectEgg(index)} 
-                  disabled={isTrackingEgg && selectedEggIndex !== index}
-               >
-                  {item.eggUrl ? (
+                    data={[...savedEggs, ...placeholders]}
+                    numColumns={numColumns}
+                    renderItem={({ item, index }) => (
+                    item ? (
+                    <View style={styles.eggContainer}>
+                    <TouchableOpacity
+                    onPress={() => selectEgg(index)}
+                    disabled={isTrackingEgg && selectedEggIndex !== index}
+                    >
+                    {item.eggUrl ? (
                       <View>
                           <Animated.Image
                               source={{ uri: item.eggUrl }}
                               style={[
-                                 styles.eggImage,
-                                 { borderColor: selectedEggIndex === index ? animatedBorderColor : 'black' },
+                                styles.eggImage, isHatched && styles.greyedImage,
+                                 { borderColor: selectedEggIndex === index ? 'darkorange' : 'black' },
+                                 isTrackingEgg && selectedEggIndex !== index && styles.disabledEgg,
                               ]}
                           />
                           {selectedEggIndex === index && isTrackingEgg && (
                               <Text style={styles.monstersCountText}>{`${caughtMonsters}/${neededMonsters}`}</Text>
                           )}
                       </View>
-                  ) : (
+                    ) : (
                       <View style={styles.loadingContainer}>
                           <ActivityIndicator size="small" color="black" />
                       </View>
-                  )}
-               </TouchableOpacity>
+                    )}
+                </TouchableOpacity>
            </View>
        ) : null
    )}
    keyExtractor={(item, index) => index.toString()}
 />
-                    <TouchableOpacity onPress={() => startHatching(selectedEggIndex)}>
+                    <TouchableOpacity onPress={() => {
+                        startHatching(selectedEggIndex);
+                     //   setTimeout(() => {
+                        fetchCaughtMonstersCount();
+                     //   }, 500);
+                    }}>
                         <Text>Start Hatching</Text>
                     </TouchableOpacity>
                 </View>
@@ -175,6 +225,10 @@ const EggModal = ({ visible, onClose }) => {
 };
 
 const styles = StyleSheet.create({
+    disabledEgg: {
+        opacity: 0.5,
+        // Add any other styles to visually indicate that the egg is disabled
+    },
     hatchButton: {
         width: '100%',
         height: 50,
@@ -232,6 +286,10 @@ const styles = StyleSheet.create({
         marginBottom: 4,
         borderRadius: 50,
         borderWidth: 4,
+    },
+    greyedImage: {
+        // Apply styles to make the image appear greyed out
+        opacity: 0.5,
     },
     noEggsText: {
         fontSize: 16,

@@ -60,10 +60,10 @@ const StoreModal = ({ visible, onClose }) => {
         const coins = await AsyncStorage.getItem(`coins_${userId}`);
         // If coins exist, return the quantity as a number
         if (coins) {
-            return parseInt(coins); //VAIHDA COINSIN ARVO HALUTTUUN SUMMAAN JA OSTA MUNA NIIN PÄIVITTYY
+            return parseInt(coins);
         }
         // If coins do not exist, return 0
-        return 0;
+        return 0; //VAIHDA ARVO HALUTTUUN SUMMAAN, OSTA MUNA NIIN PÄIVITTYY, VAIHDA SITTEN TAKAISIN 0
     };
 
     // fetch a random egg from Firebase storage

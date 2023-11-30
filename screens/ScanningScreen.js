@@ -170,6 +170,26 @@ const saveScannedBarcodes = async () => {
       setIsScanningActive(false); // Stop scanning after a scan attempt
       setShowMessage(false); // Hide the scanning message
       console.log(`SCANNINGSCREEN: Found monster with ID: ${foundMonsterId}`);
+      
+      const userId = await AsyncStorage.getItem('userId');
+const existingMonsters = await AsyncStorage.getItem(`caughtMonsters_${userId}`);
+let parsedExistingMonsters = [];
+
+// Check if existingMonsters is not null or undefined
+if (existingMonsters) {
+  // If it's not null or undefined, parse it
+  parsedExistingMonsters = JSON.parse(existingMonsters);
+}
+
+parsedExistingMonsters.push(foundMonsterId);
+
+// Store the updated array in AsyncStorage
+await AsyncStorage.setItem(`caughtMonsters_${userId}`, JSON.stringify(parsedExistingMonsters));
+
+const storedMonsterIdsString = await AsyncStorage.getItem(`caughtMonsters_${userId}`);
+console.log(`SCANNINGSCREEN: ${storedMonsterIdsString} monsters caught for user ID: ${userId}`);
+
+
       try {
         const fetchedMonsterInfo = await fetchMonsterDetailsFromFirestore(foundMonsterId);
         const fetchedImageURL = await fetchMonsterImageURL(foundMonsterId);

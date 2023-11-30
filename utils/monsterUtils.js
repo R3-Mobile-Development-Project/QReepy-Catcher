@@ -30,8 +30,8 @@ export const saveMonsterToAsyncStorage = async (monster, userId) => {
     parsedExistingMonsters.push(monster);
     // Save the updated monsters array to AsyncStorage
     await AsyncStorage.setItem(`monsters_${userId}`, JSON.stringify(parsedExistingMonsters));
-    await AsyncStorage.setItem(`caughtMonsters_${userId}`, parsedExistingMonsters.length.toString());
-    console.log(`MONSTERUTILS: ${parsedExistingMonsters.length.toString()} monsters caught for user ID: ${userId}`);
+  //  await AsyncStorage.setItem(`caughtMonsters_${userId}`, parsedExistingMonsters.length.toString());
+  //  console.log(`MONSTERUTILS: ${parsedExistingMonsters.length.toString()} monsters caught for user ID: ${userId}`);
   //  console.log(`MONSTERUTILS 1: Saved monster to AsyncStorage: ${monster.name} for user ID: ${userId}`);
 
     // Trigger the callback to update the component

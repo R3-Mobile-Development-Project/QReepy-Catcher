@@ -128,12 +128,18 @@ const backgroundImage = require('../assets/images/paper-decorations-halloween-pa
       await AsyncStorage.removeItem(`lastScannedBarcodes`);
       //Remove eggs from AsyncStorage
       await AsyncStorage.removeItem(`boughtEggs_${userId}`);
+      //Remove selected egg index from AsyncStorage
+      await AsyncStorage.removeItem(`selectedEggIndex_${userId}`);
+      //Remove isTrackingEgg from AsyncStorage
+      await AsyncStorage.removeItem(`isTrackingEgg_${userId}`);
+      //Remove caught monsters from AsyncStorage
+      await AsyncStorage.removeItem(`caughtMonsters_${userId}`);
 
     //  await AsyncStorage.removeItem(`images_${userId}`);
       playDeleteSound(); // Play delete sound on delete button press
-      console.log(`Monsters for user ${userId} cleared successfully!`);
+      console.log(`Collection for user ${userId} cleared successfully!`);
       toggleModal(); // Close the modal after deletion
-      Alert.alert('QReeps have been deleted! Please relog for all changes to take effect.');
+      Alert.alert('Collection has been deleted! Please relog for all changes to take effect.');
       } catch (error) {
         console.error('Error deleting monsters:', error);
       }
@@ -179,7 +185,7 @@ const backgroundImage = require('../assets/images/paper-decorations-halloween-pa
 
             {/* Clear AsyncStorage Button */}
           <TouchableOpacity onPress={clearMonstersForUser} style={styles.clearButton}>
-            <Text style={styles.clearButtonText}>DELETE ALL QREEPS</Text>
+            <Text style={styles.clearButtonText}>DELETE YOUR COLLECTION</Text>
           </TouchableOpacity>
 
           {/* Confirmation Modal */}
@@ -188,7 +194,7 @@ const backgroundImage = require('../assets/images/paper-decorations-halloween-pa
             onBackButtonPress={toggleModal}
           >
             <View style={styles.modalContent}>
-              <Text style={styles.modalText}>Are you sure you want to delete all your QReeps?</Text>
+              <Text style={styles.modalText}>Are you sure you want to delete your Collection?</Text>
               <Text style={styles.modalText}>This cannot be undone.</Text>
               <View style={styles.modalButtons}>
                 <TouchableOpacity onPress={toggleModal} style={styles.modalCancelButton}>
