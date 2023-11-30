@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Animated, Easing, TouchableOpacity, Linking } from 'react-native';
+import { View, Text, StyleSheet, Animated, Easing, TouchableOpacity, Linking  } from 'react-native';
 
 
 const ads = [
@@ -28,6 +28,7 @@ const ads = [
 ];
 
 const BannerAd = () => {
+  const [visible, setVisible] = useState(true);
   const [currentAdIndex, setCurrentAdIndex] = useState(0);
   const animatedValue = new Animated.Value(0);
 
@@ -50,6 +51,20 @@ const BannerAd = () => {
     return () => clearTimeout(interval);
   }, [currentAdIndex]);
 
+  if (!visible) {
+    return null;
+  }
+  const handleLongPress = () => {
+    console.log('Long press detected'); // Temporary console log for testing
+    setVisible(false);
+  };
+  const handlePress = () => {
+    if (visible) {
+      const url = ads[currentAdIndex].url;
+      Linking.openURL(url).catch(err => console.error('An error occurred', err));
+    }
+  };
+
   const openURL = () => {
     const url = ads[currentAdIndex].url;
     Linking.openURL(url).catch(err => console.error('An error occurred', err));
@@ -57,25 +72,9 @@ const BannerAd = () => {
 
   return (
     <View style={[styles.adContainer, { backgroundColor: ads[currentAdIndex].backgroundColor }]}>
-    <TouchableOpacity onPress={() => openURL(ads[currentAdIndex].url)}>
-      <Animated.View
-          style={[
-            styles.adContent,
-            {
-              transform: [
-                {
-                  translateX: animatedValue.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [300, -3350], // Adjust as needed to accommodate the longest text
-                  }),
-                },
-              ],
-            },
-          ]}
-        >
-          <Text style={styles.adText}>
-            {ads[currentAdIndex].text}
-          </Text>
+      <TouchableOpacity onPress={handlePress} onLongPress={handleLongPress} delayLongPress={3000}>
+        <Animated.View style={[styles.adContent, { transform: [{ translateX: animatedValue.interpolate({ inputRange: [0, 1], outputRange: [300, -3350] }) }] }]}>
+          <Text style={styles.adText}>{ads[currentAdIndex].text}</Text>
         </Animated.View>
       </TouchableOpacity>
     </View>
