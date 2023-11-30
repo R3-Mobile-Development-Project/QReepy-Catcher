@@ -10,6 +10,8 @@ import Slider from '@react-native-community/slider';
 import ScanningModal from '../modals/ScanningModal';
 import { findMonster, fetchMonsterDetailsFromFirestore, fetchMonsterImageURL } from '../utils/monsterUtils';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import AdModal from '../AdModal'; // Go up one level from the screens directory
+import adImage from '../assets/images/adpicture1.png';
 
 export default function ScanningScreen({ navigation }) {
   const [hasCameraPermission, setHasCameraPermission] = useState(null);
@@ -32,6 +34,8 @@ export default function ScanningScreen({ navigation }) {
   const [isDebouncingScan, setIsDebouncingScan] = useState(false);
   const [scannedBarcodes, setScannedBarcodes] = useState([]);
   const [scanningMessage, setScanningMessage] = useState('');
+  const [adModalVisible, setAdModalVisible] = useState(false);
+  const adImage = require('../assets/images/adpicture1.png'); // Go up one level from the screens directory
 
   // Function to load the last 10 scanned barcodes from AsyncStorage
 const loadScannedBarcodes = async () => {
@@ -65,6 +69,18 @@ const saveScannedBarcodes = async () => {
 };
 
   const initiateScanning = () => {
+     // Randomly decide to show ad or initiate scanning
+  if (Math.random() < 0.5) { // Adjust this threshold as needed
+    // Show ad modal
+    setAdModalVisible(true);
+
+    // Hide ad modal after 3 seconds
+    setTimeout(() => {
+      setAdModalVisible(false);
+    }, 3000);
+
+    return;
+  }
     setLastScannedData(null);
     setIsScanningActive(true);
     setIsDebouncingScan(false); // Reset debounce state
@@ -237,54 +253,57 @@ const saveScannedBarcodes = async () => {
   if (hasCameraPermission === false) {
     return <Text>No access to the camera</Text>;
   }
-
-  return (
-    <View style={{ flex: 1 }}>
-      {cameraActive ? (
- <Camera
- style={{ flex: 1 }}
- type={type}
- ref={cameraRef}
- flashMode={torchOn}
- zoom={zoom}
- autoFocus={Camera.Constants.AutoFocus.on} // Enable autofocus
- onBarCodeScanned={isScanningActive ? handleBarCodeScanned : undefined}
- onCameraReady={() => {
-   // Handle any initialization or focus adjustments when the camera is ready
- }}
- onMountError={(error) => {
-   // Handle any errors when mounting the camera
-   console.log('Camera mount error:', error);
- }}
-        >
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity onPress={handleTorchToggle} style={styles.torchToggleButton}>
-              <Ionicons name={torchOn ? 'ios-flashlight' : 'ios-flashlight-outline'} size={40} color="white" />
-            </TouchableOpacity>
-          </View>
-     {/*     <View style={styles.scannerFrame} /> */}
-          <View style={styles.scannerButtonContainer}>
-            <TouchableOpacity onPress={initiateScanning} style={styles.barcodeScannerButton}>
-              <MaterialCommunityIcons name="barcode-scan" size={60} color="white" />
-            </TouchableOpacity>
-          </View>
-          <Slider
-            style={styles.sliderStyle}
-            minimumValue={0}
-            maximumValue={1}
-            minimumTrackTintColor="#FFFFFF"
-            maximumTrackTintColor="teal"
-            thumbTintColor="teal"
-            value={sliderValue}
-            onValueChange={handleZoomChange}
-            vertical={true}
-          />
-        </Camera>
-      ) : (
-        <View style={{ flex: 1 }}>
-          {/* Placeholder content or empty view */}
+// JSX Starts here
+return (
+  <View style={{ flex: 1 }}>
+    {cameraActive ? (
+      <Camera
+        style={{ flex: 1 }}
+        type={type}
+        ref={cameraRef}
+        flashMode={torchOn}
+        zoom={zoom}
+        autoFocus={Camera.Constants.AutoFocus.on}
+        onBarCodeScanned={isScanningActive ? handleBarCodeScanned : undefined}
+        onCameraReady={() => {}}
+        onMountError={(error) => console.log('Camera mount error:', error)}
+      >
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity onPress={handleTorchToggle} style={styles.torchToggleButton}>
+            <Ionicons name={torchOn ? 'ios-flashlight' : 'ios-flashlight-outline'} size={40} color="white" />
+          </TouchableOpacity>
         </View>
-      )}
+        <View style={styles.scannerButtonContainer}>
+          <TouchableOpacity onPress={initiateScanning} style={styles.barcodeScannerButton}>
+            <MaterialCommunityIcons name="barcode-scan" size={60} color="white" />
+          </TouchableOpacity>
+        </View>
+        <Slider
+          style={styles.sliderStyle}
+          minimumValue={0}
+          maximumValue={1}
+          minimumTrackTintColor="#FFFFFF"
+          maximumTrackTintColor="teal"
+          thumbTintColor="teal"
+          value={sliderValue}
+          onValueChange={handleZoomChange}
+          vertical={true}
+        />
+      </Camera>
+    ) : (
+      <View style={{ flex: 1 }}>
+        {/* Placeholder content or empty view */}
+      </View>
+    )}
+    {/* Ad Modal */}
+    {adModalVisible && (
+      <AdModal
+        isVisible={adModalVisible}
+        imageSource={require('../assets/images/adpicture1.png')} // Replace with your image path
+        onClose={() => setAdModalVisible(false)}
+        // Other props if needed
+      />
+    )}
 
 {/* ALLA OLEVA NÄYTTÄÄ VIESTIN, JOS SKANNATTU KOODI ON JO SKANNATTU AIEMMIN. VOI TESTEISSÄ KOMMENTOIDA POIS */}
 {/* ALLA OLEVA NÄYTTÄÄ VIESTIN, JOS EI TULE MONSTERIA. VOI TESTEISSÄ KOMMENTOIDA POIS */}
