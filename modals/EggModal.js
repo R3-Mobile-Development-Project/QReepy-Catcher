@@ -13,7 +13,7 @@ const EggModal = ({ visible, onClose }) => {
     const [caughtMonsters, setCaughtMonsters] = useState(0); // New state to track monsters caught
     const [isHatched, setIsHatched] = useState(false); // New state to track if the egg is hatched
     const [isTrackingEgg, setIsTrackingEgg] = useState(false);
-    const neededMonsters = 20;
+    const neededMonsters = 15;
 
     const [hatchedEggState, setHatchedEggState] = useState({ index: null, borderColor: 'red' });
 
@@ -23,6 +23,7 @@ const EggModal = ({ visible, onClose }) => {
         React.useCallback(() => {
             // Fetch the initial count of caught monsters when the screen is focused
             fetchCaughtMonstersCount();
+            fetchTrackingEgg();
         }, [])
     );
 
@@ -74,14 +75,29 @@ const EggModal = ({ visible, onClose }) => {
         }
     };
 
+    const fetchTrackingEgg = async () => {
+        try {
+            const userId = await AsyncStorage.getItem('userId');
+            const isTrackingEgg = await AsyncStorage.getItem(`isTrackingEgg_${userId}`);
+            const selectedEggIndex = await AsyncStorage.getItem(`selectedEggIndex_${userId}`);
+            setSelectedEggIndex(selectedEggIndex ? parseInt(selectedEggIndex) : null);
+            setIsTrackingEgg(isTrackingEgg === 'true');
+        } catch (error) {
+            console.error('Error fetching tracking egg:', error);
+        }
+    };
+
       const startHatching = async (index) => {
         if(!isTrackingEgg) {
             const userId = await AsyncStorage.getItem('userId');
 
             setIsTrackingEgg(true);
             // If not already hatching, start the process
-                if (!isHatching) {
                     setIsHatching(true);
+                    // Save the selected egg index to AsyncStorage
+                    await AsyncStorage.setItem(`selectedEggIndex_${userId}`, index.toString());
+                    // Save the isTrackingEgg state to AsyncStorage
+                    await AsyncStorage.setItem(`isTrackingEgg_${userId}`, 'true');
 
                     // Check if the number of caught monsters is 20
                     if (caughtMonsters === neededMonsters) {
@@ -94,15 +110,16 @@ const EggModal = ({ visible, onClose }) => {
                         caughtMonsters = await AsyncStorage.clear(`caughtMonsters_${userId}`);
                         console.log(`EGGMODAL: Cleared caught monsters: ${caughtMonsters}`);
                     }
-                }
             }
         };
 
-      const selectEgg = (index) => {
-        if (!isTrackingEgg) {
-            setSelectedEggIndex(index);
-        }
-    };
+        const selectEgg = (index) => {
+            if (!isTrackingEgg) {
+                setSelectedEggIndex(index);
+            } else {
+                console.log('An egg is currently hatching. Please wait until it is finished.');
+            }
+         };
 
     return (
         <Modal
@@ -115,37 +132,39 @@ const EggModal = ({ visible, onClose }) => {
                 <View style={styles.modalContent}>
                     <Text style={styles.modalHeaderText}>Saved Eggs</Text>
                     <FlatList
-                        data={[...savedEggs, ...placeholders]}
-                        numColumns={numColumns}
-                        renderItem={({ item, index }) => (
-                            item ? (
-                                <View style={styles.eggContainer}>
-                                    <TouchableOpacity onPress={() => selectEgg(index)}>
-                                        {item.eggUrl ? (
-                                            <View>
-                                                <Animated.Image
-                                                    source={{ uri: item.eggUrl }}
-                                                    style={[
-                                                        styles.eggImage,
-                                                        { borderColor: selectedEggIndex === index ? animatedBorderColor : 'black' },
-                                                    ]}
-                                                />
-                                                {selectedEggIndex === index && isHatching && (
-                                                    <Text style={styles.monstersCountText}>{`${caughtMonsters}/${neededMonsters}`}</Text>
-                                                )}
-
-                                            </View>
-                                        ) : (
-                                            <View style={styles.loadingContainer}>
-                                                <ActivityIndicator size="small" color="black" />
-                                            </View>
-                                        )}
-                                    </TouchableOpacity>
-                                </View>
-                            ) : null
-                        )}
-                        keyExtractor={(item, index) => index.toString()}
-                    />
+   data={[...savedEggs, ...placeholders]}
+   numColumns={numColumns}
+   renderItem={({ item, index }) => (
+       item ? (
+           <View style={styles.eggContainer}>
+               <TouchableOpacity 
+                  onPress={() => selectEgg(index)} 
+                  disabled={isTrackingEgg && selectedEggIndex !== index}
+               >
+                  {item.eggUrl ? (
+                      <View>
+                          <Animated.Image
+                              source={{ uri: item.eggUrl }}
+                              style={[
+                                 styles.eggImage,
+                                 { borderColor: selectedEggIndex === index ? animatedBorderColor : 'black' },
+                              ]}
+                          />
+                          {selectedEggIndex === index && isTrackingEgg && (
+                              <Text style={styles.monstersCountText}>{`${caughtMonsters}/${neededMonsters}`}</Text>
+                          )}
+                      </View>
+                  ) : (
+                      <View style={styles.loadingContainer}>
+                          <ActivityIndicator size="small" color="black" />
+                      </View>
+                  )}
+               </TouchableOpacity>
+           </View>
+       ) : null
+   )}
+   keyExtractor={(item, index) => index.toString()}
+/>
                     <TouchableOpacity onPress={() => startHatching(selectedEggIndex)}>
                         <Text>Start Hatching</Text>
                     </TouchableOpacity>
