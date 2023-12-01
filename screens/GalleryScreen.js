@@ -18,6 +18,13 @@ const GalleryScreen = ({ navigation }) => {
   const [numColumns, setNumColumns] = useState(3);
   const [sortingMethod, setSortingMethod] = useState('id');
   const placeholders = Array.from({ length: (3 - monsters.length % 3) % 3 });
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedMonster, setSelectedMonster] = useState(null);
+
+  const handleItemPress = (monster) => {
+    setSelectedMonster(monster);
+    setIsModalVisible(true);
+  };
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedMonster, setSelectedMonster] = useState(null);
@@ -201,6 +208,8 @@ return (
           keyExtractor={(item, index) => `monster_${index}`}
           numColumns={numColumns}
 
+
+
           renderItem={({ item, index }) => {
             if (!item) {
               // Render an invisible view for the placeholder
@@ -233,6 +242,7 @@ return (
     </ImageBackground>
 
     {/* Modal for displaying monster details */}
+
     <MonsterInfoModal
  isModalVisible={isModalVisible}
  selectedMonster={selectedMonster}
@@ -241,6 +251,9 @@ return (
 <EggModal visible={eggModalVisible} onClose={closeEggModal} />
 </View>
 );
+
+
+
 };
 
 const styles = StyleSheet.create({
