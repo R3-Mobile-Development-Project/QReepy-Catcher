@@ -40,9 +40,17 @@ const loadScannedBarcodes = async () => {
     if (storedBarcodes) {
       setScannedBarcodes(JSON.parse(storedBarcodes));
     }
+
   } catch (error) {
     console.error('Error loading scanned barcodes from AsyncStorage:', error);
   }
+
+    return storedBarcodes;
+  } catch (error) {
+    console.error('Error loading scanned barcodes from AsyncStorage:', error);
+  }
+  
+
 };
 
 useEffect(() => {
@@ -53,9 +61,16 @@ useEffect(() => {
 // Function to save the last 10 scanned barcodes to AsyncStorage
 const saveScannedBarcodes = async () => {
   try {
+
     const slicedBarcodes = scannedBarcodes.slice(-10);
     await AsyncStorage.setItem('lastScannedBarcodes', JSON.stringify(slicedBarcodes));
     console.log('SCANNINGSCREEN: Saved scanned barcodes to AsyncStorage:', slicedBarcodes);
+
+    const slicedBarcodes = scannedBarcodes.slice(-1);
+    await AsyncStorage.setItem('lastScannedBarcodes', JSON.stringify(slicedBarcodes));
+    const savedBarcodes = await AsyncStorage.getItem('lastScannedBarcodes');
+    console.log('SCANNINGSCREEN: Scanned barcodes saved to AsyncStorage:', savedBarcodes);
+
   } catch (error) {
     console.error('Error saving scanned barcodes to AsyncStorage:', error);
   }
@@ -66,6 +81,10 @@ const saveScannedBarcodes = async () => {
     setIsScanningActive(true);
     setIsDebouncingScan(false); // Reset debounce state
     setScanningMessage('SCANNING FOR QREEPS...');
+
+
+    setShowMessage(true); // Show scanning message
+
   };
 
   useEffect(() => {
@@ -76,6 +95,7 @@ const saveScannedBarcodes = async () => {
         setSliderValue(0);
         setZoom(0);
       }, 200);
+      setSliderValue(0);
     } else {
       setCameraActive(false);
       setScanned(false); // Reset the scanned state when the screen is not focused
@@ -126,9 +146,24 @@ const saveScannedBarcodes = async () => {
   };
 
   const handleBarCodeScanned = async ({ type, data }) => {
+
   if (!isScanningActive || isDebouncingScan || scannedBarcodes.includes(data)) return;
 
   setScanningMessage(''); // Clear the scanning message
+
+    // Ignore scans if not scanning or if debouncing or if barcode already scanned
+  if (!isScanningActive || isDebouncingScan || scannedBarcodes.includes(data)){
+
+    //set setScanningMessage to "barcode already scanned"
+  setScanningMessage('Barcode already scanned, try scanning another code.');
+  setIsScanningActive(false);
+  setShowMessage(true);
+//  console.log('SCANNINGSCREEN: Scanned barcodes:', scannedBarcodes);
+  return;
+  }
+
+  console.log('SCANNINGSCREEN: Scanned barcode:', data, 'of type:', type);
+
 
   // Update the list of scanned barcodes
   setScannedBarcodes((prevScannedBarcodes) => [...prevScannedBarcodes, data]);
@@ -140,19 +175,47 @@ const saveScannedBarcodes = async () => {
     // Set a timeout to clear the debounce state after a short period
     setTimeout(() => setIsDebouncingScan(false), 2000); // Adjust the cooldown time as needed
 
+
+
+    /*
+
     // Check for duplicate scans
     if (data === lastScannedData) {
       console.log('SCANNINGSCREEN: Duplicate scan detected');
+      setScanningMessage('You scanned the same code again.');
       setShowMessage(true);
       setIsScanningActive(false); // Stop scanning after detecting a duplicate
       return;
     }
+    */
+
     const foundMonsterId = findMonster(); // Assuming this function processes 'data' to find a monster
 
     if (foundMonsterId >= 1 && foundMonsterId <= 50) {
       // Valid monster found
       setIsScanningActive(false); // Stop scanning after a scan attempt
+      setShowMessage(false); // Hide the scanning message
       console.log(`SCANNINGSCREEN: Found monster with ID: ${foundMonsterId}`);
+      
+      const userId = await AsyncStorage.getItem('userId');
+const existingMonsters = await AsyncStorage.getItem(`caughtMonsters_${userId}`);
+let parsedExistingMonsters = [];
+
+// Check if existingMonsters is not null or undefined
+if (existingMonsters) {
+  // If it's not null or undefined, parse it
+  parsedExistingMonsters = JSON.parse(existingMonsters);
+}
+
+parsedExistingMonsters.push(foundMonsterId);
+
+// Store the updated array in AsyncStorage
+await AsyncStorage.setItem(`caughtMonsters_${userId}`, JSON.stringify(parsedExistingMonsters));
+
+const storedMonsterIdsString = await AsyncStorage.getItem(`caughtMonsters_${userId}`);
+console.log(`SCANNINGSCREEN: ${storedMonsterIdsString} monsters caught for user ID: ${userId}`);
+
+
       try {
         const fetchedMonsterInfo = await fetchMonsterDetailsFromFirestore(foundMonsterId);
         const fetchedImageURL = await fetchMonsterImageURL(foundMonsterId);
@@ -170,6 +233,8 @@ const saveScannedBarcodes = async () => {
       // No valid monster found
       setNoMonsterFound(true);
       setShowMessage(true);
+      setScanningMessage('No monster found, try a different code.');
+      setIsScanningActive(false);
       console.log(`SCANNINGSCREEN: No monster found.`);
     }
     setLastScannedData(data);
@@ -228,8 +293,8 @@ const saveScannedBarcodes = async () => {
           ref={cameraRef}
           flashMode={torchOn}
           zoom={zoom}
+          autoFocus={Camera.Constants.AutoFocus.on} // Enable autofocus
           onBarCodeScanned={isScanningActive ? handleBarCodeScanned : undefined}
-    //   onBarCodeScanned={handleBarCodeScanned}
         >
           <View style={styles.buttonContainer}>
             <TouchableOpacity onPress={handleTorchToggle} style={styles.torchToggleButton}>
@@ -237,11 +302,16 @@ const saveScannedBarcodes = async () => {
             </TouchableOpacity>
           </View>
      {/*     <View style={styles.scannerFrame} /> */}
+
      <View style={styles.scannerButtonContainer}>
+
+          <View style={styles.scannerButtonContainer}>
+
             <TouchableOpacity onPress={initiateScanning} style={styles.barcodeScannerButton}>
               <MaterialCommunityIcons name="barcode-scan" size={60} color="white" />
             </TouchableOpacity>
           </View>
+
             <Slider
               style={styles.sliderStyle}
               minimumValue={0}
@@ -253,6 +323,19 @@ const saveScannedBarcodes = async () => {
               onValueChange={handleZoomChange}
               vertical={true}
 />
+
+          <Slider
+            style={styles.sliderStyle}
+            minimumValue={0}
+            maximumValue={1}
+            minimumTrackTintColor="#FFFFFF"
+            maximumTrackTintColor="teal"
+            thumbTintColor="teal"
+            value={sliderValue}
+            onValueChange={handleZoomChange}
+            vertical={true}
+          />
+
         </Camera>
       ) : (
         <View style={{ flex: 1 }}>
@@ -264,17 +347,15 @@ const saveScannedBarcodes = async () => {
 {/* ALLA OLEVA NÄYTTÄÄ VIESTIN, JOS EI TULE MONSTERIA. VOI TESTEISSÄ KOMMENTOIDA POIS */}
 {/* --------------------------------------------------------------- */}
 {showMessage && (
-  <View style={styles.messageContainer}>
-    {noMonsterFound ? (
-      <Text style={styles.messageText}>No monster found.</Text>
-    ) : (
-      <Text style={styles.messageText}>You scanned the same code again.</Text>
+      <View style={styles.messageContainer}>
+        <Text style={styles.messageText}>{scanningMessage}</Text>
+        {/*
+        <TouchableOpacity onPress={hideMessage} style={styles.hideMessageButton}>
+          <Text style={styles.hideMessageText}>OK</Text>
+        </TouchableOpacity>
+        */}
+      </View>
     )}
-    <TouchableOpacity onPress={hideMessage} style={styles.hideMessageButton}>
-      <Text style={styles.hideMessageText}>OK</Text>
-    </TouchableOpacity>
-  </View>
-)}
 {/* --------------------------------------------------------------- */}
       {modalVisible && (
       <ScanningModal
@@ -298,6 +379,14 @@ const styles = StyleSheet.create({
       justifyContent: 'top',
       paddingTop: 20,
     },
+    scannerButtonContainer: {
+      flex: 1,
+      backgroundColor: 'transparent',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'flex-end',
+      paddingBottom: 40,
+    },
     torchToggleButton: {
       alignItems: 'center',
       justifyContent: 'center',
@@ -314,15 +403,16 @@ const styles = StyleSheet.create({
     },
     messageContainer: {
       position: 'absolute',
-      backgroundColor: 'rgba(255, 255, 255, 0.8)',
-      padding: 20,
-      borderRadius: 10,
-      top: '40%',
-      left: '10%',
-      right: '10%',
+      backgroundColor: 'rgba(255, 255, 255, 0.3)',
+      padding: 10,
+      borderRadius: 0,
+      top: '10%',
+      left: '0%',
+      right: '0%',
       alignItems: 'center',
     },
     messageText: {
+      color: 'white',
       fontSize: 18,
       textAlign: 'center',
     },
@@ -342,15 +432,23 @@ const styles = StyleSheet.create({
       marginTop:10,
     },
     sliderStyle: {
+
       width: 150, // This controls the length of slider (position moves also)
       position: 'absolute',
       bottom: -60, // Distance from the bottom
       right: -30, // This controls the position of slider (left or right)
+
+      width: 250, // This controls the length of slider (position moves also)
+      position: 'absolute',
+      bottom: 25, // Distance from the bottom
+      right: -60, // This controls the position of slider (left or right)
+
       transform: [
         { rotate: '-90deg' },
         { translateX: 150 } // Adjust this value to fine-tune the horizontal position
       ],
     },
+
     scannerButtonContainer: {
       flex: 1,
       backgroundColor: 'transparent',
@@ -359,4 +457,6 @@ const styles = StyleSheet.create({
       justifyContent: 'flex-end',
       paddingBottom: 20,
     },
+
+
   });

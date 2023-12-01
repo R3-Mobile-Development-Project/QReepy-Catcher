@@ -3,8 +3,14 @@ import { View, Text, Button, StyleSheet, ImageBackground, FlatList, Image, Touch
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { Ionicons } from '@expo/vector-icons';
 import { findMonster, fetchMonsterImageURL } from '../utils/monsterUtils';
+
 import MonsterInfoModal from '../modals/MonsterInfoModal';
+
+import { Audio } from 'expo-av';
+import EggModal from '../modals/EggModal';
+
 
 const backgroundImage = require('../assets/images/horrible-monster-2.jpg');
 
@@ -14,6 +20,7 @@ const GalleryScreen = ({ navigation }) => {
   const [numColumns, setNumColumns] = useState(3);
   const [sortingMethod, setSortingMethod] = useState('id');
   const placeholders = Array.from({ length: (3 - monsters.length % 3) % 3 });
+
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedMonster, setSelectedMonster] = useState(null);
 
@@ -24,6 +31,37 @@ const GalleryScreen = ({ navigation }) => {
     setSelectedMonster({ ...monster, image: imageUrl });
     setIsModalVisible(true);
    };
+
+  const [sound, setSound] = useState();
+
+  const [eggModalVisible, setEggModalVisible] = useState(false);
+
+  useEffect(() => {
+    return sound
+      ? () => {
+          sound.unloadAsync();
+        }
+      : undefined;
+  }, [sound]);
+
+  const playButtonSound = async () => {
+    const { sound } = await Audio.Sound.createAsync(
+      require('../assets/sounds/Menu_Selection_Click.wav')
+    );
+    setSound(sound);
+    await sound.playAsync();
+  };
+
+  const openEggModal = async () => {
+    playButtonSound();
+    setEggModalVisible(true);
+  };
+
+  const closeEggModal = async () => {
+    playButtonSound();
+    setEggModalVisible(false);
+  };
+
 
   const sortMonstersAndImages = async () => {
     // Pair each monster with its image
@@ -144,6 +182,7 @@ const closeMonsterInfoModal = () => {
 return (
   <View style={styles.container}>
     <ImageBackground source={backgroundImage} style={styles.backgroundImage} resizeMode="cover">
+
       <View style={styles.sortingContainer}>
         <TouchableOpacity onPress={() => setSortingMethod('id')}>
           <Icon name="sort" size={30} color="black" />
@@ -153,12 +192,26 @@ return (
         </TouchableOpacity>
       </View>
 
+    <View style={styles.sortingContainer}>
+  <TouchableOpacity onPress={() => setSortingMethod('id')}>
+    <Icon name="sort" size={30} color="black" />
+  </TouchableOpacity>
+  <TouchableOpacity onPress={openEggModal}>
+    <Ionicons name="egg-outline" size={30} color="black" />
+  </TouchableOpacity>
+  <TouchableOpacity onPress={() => setSortingMethod('name')}>
+    <Icon name="sort-by-alpha" size={30} color="black" />
+  </TouchableOpacity>
+</View>
+
+
       <View style={styles.contentContainer}>
         <Text style={styles.text}>My collected QReeps!</Text>
         <FlatList
           data={[...monsters, ...placeholders]}
           keyExtractor={(item, index) => `monster_${index}`}
           numColumns={numColumns}
+
           renderItem={({ item, index }) => {
             if (!item) {
               // Render an invisible view for the placeholder
@@ -196,6 +249,28 @@ return (
  selectedMonster={selectedMonster}
  onClose={closeMonsterInfoModal}
 />
+
+          renderItem={({ item, index }) => (
+          item ? (
+          <View style={styles.monsterContainer}>
+            {images[index] ? (
+                <Image source={{ uri: images[index] }} style={styles.image} />
+              ) : (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="small" color="black" />
+              </View>
+              )}
+            <Text style={styles.monsterName}>{item.name}</Text>
+          </View>
+        ) : (
+        <View style={[styles.monsterContainer, styles.invisible]} />
+        )
+      )}
+    />
+      </View>
+    </ImageBackground>
+    <EggModal visible={eggModalVisible} onClose={closeEggModal} />
+
   </View>
 );
 };

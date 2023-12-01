@@ -1,5 +1,5 @@
 import React, {useState, useEffect } from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, Modal } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity, Modal, ActivityIndicator } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Audio } from 'expo-av';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -10,9 +10,11 @@ const ScanningModal = ({ isVisible, onClose, openGallery, monsterInfo, imageURL 
   const [imageLoading, setImageLoading] = useState(true);
   const monsterColor = monsterInfo[0]?.dominantColors;
   const [infoModalVisible, setInfoModalVisible] = useState(false);
+  const [buttonSound, setButtonSound] = useState();
 
   const toggleInfoModal = () => {
     setInfoModalVisible(!infoModalVisible);
+    playButtonSound();
   };
 
   const renderInfoModal = () => {
@@ -26,11 +28,11 @@ const ScanningModal = ({ isVisible, onClose, openGallery, monsterInfo, imageURL 
         <View style={styles.infoModalContainer}>
           <View style={[styles.infoModalTextContainer, { backgroundColor: `rgb(${monsterColor.join(', ')})` }]}>
           <Text style={styles.infoModalText}>
-            You can sell your catch for a Qreepy Coin,
+            You can sell your catch for a QReepy Coin,
             and later spend your Coins by purchasing Qreepy Eggs from the store!
           </Text>
           <Text style={styles.infoModalText}>
-            You can also view the QReep in the Gallery, where you can see more information about it.
+            You can also view more information about the QReep in the Gallery.
             All your caught QReeps will be saved there, should you choose not to sell them.
           </Text>
           <TouchableOpacity onPress={() => setInfoModalVisible(false)} style={styles.infoModalCloseButton}>
@@ -52,6 +54,18 @@ const ScanningModal = ({ isVisible, onClose, openGallery, monsterInfo, imageURL 
       }
     };
   }, [sellSound, openModalSound]);
+
+  const playButtonSound = async () => {
+    try {
+      const { sound } = await Audio.Sound.createAsync(
+        require('../assets/sounds/Menu_Selection_Click.wav')
+      );
+      setButtonSound(sound);
+      await sound.playAsync();
+    } catch (error) {
+      console.error('Error playing button sound:', error);
+    }
+  }
 
   const playSellSound = async () => {
     try {
@@ -85,42 +99,27 @@ const ScanningModal = ({ isVisible, onClose, openGallery, monsterInfo, imageURL 
 
   const handleSellPress = async () => {
     playSellSound();
-
     try {
       // Retrieve the userId from AsyncStorage
       const userId = await AsyncStorage.getItem('userId');
-
       // Retrieve the monsters for the user from AsyncStorage
       const monstersData = await AsyncStorage.getItem(`monsters_${userId}`);
       const currentMonsters = monstersData ? JSON.parse(monstersData) : [];
-
-      // Retrieve the images for the user from AsyncStorage
-      const imagesData = await AsyncStorage.getItem(`images_${userId}`);
-      const currentImages = imagesData ? JSON.parse(imagesData) : [];
-
-  //    console.log('Current monsters:', currentMonsters);
-
-      // Remove the last monster from the array
-      const lastMonster = currentMonsters.pop();
-      const lastImage = currentImages.pop();
-
-   //   console.log('Last monster removed:', lastMonster);
-
-      // Save the updated monster list to AsyncStorage
+      // Remove the last monster from the array and update AsyncStorage
+      currentMonsters.pop();
+      const lastMonster = currentMonsters
       await AsyncStorage.setItem(`monsters_${userId}`, JSON.stringify(currentMonsters));
-      await AsyncStorage.setItem(`images_${userId}`, JSON.stringify(currentImages));
-
-    // EI SAA POISTAA NÄITÄ LOGEJA, MUUTEN MYYNTI EI TOIMI
-    //-----------------------------------------------
       console.log('SCANNINGMODAL: Monster sold and removed from AsyncStorage:', lastMonster?.name, 'for user ID:', userId);
-      console.log('SCANNINGMODAL: Image sold and removed from AsyncStorage:', lastImage, 'for user ID:', userId);
-    //-----------------------------------------------
 
-      // Perform any other actions related to selling the monster
-    } catch (error) {
-      console.error('Error selling monster:', error);
-    }
+      const coinQuantity = await AsyncStorage.getItem(`coins_${userId}`);
+      const currentCoins = coinQuantity ? JSON.parse(coinQuantity) : 0;
+      const newCoins = currentCoins + 1;
+      await AsyncStorage.setItem(`coins_${userId}`, JSON.stringify(newCoins));
+      console.log('SCANNINGMODAL: Coins updated to:', newCoins, 'for user ID:', userId);
 
+      } catch (error) {
+        console.error('Error selling monster:', error);
+      }
     // Close the modal or perform other actions as needed
     onClose();
   };
@@ -141,11 +140,11 @@ const ScanningModal = ({ isVisible, onClose, openGallery, monsterInfo, imageURL 
       <View style={[styles.modalContent, { backgroundColor: `rgb(${monsterColor.join(', ')})` }]}>
 
         <Text style={styles.modalText}>YOU CAUGHT A QREEP!</Text>
-        {/* Position info icon button under the bottom right corner of the picture */}
+
         <TouchableOpacity onPress={toggleInfoModal} style={styles.infoButton}>
-                <MaterialIcons name="info" size={35} color="black" />
-              </TouchableOpacity>
-          <View style={styles.modalLine} />
+          <MaterialIcons name="info" size={35} color="black" />
+        </TouchableOpacity>
+        <View style={styles.modalLine} />
 
         {/* Add a conditional check for imageUrl before using it */}
         {imageURL && (
@@ -160,8 +159,7 @@ const ScanningModal = ({ isVisible, onClose, openGallery, monsterInfo, imageURL 
             />
           )}
 
-          {imageLoading && <Text>Loading image...</Text>}
-
+          {imageLoading && <ActivityIndicator size="small" color="black" />}
           {monsterInfo.map((monster, index) => (
             <View key={index}>
               <Text style={styles.name}>{monster.name}</Text>
@@ -259,7 +257,7 @@ const styles = StyleSheet.create({
     borderColor: 'black',
     borderWidth: 2,
     padding: 10,
-    borderRadius: 8,
+    borderRadius: 30,
     flex: 1,
     marginHorizontal: 8,
     alignItems: 'center',
@@ -269,12 +267,13 @@ const styles = StyleSheet.create({
     borderColor: 'black',
     borderWidth: 2,
     padding: 10,
-    borderRadius: 8,
+    borderRadius: 30,
     flex: 1,
     marginHorizontal: 8,
     alignItems: 'center',
   },
   buttonText: {
+    fontSize: 15,
     color: 'black',
     fontWeight: 'bold',
   },
@@ -283,7 +282,7 @@ const styles = StyleSheet.create({
     bottom: 20,
     width: 70,
     height: 70,
-    borderRadius: 25,
+    borderRadius: 35,
     borderColor: 'black',
     borderWidth: 3,
     backgroundColor: 'salmon',
@@ -303,7 +302,7 @@ const styles = StyleSheet.create({
     width: '80%',
     padding: 10,
     borderRadius: 20,
-    alignItems: 'center',
+ //   alignItems: 'center',
     justifyContent: 'center',
   },
   infoModalText: {
@@ -314,10 +313,11 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.5)', // Customize the background color
   },
   infoModalCloseButton: {
+    alignSelf: 'center',
     marginTop: 20,
     width: 70,
     height: 70,
-    borderRadius: 25,
+    borderRadius: 35,
     borderColor: 'black',
     borderWidth: 3,
     backgroundColor: 'salmon',
