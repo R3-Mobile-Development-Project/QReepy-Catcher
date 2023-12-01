@@ -40,11 +40,17 @@ const loadScannedBarcodes = async () => {
     if (storedBarcodes) {
       setScannedBarcodes(JSON.parse(storedBarcodes));
     }
+
+  } catch (error) {
+    console.error('Error loading scanned barcodes from AsyncStorage:', error);
+  }
+
     return storedBarcodes;
   } catch (error) {
     console.error('Error loading scanned barcodes from AsyncStorage:', error);
   }
   
+
 };
 
 useEffect(() => {
@@ -55,10 +61,16 @@ useEffect(() => {
 // Function to save the last 10 scanned barcodes to AsyncStorage
 const saveScannedBarcodes = async () => {
   try {
+
+    const slicedBarcodes = scannedBarcodes.slice(-10);
+    await AsyncStorage.setItem('lastScannedBarcodes', JSON.stringify(slicedBarcodes));
+    console.log('SCANNINGSCREEN: Saved scanned barcodes to AsyncStorage:', slicedBarcodes);
+
     const slicedBarcodes = scannedBarcodes.slice(-1);
     await AsyncStorage.setItem('lastScannedBarcodes', JSON.stringify(slicedBarcodes));
     const savedBarcodes = await AsyncStorage.getItem('lastScannedBarcodes');
     console.log('SCANNINGSCREEN: Scanned barcodes saved to AsyncStorage:', savedBarcodes);
+
   } catch (error) {
     console.error('Error saving scanned barcodes to AsyncStorage:', error);
   }
@@ -69,22 +81,27 @@ const saveScannedBarcodes = async () => {
     setIsScanningActive(true);
     setIsDebouncingScan(false); // Reset debounce state
     setScanningMessage('SCANNING FOR QREEPS...');
+
+
     setShowMessage(true); // Show scanning message
+
   };
 
   useEffect(() => {
     if (isFocused) {
       setTimeout(() => {
-      setCameraActive(true);
+        setCameraActive(true);
+        // Reset the slider value to 0 when the screen is focused
+        setSliderValue(0);
+        setZoom(0);
       }, 200);
       setSliderValue(0);
     } else {
-        setCameraActive(false);
-        setScanned(false); // Reset the scanned state when the screen is not focused
-        setShowMessage(false); // Reset the message state when the screen is not focused
-        setTorchOn(Camera.Constants.FlashMode.off); // Reset the torch state when the screen is not focused
-        setZoom(0);
-        }
+      setCameraActive(false);
+      setScanned(false); // Reset the scanned state when the screen is not focused
+      setShowMessage(false); // Reset the message state when the screen is not focused
+      setTorchOn(Camera.Constants.FlashMode.off); // Reset the torch state when the screen is not focused
+    }
   }, [isFocused]);
 
   useEffect(() => {
@@ -129,6 +146,11 @@ const saveScannedBarcodes = async () => {
   };
 
   const handleBarCodeScanned = async ({ type, data }) => {
+
+  if (!isScanningActive || isDebouncingScan || scannedBarcodes.includes(data)) return;
+
+  setScanningMessage(''); // Clear the scanning message
+
     // Ignore scans if not scanning or if debouncing or if barcode already scanned
   if (!isScanningActive || isDebouncingScan || scannedBarcodes.includes(data)){
 
@@ -142,6 +164,7 @@ const saveScannedBarcodes = async () => {
 
   console.log('SCANNINGSCREEN: Scanned barcode:', data, 'of type:', type);
 
+
   // Update the list of scanned barcodes
   setScannedBarcodes((prevScannedBarcodes) => [...prevScannedBarcodes, data]);
 
@@ -152,7 +175,10 @@ const saveScannedBarcodes = async () => {
     // Set a timeout to clear the debounce state after a short period
     setTimeout(() => setIsDebouncingScan(false), 2000); // Adjust the cooldown time as needed
 
+
+
     /*
+
     // Check for duplicate scans
     if (data === lastScannedData) {
       console.log('SCANNINGSCREEN: Duplicate scan detected');
@@ -196,7 +222,7 @@ console.log(`SCANNINGSCREEN: ${storedMonsterIdsString} monsters caught for user 
 
         setMonsterInfo(fetchedMonsterInfo);
         setImageURL(fetchedImageURL);
-
+        console.log(fetchedMonsterInfo)
         openModal();
         // Log for successful scan
      //   console.log(`Bar code with type ${type} and data ${data} has been scanned.`);
@@ -276,11 +302,28 @@ console.log(`SCANNINGSCREEN: ${storedMonsterIdsString} monsters caught for user 
             </TouchableOpacity>
           </View>
      {/*     <View style={styles.scannerFrame} /> */}
+
+     <View style={styles.scannerButtonContainer}>
+
           <View style={styles.scannerButtonContainer}>
+
             <TouchableOpacity onPress={initiateScanning} style={styles.barcodeScannerButton}>
               <MaterialCommunityIcons name="barcode-scan" size={60} color="white" />
             </TouchableOpacity>
           </View>
+
+            <Slider
+              style={styles.sliderStyle}
+              minimumValue={0}
+              maximumValue={1}
+              minimumTrackTintColor="#FFFFFF"
+              maximumTrackTintColor="teal"
+              thumbTintColor="teal"
+              value={sliderValue}
+              onValueChange={handleZoomChange}
+              vertical={true}
+/>
+
           <Slider
             style={styles.sliderStyle}
             minimumValue={0}
@@ -292,6 +335,7 @@ console.log(`SCANNINGSCREEN: ${storedMonsterIdsString} monsters caught for user 
             onValueChange={handleZoomChange}
             vertical={true}
           />
+
         </Camera>
       ) : (
         <View style={{ flex: 1 }}>
@@ -388,13 +432,31 @@ const styles = StyleSheet.create({
       marginTop:10,
     },
     sliderStyle: {
+
+      width: 150, // This controls the length of slider (position moves also)
+      position: 'absolute',
+      bottom: -60, // Distance from the bottom
+      right: -30, // This controls the position of slider (left or right)
+
       width: 250, // This controls the length of slider (position moves also)
       position: 'absolute',
       bottom: 25, // Distance from the bottom
       right: -60, // This controls the position of slider (left or right)
+
       transform: [
         { rotate: '-90deg' },
         { translateX: 150 } // Adjust this value to fine-tune the horizontal position
       ],
     },
+
+    scannerButtonContainer: {
+      flex: 1,
+      backgroundColor: 'transparent',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'flex-end',
+      paddingBottom: 20,
+    },
+
+
   });

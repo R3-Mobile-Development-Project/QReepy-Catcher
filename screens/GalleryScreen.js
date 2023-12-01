@@ -5,8 +5,12 @@ import { useFocusEffect } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { Ionicons } from '@expo/vector-icons';
 import { findMonster, fetchMonsterImageURL } from '../utils/monsterUtils';
+
+import MonsterInfoModal from '../modals/MonsterInfoModal';
+
 import { Audio } from 'expo-av';
 import EggModal from '../modals/EggModal';
+
 
 const backgroundImage = require('../assets/images/horrible-monster-2.jpg');
 
@@ -16,6 +20,18 @@ const GalleryScreen = ({ navigation }) => {
   const [numColumns, setNumColumns] = useState(3);
   const [sortingMethod, setSortingMethod] = useState('id');
   const placeholders = Array.from({ length: (3 - monsters.length % 3) % 3 });
+
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedMonster, setSelectedMonster] = useState(null);
+
+  const handleItemPress = (monster) => {
+    console.log(monster);
+    const imageIndex = monsters.indexOf(monster);
+    const imageUrl = images[imageIndex];
+    setSelectedMonster({ ...monster, image: imageUrl });
+    setIsModalVisible(true);
+   };
+
   const [sound, setSound] = useState();
 
   const [eggModalVisible, setEggModalVisible] = useState(false);
@@ -45,6 +61,7 @@ const GalleryScreen = ({ navigation }) => {
     playButtonSound();
     setEggModalVisible(false);
   };
+
 
   const sortMonstersAndImages = async () => {
     // Pair each monster with its image
@@ -158,9 +175,23 @@ const refreshMonsters = async () => {
   }
 };
 
+const closeMonsterInfoModal = () => {
+ setIsModalVisible(false);
+};
+
 return (
   <View style={styles.container}>
     <ImageBackground source={backgroundImage} style={styles.backgroundImage} resizeMode="cover">
+
+      <View style={styles.sortingContainer}>
+        <TouchableOpacity onPress={() => setSortingMethod('id')}>
+          <Icon name="sort" size={30} color="black" />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => setSortingMethod('name')}>
+          <Icon name="sort-by-alpha" size={30} color="black" />
+        </TouchableOpacity>
+      </View>
+
     <View style={styles.sortingContainer}>
   <TouchableOpacity onPress={() => setSortingMethod('id')}>
     <Icon name="sort" size={30} color="black" />
@@ -173,12 +204,52 @@ return (
   </TouchableOpacity>
 </View>
 
+
       <View style={styles.contentContainer}>
         <Text style={styles.text}>My collected QReeps!</Text>
         <FlatList
           data={[...monsters, ...placeholders]}
           keyExtractor={(item, index) => `monster_${index}`}
           numColumns={numColumns}
+
+          renderItem={({ item, index }) => {
+            if (!item) {
+              // Render an invisible view for the placeholder
+              return <View style={[styles.monsterContainer, styles.invisible]} />;
+            }
+
+            // Render the actual monster item
+            return (
+              <View style={styles.monsterContainer}>
+              {images[index] ? (
+                <TouchableOpacity onPress={() => handleItemPress(item)}>
+                  <Image 
+                source={{ uri: images[index] }}
+                style={styles.image}  // Set fixed width and height for testing
+                resizeMode="contain"
+/>
+                </TouchableOpacity>
+              ) : (
+                <View style={styles.loadingContainer}>
+                  <ActivityIndicator size="small" color="black" />
+                </View>
+              )}
+              <Text style={styles.monsterName}>{item.name}</Text>
+            </View>
+            
+            );
+          }}
+        />
+      </View>
+    </ImageBackground>
+
+    {/* Modal for displaying monster details */}
+    <MonsterInfoModal
+ isModalVisible={isModalVisible}
+ selectedMonster={selectedMonster}
+ onClose={closeMonsterInfoModal}
+/>
+
           renderItem={({ item, index }) => (
           item ? (
           <View style={styles.monsterContainer}>
@@ -199,6 +270,7 @@ return (
       </View>
     </ImageBackground>
     <EggModal visible={eggModalVisible} onClose={closeEggModal} />
+
   </View>
 );
 };
@@ -245,7 +317,7 @@ const styles = StyleSheet.create({
     borderColor: 'black',
   },
   image: {
-    width: '100%', // Set the image width to 100% to fit the container
+    width: 120, // Set the image width to 100% to fit the container
     height: 120,
     marginBottom: 4,
     borderRadius: 90,
@@ -271,6 +343,25 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     width: '100%',
     padding: 10,
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 35,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: "center"
   },
 });
 

@@ -11,6 +11,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 //import { auth } from 'firebase/app';
 //import 'firebase/auth';
 import { firebaseConfig } from './firebaseConfig';
+import MonsterInfoModal from './modals/MonsterInfoModal';
 import HomeScreen from './screens/HomeScreen';
 import AuthScreen from './screens/AuthScreen';
 import ProfileScreen from './screens/ProfileScreen';
