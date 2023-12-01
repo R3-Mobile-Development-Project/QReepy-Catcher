@@ -71,7 +71,7 @@ const saveScannedBarcodes = async () => {
 
   const initiateScanning = () => {
      // Randomly decide to show ad or initiate scanning
-  if (Math.random() < 0.5) { // Adjust this threshold as needed
+  if (Math.random() < 0.2) { // Adjust this threshold as needed
     // Show ad modal
     setAdModalVisible(true);
 
