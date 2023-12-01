@@ -3,7 +3,12 @@ import { View, Text, Button, StyleSheet, ImageBackground, FlatList, Image, Touch
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { Ionicons } from '@expo/vector-icons';
 import { findMonster, fetchMonsterImageURL } from '../utils/monsterUtils';
+import MonsterInfoModal from '../modals/MonsterInfoModal';
+import { Audio } from 'expo-av';
+import EggModal from '../modals/EggModal';
+
 
 const backgroundImage = require('../assets/images/horrible-monster-2.jpg');
 
@@ -20,6 +25,48 @@ const GalleryScreen = ({ navigation }) => {
     setSelectedMonster(monster);
     setIsModalVisible(true);
   };
+
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedMonster, setSelectedMonster] = useState(null);
+
+  const handleItemPress = (monster) => {
+    console.log(monster);
+    const imageIndex = monsters.indexOf(monster);
+    const imageUrl = images[imageIndex];
+    setSelectedMonster({ ...monster, image: imageUrl });
+    setIsModalVisible(true);
+   };
+
+  const [sound, setSound] = useState();
+
+  const [eggModalVisible, setEggModalVisible] = useState(false);
+
+  useEffect(() => {
+    return sound
+      ? () => {
+          sound.unloadAsync();
+        }
+      : undefined;
+  }, [sound]);
+
+  const playButtonSound = async () => {
+    const { sound } = await Audio.Sound.createAsync(
+      require('../assets/sounds/Menu_Selection_Click.wav')
+    );
+    setSound(sound);
+    await sound.playAsync();
+  };
+
+  const openEggModal = async () => {
+    playButtonSound();
+    setEggModalVisible(true);
+  };
+
+  const closeEggModal = async () => {
+    playButtonSound();
+    setEggModalVisible(false);
+  };
+
 
   const sortMonstersAndImages = async () => {
     // Pair each monster with its image
@@ -133,17 +180,26 @@ const refreshMonsters = async () => {
   }
 };
 
+const closeMonsterInfoModal = () => {
+ setIsModalVisible(false);
+};
+
 return (
   <View style={styles.container}>
     <ImageBackground source={backgroundImage} style={styles.backgroundImage} resizeMode="cover">
-      <View style={styles.sortingContainer}>
-        <TouchableOpacity onPress={() => setSortingMethod('id')}>
-          <Icon name="sort" size={30} color="black" />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => setSortingMethod('name')}>
-          <Icon name="sort-by-alpha" size={30} color="black" />
-        </TouchableOpacity>
-      </View>
+
+   <View style={styles.sortingContainer}>
+  <TouchableOpacity onPress={() => setSortingMethod('id')}>
+    <Icon name="sort" size={30} color="black" />
+  </TouchableOpacity>
+  <TouchableOpacity onPress={openEggModal}>
+    <Ionicons name="egg-outline" size={30} color="black" />
+  </TouchableOpacity>
+  <TouchableOpacity onPress={() => setSortingMethod('name')}>
+    <Icon name="sort-by-alpha" size={30} color="black" />
+  </TouchableOpacity>
+</View>
+
 
       <View style={styles.contentContainer}>
         <Text style={styles.text}>My collected QReeps!</Text>
@@ -151,6 +207,9 @@ return (
           data={[...monsters, ...placeholders]}
           keyExtractor={(item, index) => `monster_${index}`}
           numColumns={numColumns}
+
+
+
           renderItem={({ item, index }) => {
             if (!item) {
               // Render an invisible view for the placeholder
@@ -163,9 +222,9 @@ return (
               {images[index] ? (
                 <TouchableOpacity onPress={() => handleItemPress(item)}>
                   <Image 
-  source={{ uri: images[index] }}
-  style={{ width: 100, height: 100 }}  // Set fixed width and height for testing
-  resizeMode="contain"
+                source={{ uri: images[index] }}
+                style={styles.image}  // Set fixed width and height for testing
+                resizeMode="contain"
 />
                 </TouchableOpacity>
               ) : (
@@ -183,27 +242,14 @@ return (
     </ImageBackground>
 
     {/* Modal for displaying monster details */}
-    <Modal
-      animationType="slide"
-      transparent={true}
-      visible={isModalVisible}
-      onRequestClose={() => setIsModalVisible(false)}
-    >
-      <View style={styles.modalView}>
-        {selectedMonster && (
-          <>
-            <Text style={styles.modalText}>{selectedMonster.name}</Text>
-            {/* Include other details of selectedMonster here */}
-            {/* ... */}
-          </>
-        )}
-        <Button
-          title="Close"
-          onPress={() => setIsModalVisible(false)}
-        />
-      </View>
-    </Modal>
-  </View>
+
+    <MonsterInfoModal
+ isModalVisible={isModalVisible}
+ selectedMonster={selectedMonster}
+ onClose={closeMonsterInfoModal}
+/>
+<EggModal visible={eggModalVisible} onClose={closeEggModal} />
+</View>
 );
 
 
@@ -252,7 +298,7 @@ const styles = StyleSheet.create({
     borderColor: 'black',
   },
   image: {
-    width: '100%', // Set the image width to 100% to fit the container
+    width: 120, // Set the image width to 100% to fit the container
     height: 120,
     marginBottom: 4,
     borderRadius: 90,

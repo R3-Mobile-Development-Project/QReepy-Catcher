@@ -24,15 +24,14 @@ export const saveMonsterToAsyncStorage = async (monster, userId) => {
   try {
     // Get existing monsters for the user from AsyncStorage
     const existingMonsters = await AsyncStorage.getItem(`monsters_${userId}`);
-
     // Parse existing monsters or initialize an empty array
     const parsedExistingMonsters = existingMonsters ? JSON.parse(existingMonsters) : [];
-
     // Add the new monster to the array
     parsedExistingMonsters.push(monster);
-
     // Save the updated monsters array to AsyncStorage
     await AsyncStorage.setItem(`monsters_${userId}`, JSON.stringify(parsedExistingMonsters));
+  //  await AsyncStorage.setItem(`caughtMonsters_${userId}`, parsedExistingMonsters.length.toString());
+  //  console.log(`MONSTERUTILS: ${parsedExistingMonsters.length.toString()} monsters caught for user ID: ${userId}`);
   //  console.log(`MONSTERUTILS 1: Saved monster to AsyncStorage: ${monster.name} for user ID: ${userId}`);
 
     // Trigger the callback to update the component
@@ -74,6 +73,7 @@ export const fetchMonsterDetailsFromFirestore = async (monsterId, userId) => {
       console.error('No userId found in AsyncStorage');
       return;
     }
+
 
   const db = getFirestore();
   const q = query(collection(db, 'monsters'), where('id', '==', monsterId));
@@ -119,6 +119,7 @@ export const fetchMonsterDetailsFromFirestore = async (monsterId, userId) => {
         title: doc.data().title,
         nature: doc.data().nature,
         background: doc.data().background,
+        rarity: doc.data().rarity,
         age: doc.data().age,
         dominantColors: parsedColors, // Use default if parsing fails
       };

@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Button, StyleSheet, ImageBackground, TouchableOpacity } from 'react-native';
+import { View, Text, Button, StyleSheet, ImageBackground, TouchableOpacity, Image } from 'react-native';
 import { Audio } from 'expo-av';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialIcons } from '@expo/vector-icons';
 import CreditsModal from '../modals/CreditsModal';
+import StoreModal from '../modals/StoreModal';
 import { useFocusEffect } from '@react-navigation/native';
 
 const backgroundImage = require('../assets/images/doodle-monsters-set_90220-166.jpg');
@@ -12,6 +13,7 @@ const HomeScreen = ({ navigation }) => {
   const [creditsModalVisible, setCreditsModalVisible] = useState(false);
   const [sound, setSound] = useState();
   const [userCoins, setUserCoins] = useState(0);
+  const [storeModalVisible, setStoreModalVisible] = useState(false);
 
     const fetchUserData = async () => {
       try {
@@ -60,12 +62,27 @@ const HomeScreen = ({ navigation }) => {
     setSound(sound);
     await sound.playAsync();
 
-    // Open the credits modal
     setCreditsModalVisible(true);
   };
 
   const closeCreditsModal = () => {
     setCreditsModalVisible(false);
+  };
+
+  const openStoreModal = async () => {
+    // Load and play the sound effect
+    const { sound } = await Audio.Sound.createAsync(
+      require('../assets/sounds/Menu_Selection_Click.wav')
+    );
+    setSound(sound);
+    await sound.playAsync();
+
+    setStoreModalVisible(true);
+  };
+
+  const closeStoreModal = () => {
+    setStoreModalVisible(false);
+    fetchUserData();
   };
 
   return (
@@ -94,12 +111,17 @@ const HomeScreen = ({ navigation }) => {
           <Text style={styles.creditsButtonText}>CREDITS</Text>
       </TouchableOpacity>
       <View style={styles.coinContainer}>
-        <MaterialIcons name="toll" size={64} color="purple" />
+        <Image source={require('../assets/images/coin4.png')} style={styles.image} />
         <Text style={styles.coinText}>{userCoins}</Text>
       </View>
+      <TouchableOpacity onPress={openStoreModal} style={styles.storeButton}>
+        <MaterialIcons name="store" size={140} color="purple" />
+        <Text style={styles.storeButtonText}>STORE</Text>
+      </TouchableOpacity>
       </View>
       </ImageBackground>
       <CreditsModal visible={creditsModalVisible} onClose={closeCreditsModal} />
+      <StoreModal visible={storeModalVisible} onClose={closeStoreModal} />
     </View>
   );
 };
@@ -149,22 +171,36 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   image: {
-    width: 200, // Set the width as per your requirements
-    height: 200, // Set the height as per your requirements
+    width: 140, // Set the width as per your requirements
+    height: 140, // Set the height as per your requirements
+    borderRadius: 70, // Set the borderRadius as per your requirements
+    borderWidth: 3,
+    borderColor: 'purple',
   },
   coinContainer: {
     position: 'absolute',
     top: 10,
-    right: 10,
-    flexDirection: 'row',
+    right: 20,
     alignItems: 'center',
   },
   coinText: {
-    fontSize: 34,
+    fontSize: 24,
     fontWeight: 'bold',
     marginLeft: 5,
     marginRight: 10,
     color: 'purple',
+  },
+  storeButton: {
+    position: 'absolute',
+    top: 10,
+    left: 10,
+    alignItems: 'center',
+  },
+  storeButtonText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: 'purple',
+  //  alignSelf: 'center',
   },
 });
 
