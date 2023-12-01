@@ -141,21 +141,55 @@ const EggModal = ({ visible, onClose }) => {
       //  await AsyncStorage.getItem(`selectedEggIndex_${userId}`, index.toString());
         const userId = await AsyncStorage.getItem('userId');
         console.log(`EGGMODAL: Hatched egg at index ${index} for user ID: ${userId}`);
+
         const boughtEggs = await AsyncStorage.getItem(`boughtEggs_${userId}`);
         console.log(`EGGMODAL: Bought eggs: ${boughtEggs}`);
+
+        const boughtEggsArray = JSON.parse(boughtEggs);
+        if(Array.isArray(boughtEggsArray) && index >= 0 && index < boughtEggsArray.length){
+            const eggURL = boughtEggsArray[index].eggUrl;
+            console.log(`EGGMODAL: Egg URL: ${eggURL}`);
+
+            const match = eggURL.match(/\egg(\d+)\./);
+            if (match) {
+            // Extracted number from the egg URL
+            const eggNumber = match[1];
+            console.log(`EGGMODAL: Egg number extracted from URL: ${eggNumber}`);
+
+            // Fetch monster data using the determined monsterId
+            const db = getFirestore();
+            const q = query(collection(db, 'monsters'), where('id', 'in', [eggNumber, eggNumber + 10, eggNumber + 20, eggNumber + 30, eggNumber + 40]));
+
+            const querySnapshot = await getDocs(q);
+            querySnapshot.forEach((doc) => {
+                const monsterData = doc.data();
+                console.log('EGGMODAL: Monster Data:', monsterData.id);
+            });
+
+            } else {
+            console.error('EGGMODAL: No number found between "egg" and "." in the egg URL');
+            }
+        } else {
+            console.error(`EGGMODAL: Invalid index ${index} for bought eggs array: ${boughtEggsArray}`);
+        }
+
         const parsedExistingMonsters = [];
         await AsyncStorage.setItem(`caughtMonsters_${userId}`, JSON.stringify(parsedExistingMonsters));
         const storedMonsterIdsString = await AsyncStorage.getItem(`caughtMonsters_${userId}`);
         console.log(`EGGMODAL: ${storedMonsterIdsString} monsters caught for user ID: ${userId}`);
+
         setCaughtMonsters(0);
         setIsTrackingEgg(false);
         setIsHatching(false);
+
         const selectedEggIndex = await AsyncStorage.getItem(`selectedEggIndex_${userId}`);
         await AsyncStorage.removeItem(`selectedEggIndex_${userId}`);
         console.log(`EGGMODAL: Removed selected egg: ${selectedEggIndex} for user ID: ${userId}`)
+
         const isTrackingEgg = await AsyncStorage.getItem(`isTrackingEgg_${userId}`);
         await AsyncStorage.setItem(`isTrackingEgg_${userId}`, 'false');
         console.log(`EGGMODAL: Removed tracking egg: ${isTrackingEgg} for user ID: ${userId}`)
+
         //delete egg from async storage
         const parsedBoughtEggs = JSON.parse(boughtEggs);
         parsedBoughtEggs.splice(index, 1);
