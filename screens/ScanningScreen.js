@@ -46,12 +46,7 @@ const loadScannedBarcodes = async () => {
   }
 
     return storedBarcodes;
-  } catch (error) {
-    console.error('Error loading scanned barcodes from AsyncStorage:', error);
   }
-  
-
-};
 
 useEffect(() => {
   // Load the last 10 scanned barcodes when the component mounts
@@ -61,16 +56,10 @@ useEffect(() => {
 // Function to save the last 10 scanned barcodes to AsyncStorage
 const saveScannedBarcodes = async () => {
   try {
-
-    const slicedBarcodes = scannedBarcodes.slice(-10);
-    await AsyncStorage.setItem('lastScannedBarcodes', JSON.stringify(slicedBarcodes));
-    console.log('SCANNINGSCREEN: Saved scanned barcodes to AsyncStorage:', slicedBarcodes);
-
     const slicedBarcodes = scannedBarcodes.slice(-1);
     await AsyncStorage.setItem('lastScannedBarcodes', JSON.stringify(slicedBarcodes));
     const savedBarcodes = await AsyncStorage.getItem('lastScannedBarcodes');
     console.log('SCANNINGSCREEN: Scanned barcodes saved to AsyncStorage:', savedBarcodes);
-
   } catch (error) {
     console.error('Error saving scanned barcodes to AsyncStorage:', error);
   }
@@ -303,27 +292,12 @@ console.log(`SCANNINGSCREEN: ${storedMonsterIdsString} monsters caught for user 
           </View>
      {/*     <View style={styles.scannerFrame} /> */}
 
-     <View style={styles.scannerButtonContainer}>
-
           <View style={styles.scannerButtonContainer}>
 
             <TouchableOpacity onPress={initiateScanning} style={styles.barcodeScannerButton}>
               <MaterialCommunityIcons name="barcode-scan" size={60} color="white" />
             </TouchableOpacity>
           </View>
-
-            <Slider
-              style={styles.sliderStyle}
-              minimumValue={0}
-              maximumValue={1}
-              minimumTrackTintColor="#FFFFFF"
-              maximumTrackTintColor="teal"
-              thumbTintColor="teal"
-              value={sliderValue}
-              onValueChange={handleZoomChange}
-              vertical={true}
-/>
-
           <Slider
             style={styles.sliderStyle}
             minimumValue={0}
@@ -368,7 +342,7 @@ console.log(`SCANNINGSCREEN: ${storedMonsterIdsString} monsters caught for user 
       )}
     </View>
   );
-}
+}      
 
 const styles = StyleSheet.create({
     buttonContainer: {

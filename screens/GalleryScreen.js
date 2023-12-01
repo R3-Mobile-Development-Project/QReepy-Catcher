@@ -5,9 +5,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { Ionicons } from '@expo/vector-icons';
 import { findMonster, fetchMonsterImageURL } from '../utils/monsterUtils';
-
 import MonsterInfoModal from '../modals/MonsterInfoModal';
-
 import { Audio } from 'expo-av';
 import EggModal from '../modals/EggModal';
 
@@ -183,16 +181,7 @@ return (
   <View style={styles.container}>
     <ImageBackground source={backgroundImage} style={styles.backgroundImage} resizeMode="cover">
 
-      <View style={styles.sortingContainer}>
-        <TouchableOpacity onPress={() => setSortingMethod('id')}>
-          <Icon name="sort" size={30} color="black" />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => setSortingMethod('name')}>
-          <Icon name="sort-by-alpha" size={30} color="black" />
-        </TouchableOpacity>
-      </View>
-
-    <View style={styles.sortingContainer}>
+   <View style={styles.sortingContainer}>
   <TouchableOpacity onPress={() => setSortingMethod('id')}>
     <Icon name="sort" size={30} color="black" />
   </TouchableOpacity>
@@ -249,29 +238,8 @@ return (
  selectedMonster={selectedMonster}
  onClose={closeMonsterInfoModal}
 />
-
-          renderItem={({ item, index }) => (
-          item ? (
-          <View style={styles.monsterContainer}>
-            {images[index] ? (
-                <Image source={{ uri: images[index] }} style={styles.image} />
-              ) : (
-              <View style={styles.loadingContainer}>
-                <ActivityIndicator size="small" color="black" />
-              </View>
-              )}
-            <Text style={styles.monsterName}>{item.name}</Text>
-          </View>
-        ) : (
-        <View style={[styles.monsterContainer, styles.invisible]} />
-        )
-      )}
-    />
-      </View>
-    </ImageBackground>
-    <EggModal visible={eggModalVisible} onClose={closeEggModal} />
-
-  </View>
+<EggModal visible={eggModalVisible} onClose={closeEggModal} />
+</View>
 );
 };
 
