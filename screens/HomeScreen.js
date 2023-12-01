@@ -115,7 +115,7 @@ const HomeScreen = ({ navigation }) => {
         <Text style={styles.coinText}>{userCoins}</Text>
       </View>
       <TouchableOpacity onPress={openStoreModal} style={styles.storeButton}>
-        <MaterialIcons name="store" size={80} color="purple" />
+        <MaterialIcons name="store" size={140} color="purple" />
         <Text style={styles.storeButtonText}>STORE</Text>
       </TouchableOpacity>
       </View>
@@ -171,9 +171,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   image: {
-    width: 80, // Set the width as per your requirements
-    height: 80, // Set the height as per your requirements
-    borderRadius: 40, // Set the borderRadius as per your requirements
+    width: 140, // Set the width as per your requirements
+    height: 140, // Set the height as per your requirements
+    borderRadius: 70, // Set the borderRadius as per your requirements
     borderWidth: 3,
     borderColor: 'purple',
   },
@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   coinText: {
-    fontSize: 18,
+    fontSize: 24,
     fontWeight: 'bold',
     marginLeft: 5,
     marginRight: 10,
@@ -197,7 +197,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   storeButtonText: {
-    fontSize: 18,
+    fontSize: 24,
     fontWeight: 'bold',
     color: 'purple',
   //  alignSelf: 'center',

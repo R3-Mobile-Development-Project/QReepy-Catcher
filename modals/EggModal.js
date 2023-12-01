@@ -3,6 +3,8 @@ import { View, Text, Modal, StyleSheet, FlatList, Image, TouchableOpacity, Anima
 import { MaterialIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
+import { getFirestore, collection, query, onSnapshot, where, getDocs } from 'firebase/firestore';
+import { getStorage, ref, getDownloadURL } from 'firebase/storage';
 
 const EggModal = ({ visible, onClose }) => {
     const [savedEggs, setSavedEggs] = useState([]);
@@ -94,40 +96,35 @@ const EggModal = ({ visible, onClose }) => {
     const startHatching = async (index) => {
         if (!isTrackingEgg) {
             const userId = await AsyncStorage.getItem('userId');
-            
+
             // Clear caughtMonsters array
             const parsedExistingMonsters = [];
             await AsyncStorage.setItem(`caughtMonsters_${userId}`, JSON.stringify(parsedExistingMonsters));
-    
+
             const storedMonsterIdsString = await AsyncStorage.getItem(`caughtMonsters_${userId}`);
             console.log(`EGGMODAL: ${storedMonsterIdsString} monsters caught for user ID: ${userId}`);
-    
+
             setCaughtMonsters(0);
             setIsTrackingEgg(true);
-            
+
             // If not already hatching, start the process
             setIsHatching(true);
-            
             // Save the selected egg index to AsyncStorage
             await AsyncStorage.setItem(`selectedEggIndex_${userId}`, index.toString());
-            
             // Save the isTrackingEgg state to AsyncStorage
             await AsyncStorage.setItem(`isTrackingEgg_${userId}`, 'true');
-    
             // Check if the number of caught monsters is 20
             if (caughtMonsters >= neededMonsters) {
                 setIsHatched(true);
                 // setHatchedEggState({ index, borderColor: 'green' });
                 setCaughtMonsters(0);
                 setIsTrackingEgg(false);
-    
                 // Optionally, you might want to clear the storage here
                 await AsyncStorage.removeItem(`caughtMonsters_${userId}`);
                 console.log(`EGGMODAL: Cleared caught monsters for user ID: ${userId}`);
             }
         }
     };
-    
 
         const selectEgg = (index) => {
             if (!isTrackingEgg) {
@@ -141,6 +138,33 @@ const EggModal = ({ visible, onClose }) => {
 
     //function for hatching the egg, getting the monster, saving the monster, clearing the caught monsters and deleting the egg
     const hatchEgg = async (index) => {
+      //  await AsyncStorage.getItem(`selectedEggIndex_${userId}`, index.toString());
+        const userId = await AsyncStorage.getItem('userId');
+        console.log(`EGGMODAL: Hatched egg at index ${index} for user ID: ${userId}`);
+        const boughtEggs = await AsyncStorage.getItem(`boughtEggs_${userId}`);
+        console.log(`EGGMODAL: Bought eggs: ${boughtEggs}`);
+        const parsedExistingMonsters = [];
+        await AsyncStorage.setItem(`caughtMonsters_${userId}`, JSON.stringify(parsedExistingMonsters));
+        const storedMonsterIdsString = await AsyncStorage.getItem(`caughtMonsters_${userId}`);
+        console.log(`EGGMODAL: ${storedMonsterIdsString} monsters caught for user ID: ${userId}`);
+        setCaughtMonsters(0);
+        setIsTrackingEgg(false);
+        setIsHatching(false);
+        const selectedEggIndex = await AsyncStorage.getItem(`selectedEggIndex_${userId}`);
+        await AsyncStorage.removeItem(`selectedEggIndex_${userId}`);
+        console.log(`EGGMODAL: Removed selected egg: ${selectedEggIndex} for user ID: ${userId}`)
+        const isTrackingEgg = await AsyncStorage.getItem(`isTrackingEgg_${userId}`);
+        await AsyncStorage.setItem(`isTrackingEgg_${userId}`, 'false');
+        console.log(`EGGMODAL: Removed tracking egg: ${isTrackingEgg} for user ID: ${userId}`)
+        //delete egg from async storage
+        const parsedBoughtEggs = JSON.parse(boughtEggs);
+        parsedBoughtEggs.splice(index, 1);
+        await AsyncStorage.setItem(`boughtEggs_${userId}`, JSON.stringify(parsedBoughtEggs));
+        setSavedEggs(parsedBoughtEggs);
+        console.log(`EGGMODAL: Removed egg at index ${index} for user ID: ${userId}`)
+        console.log(`EGGMODAL: Remaining eggs: ${parsedBoughtEggs}`);
+
+/*
         if (isHatching) {
             setIsHatching(false);
             setIsHatched(true);
@@ -152,6 +176,7 @@ const EggModal = ({ visible, onClose }) => {
             await AsyncStorage.setItem(`isTrackingEgg_${userId}`, false);
             //fetch monster from firestore and image from storage
             //save monster to async storage
+            console.log(`EGGMODAL: Hatched egg at index ${index} for user ID: ${userId}`);
 
             //delete egg from async storage
             const boughtEggs = await AsyncStorage.getItem(`boughtEggs_${userId}`);
@@ -159,9 +184,8 @@ const EggModal = ({ visible, onClose }) => {
             parsedBoughtEggs.splice(index, 1);
             await AsyncStorage.setItem(`boughtEggs_${userId}`, JSON.stringify(parsedBoughtEggs));
             setSavedEggs(parsedBoughtEggs);
-
-            
         }
+        */
     }
 
 
