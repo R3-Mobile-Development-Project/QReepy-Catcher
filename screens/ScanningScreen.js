@@ -298,18 +298,17 @@ console.log(`SCANNINGSCREEN: ${storedMonsterIdsString} monsters caught for user 
           ref={cameraRef}
           flashMode={torchOn}
           zoom={zoom}
-          autoFocus={Camera.Constants.AutoFocus.on} // Enable autofocus
+          autoFocus={Camera.Constants.AutoFocus.on}
           onBarCodeScanned={isScanningActive ? handleBarCodeScanned : undefined}
+          onCameraReady={() => {}}
+          onMountError={(error) => console.log('Camera mount error:', error)}
         >
           <View style={styles.buttonContainer}>
             <TouchableOpacity onPress={handleTorchToggle} style={styles.torchToggleButton}>
               <Ionicons name={torchOn ? 'ios-flashlight' : 'ios-flashlight-outline'} size={40} color="white" />
             </TouchableOpacity>
           </View>
-     {/*     <View style={styles.scannerFrame} /> */}
-
           <View style={styles.scannerButtonContainer}>
-
             <TouchableOpacity onPress={initiateScanning} style={styles.barcodeScannerButton}>
               <MaterialCommunityIcons name="barcode-scan" size={60} color="white" />
             </TouchableOpacity>
@@ -325,71 +324,48 @@ console.log(`SCANNINGSCREEN: ${storedMonsterIdsString} monsters caught for user 
             onValueChange={handleZoomChange}
             vertical={true}
           />
-
         </Camera>
       ) : (
         <View style={{ flex: 1 }}>
           {/* Placeholder content or empty view */}
-
         </View>
-        <View style={styles.scannerButtonContainer}>
-          <TouchableOpacity onPress={initiateScanning} style={styles.barcodeScannerButton}>
-            <MaterialCommunityIcons name="barcode-scan" size={60} color="white" />
-          </TouchableOpacity>
-        </View>
-        <Slider
-          style={styles.sliderStyle}
-          minimumValue={0}
-          maximumValue={1}
-          minimumTrackTintColor="#FFFFFF"
-          maximumTrackTintColor="teal"
-          thumbTintColor="teal"
-          value={sliderValue}
-          onValueChange={handleZoomChange}
-          vertical={true}
-        />
-      </Camera>
-    ) : (
-      <View style={{ flex: 1 }}>
-        {/* Placeholder content or empty view */}
-      </View>
-    )}
-    {/* Ad Modal */}
-    {adModalVisible && (
-      <AdModal
-        isVisible={adModalVisible}
-        imageSource={require('../assets/images/adpicture1.png')} // Replace with your image path
-        onClose={() => setAdModalVisible(false)}
-        // Other props if needed
-      />
-    )}
-
-{/* ALLA OLEVA NÄYTTÄÄ VIESTIN, JOS SKANNATTU KOODI ON JO SKANNATTU AIEMMIN. VOI TESTEISSÄ KOMMENTOIDA POIS */}
-{/* ALLA OLEVA NÄYTTÄÄ VIESTIN, JOS EI TULE MONSTERIA. VOI TESTEISSÄ KOMMENTOIDA POIS */}
-{/* --------------------------------------------------------------- */}
-{showMessage && (
-      <View style={styles.messageContainer}>
-        <Text style={styles.messageText}>{scanningMessage}</Text>
-        {/*
-        <TouchableOpacity onPress={hideMessage} style={styles.hideMessageButton}>
-          <Text style={styles.hideMessageText}>OK</Text>
-        </TouchableOpacity>
-        */}
-      </View>
-    )}
-{/* --------------------------------------------------------------- */}
-      {modalVisible && (
-      <ScanningModal
-        isVisible={modalVisible}
-        onClose={closeModal}
-        openGallery={() => navigation.navigate('Gallery')}
-        monsterInfo={monsterInfo}
-        imageURL={imageURL}
-      />
       )}
-    </View>
-  );
-}      
+      {/* Ad Modal */}
+      {adModalVisible && (
+        <AdModal
+          isVisible={adModalVisible}
+          imageSource={require('../assets/images/adpicture1.png')} // Replace with your image path
+          onClose={() => setAdModalVisible(false)}
+          // Other props if needed
+        />
+      )}
+  
+  {/* ALLA OLEVA NÄYTTÄÄ VIESTIN, JOS SKANNATTU KOODI ON JO SKANNATTU AIEMMIN. VOI TESTEISSÄ KOMMENTOIDA POIS */}
+  {/* ALLA OLEVA NÄYTTÄÄ VIESTIN, JOS EI TULE MONSTERIA. VOI TESTEISSÄ KOMMENTOIDA POIS */}
+  {/* --------------------------------------------------------------- */}
+  {showMessage && (
+        <View style={styles.messageContainer}>
+          <Text style={styles.messageText}>{scanningMessage}</Text>
+          {/*
+          <TouchableOpacity onPress={hideMessage} style={styles.hideMessageButton}>
+            <Text style={styles.hideMessageText}>OK</Text>
+          </TouchableOpacity>
+          */}
+        </View>
+      )}
+  {/* --------------------------------------------------------------- */}
+        {modalVisible && (
+        <ScanningModal
+          isVisible={modalVisible}
+          onClose={closeModal}
+          openGallery={() => navigation.navigate('Gallery')}
+          monsterInfo={monsterInfo}
+          imageURL={imageURL}
+        />
+        )}
+      </View>
+    );
+  }      
 
 const styles = StyleSheet.create({
     buttonContainer: {

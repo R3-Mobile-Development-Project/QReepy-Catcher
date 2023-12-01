@@ -18,14 +18,7 @@ const GalleryScreen = ({ navigation }) => {
   const [numColumns, setNumColumns] = useState(3);
   const [sortingMethod, setSortingMethod] = useState('id');
   const placeholders = Array.from({ length: (3 - monsters.length % 3) % 3 });
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [selectedMonster, setSelectedMonster] = useState(null);
-
-  const handleItemPress = (monster) => {
-    setSelectedMonster(monster);
-    setIsModalVisible(true);
-  };
-
+  
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedMonster, setSelectedMonster] = useState(null);
 
