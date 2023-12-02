@@ -11,15 +11,14 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 //import { auth } from 'firebase/app';
 //import 'firebase/auth';
 import { firebaseConfig } from './firebaseConfig';
-import MonsterInfoModal from './modals/MonsterInfoModal';
 import HomeScreen from './screens/HomeScreen';
 import AuthScreen from './screens/AuthScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import ScanningScreen from './screens/ScanningScreen';
 import SplashScreen from './screens/SplashScreen';
 import GalleryScreen from './screens/GalleryScreen';
-import { MusicProvider } from './MusicContext'; // Import MusicProvider from MusicContext
-import BannerAd from './screens/BannerAd'; // Import the BannerAd component
+import { MusicProvider } from './utils/MusicContext'; // Import MusicProvider from MusicContext
+import BannerAd from './utils/BannerAd'; // Import the BannerAd component
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);

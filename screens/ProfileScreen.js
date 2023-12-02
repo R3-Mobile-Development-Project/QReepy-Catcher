@@ -6,7 +6,7 @@ import AchievementsModal from '../modals/AchievementsModal';
 import { Audio } from 'expo-av';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Modal from 'react-native-modal';
-import { useMusic } from '../MusicContext'; // Import useMusic hook
+import { useMusic } from '../utils/MusicContext'; // Import useMusic hook
 
 const backgroundImage = require('../assets/images/paper-decorations-halloween-pack_23-2148635839.jpg');
 

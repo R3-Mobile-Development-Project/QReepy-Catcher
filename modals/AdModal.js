@@ -23,7 +23,7 @@ const AdModal = ({ isVisible, onClose }) => {
       <View style={styles.centeredView}>
         <View style={styles.modalView}>
           <Image 
-            source={require('./assets/images/adpicture1.png')} // Replace with your image path
+            source={require('../assets/images/adpicture1.png')} // Replace with your image path
             style={styles.image}
           />
           {/* Additional content can go here */}

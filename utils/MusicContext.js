@@ -18,7 +18,7 @@ export const MusicProvider = ({ children }) => {
       soundRef.current = sound;
   
       try {
-        const source = require('./assets/sounds/happy_adveture.mp3');
+        const source = require('../assets/sounds/happy_adveture.mp3');
         await sound.loadAsync(source, { isLooping: true });
   
         if (isMounted) {

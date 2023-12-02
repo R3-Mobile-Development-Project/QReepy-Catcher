@@ -87,7 +87,7 @@ const HomeScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>This game is a work in progress!</Text>
+    {/*  <Text style={styles.text}>This game is a work in progress!</Text>  */}
       <ImageBackground
       source={backgroundImage}
       style={styles.backgroundImage}
