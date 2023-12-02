@@ -1,7 +1,8 @@
+// AdModal.js
 import React, { useState, useEffect } from 'react';
-import { Modal, View, Image, StyleSheet, Text } from 'react-native';
+import { Modal, View, Image, StyleSheet } from 'react-native';
 
-const AdModal = ({ isVisible, onClose }) => {
+const AdModal = ({ isVisible, onClose, adContent }) => {
   useEffect(() => {
     let timer;
     if (isVisible) {
@@ -9,7 +10,6 @@ const AdModal = ({ isVisible, onClose }) => {
         onClose(); // Close the modal after 3 seconds
       }, 3000);
     }
-    
     return () => clearTimeout(timer);
   }, [isVisible]);
 
@@ -23,7 +23,7 @@ const AdModal = ({ isVisible, onClose }) => {
       <View style={styles.centeredView}>
         <View style={styles.modalView}>
           <Image 
-            source={require('../assets/images/adpicture1.png')} // Replace with your image path
+            source={adContent.image} // Use the adContent prop for the image source
             style={styles.image}
           />
           {/* Additional content can go here */}

@@ -9,7 +9,9 @@ import { Audio } from 'expo-av';
 import Slider from '@react-native-community/slider';
 import ScanningModal from '../modals/ScanningModal';
 import AdModal from '../modals/AdModal';
-import adImage from '../assets/images/adpicture1.png';
+import adImage1 from '../assets/images/adpicture1.png';
+import adImage2 from '../assets/images/adpicture2.png';
+
 import { findMonster, fetchMonsterDetailsFromFirestore, fetchMonsterImageURL } from '../utils/monsterUtils';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -35,8 +37,11 @@ export default function ScanningScreen({ navigation }) {
   const [scannedBarcodes, setScannedBarcodes] = useState([]);
   const [scanningMessage, setScanningMessage] = useState('');
   const [adModalVisible, setAdModalVisible] = useState(false);
-  const adImage = require('../assets/images/adpicture1.png');
-
+  const [currentAdIndex, setCurrentAdIndex] = useState(0); // New state to track current ad
+  const ads = [
+    { image: adImage1,  },
+    { image: adImage2,  }
+  ]
   // Function to load the last 10 scanned barcodes from AsyncStorage
 const loadScannedBarcodes = async () => {
   try {
@@ -68,18 +73,15 @@ const saveScannedBarcodes = async () => {
   }
 };
 
-  const initiateScanning = () => {
-    // Randomly decide to show ad or initiate scanning
-    if (Math.random() < 0.2) { // Adjust this threshold as needed
-      // Show ad modal
-      setAdModalVisible(true);
-
-      // Hide ad modal after 3 seconds
-      setTimeout(() => {
+const initiateScanning = () => {
+  if (Math.random() < 0.2) {
+    setAdModalVisible(true);
+    setCurrentAdIndex((prevIndex) => (prevIndex + 1) % ads.length); // Alternate between ads
+    setTimeout(() => {
       setAdModalVisible(false);
-      }, 3000);
-
-      return;
+    }, 3000);
+    return;
+    
     }
     setLastScannedData(null);
     setIsScanningActive(true);
@@ -316,7 +318,14 @@ const saveScannedBarcodes = async () => {
           {/* Placeholder content or empty view */}
         </View>
       )}
-
+{/* Ad Modal */}
+{adModalVisible && (
+        <AdModal
+          isVisible={adModalVisible}
+          adContent={ads[currentAdIndex]} // Pass the current ad content
+          onClose={() => setAdModalVisible(false)}
+        />
+      )}
 {/* ALLA OLEVA NÄYTTÄÄ VIESTIN, JOS SKANNATTU KOODI ON JO SKANNATTU AIEMMIN. VOI TESTEISSÄ KOMMENTOIDA POIS */}
 {/* ALLA OLEVA NÄYTTÄÄ VIESTIN, JOS EI TULE MONSTERIA. VOI TESTEISSÄ KOMMENTOIDA POIS */}
 {/* --------------------------------------------------------------- */}
