@@ -4,6 +4,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import { getFirestore, collection, query, onSnapshot, where, getDocs } from 'firebase/firestore';
+import { fetchMonsterDetailsFromFirestore, fetchMonsterImageURL } from '../utils/monsterUtils';
 import { getStorage, ref, getDownloadURL } from 'firebase/storage';
 
 const EggModal = ({ visible, onClose }) => {
@@ -15,7 +16,10 @@ const EggModal = ({ visible, onClose }) => {
     const [caughtMonsters, setCaughtMonsters] = useState(0); // New state to track monsters caught
     const [isHatched, setIsHatched] = useState(false); // New state to track if the egg is hatched
     const [isTrackingEgg, setIsTrackingEgg] = useState(false);
-    const neededMonsters = 3;
+    const neededMonsters = 1; // LASKURIN TARVITSEMA ARVO ETTÄ MUNA KUORIUTUU
+    const [monsterModalVisible, setMonsterModalVisible] = useState(false);
+    const [monsterData, setMonsterData] = useState({});
+    const [imageURL, setImageURL] = useState('');
 
     //const [hatchedEggState, setHatchedEggState] = useState({ index: null, borderColor: 'red' });
 
@@ -153,18 +157,60 @@ const EggModal = ({ visible, onClose }) => {
             const match = eggURL.match(/\egg(\d+)\./);
             if (match) {
             // Extracted number from the egg URL
-            const eggNumber = match[1];
+            const eggNumber = parseInt(match[1], 10);
             console.log(`EGGMODAL: Egg number extracted from URL: ${eggNumber}`);
 
-            // Fetch monster data using the determined monsterId
-            const db = getFirestore();
-            const q = query(collection(db, 'monsters'), where('id', 'in', [eggNumber, eggNumber + 10, eggNumber + 20, eggNumber + 30, eggNumber + 40]));
+            const monsterIds = [eggNumber, eggNumber + 10, eggNumber + 20, eggNumber + 30, eggNumber + 40].filter(id => id > 0);
+            if (monsterIds.length > 0) {
+                // Choose a random monster ID from the array
+                const randomMonsterId = monsterIds[Math.floor(Math.random() * monsterIds.length)];
+                console.log(`EGGMODAL: Random monster ID chosen: ${randomMonsterId}`);
 
-            const querySnapshot = await getDocs(q);
-            querySnapshot.forEach((doc) => {
-                const monsterData = doc.data();
-                console.log('EGGMODAL: Monster Data:', monsterData.id);
-            });
+                try {
+                    // Fetch monster data using the randomly chosen monsterId
+                    const monsterData = await fetchMonsterDetailsFromFirestore(randomMonsterId, userId);
+               //     console.log(`EGGMODAL: Random Monster Data: ${monsterData}`);
+               //     console.log('Monster Data:', JSON.stringify(monsterData, null, 2));
+                    // Assuming monsterData is an array of objects
+                    console.log('EGGMODAL: Monster Name:', monsterData[0].name);
+            //        console.log('Monnster name:', monsterData.name)
+
+
+                    setMonsterData(monsterData);
+                    // Fetch image URL for the monster
+                    const imageUrl = await fetchMonsterImageURL(randomMonsterId, userId);
+                    console.log(`EGGMODAL: Monster Image URL: ${imageUrl}`);
+                    setImageURL(imageUrl);
+
+                    setMonsterModalVisible(true);
+                } catch (error) {
+                    console.error('Error fetching monster data:', error);
+                }
+
+
+
+                /*
+                fetchMonsterDetailsFromFirestore(randomMonsterId, userId);
+                fetchMonsterImageURL(randomMonsterId, userId);
+*/
+                // Make the modal visible
+                
+
+                /*
+                // Fetch monster data using the randomly chosen monsterId
+                const db = getFirestore();
+                const q = query(collection(db, 'monsters'), where('id', '==', randomMonsterId));
+
+                const querySnapshot = await getDocs(q);
+                querySnapshot.forEach((doc) => {
+                    const monsterData = doc.data();
+                    console.log('EGGMODAL: Random Monster Data:', monsterData.id);
+                    // Now you can use monsterData to display information about the randomly chosen monster
+                });
+                */
+            } else {
+                console.error('EGGMODAL: No valid monster IDs found in the array');
+            }
 
             } else {
             console.error('EGGMODAL: No number found between "egg" and "." in the egg URL');
@@ -222,6 +268,54 @@ const EggModal = ({ visible, onClose }) => {
         */
     }
 
+    const renderHatchButton = () => {
+        if (selectedEggIndex !== null) {
+          if (isTrackingEgg) {
+            return (
+              <TouchableOpacity onPress={() => startHatching(selectedEggIndex)}>
+                <Text>{isHatching ? "Hatching..." : "Start Hatching"}</Text>
+              </TouchableOpacity>
+            );
+          }
+          else {
+            return (
+              <TouchableOpacity onPress={() => startHatching(selectedEggIndex)}>
+                <Text>Start Hatching</Text>
+              </TouchableOpacity>
+            );
+          }
+        }
+        return null;
+      };
+
+      const renderMonsterModal = () => {
+        if (monsterModalVisible) {
+          return (
+            <Modal
+              animationType="fade"
+              transparent={false}
+              visible={monsterModalVisible}
+              onRequestClose={() => setMonsterModalVisible(false)}
+            >
+              <View style={styles.monsterModalContainer}>
+                <View style={styles.monsterModalContent}>
+                  <Text style={styles.monsterModalHeaderText}>You hatched a QReep!</Text>
+                  <Image
+                    source={{ uri: imageURL }}
+                    style={styles.monsterImage}
+                  />
+                  <Text style={styles.monsterNameText}>{monsterData[0].name}</Text>
+             {/*     <Text style={styles.monsterDescriptionText}>{monsterData.description}</Text>   */}
+                  <TouchableOpacity onPress={() => setMonsterModalVisible(false)} style={styles.closeButton}>
+                    <MaterialIcons name="close" size={50} color="black" />
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </Modal>
+          );
+        }
+        return null;
+      };
 
     return (
         <Modal
@@ -268,14 +362,11 @@ const EggModal = ({ visible, onClose }) => {
    )}
    keyExtractor={(item, index) => index.toString()}
 />
-                    <TouchableOpacity onPress={() => {
-                        startHatching(selectedEggIndex);
-                     //   setTimeout(() => {
-                        fetchCaughtMonstersCount();
-                     //   }, 500);
-                    }}>
-                        <Text>Start Hatching</Text>
+                    {renderHatchButton()}
+                    <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+                        <MaterialIcons name="close" size={50} color="black" />
                     </TouchableOpacity>
+                    {renderMonsterModal()}
                 </View>
             </View>
         </Modal>
@@ -283,6 +374,64 @@ const EggModal = ({ visible, onClose }) => {
 };
 
 const styles = StyleSheet.create({
+    monsterImage: {
+        width: 250,
+        height: 250,
+        marginBottom: 4,
+        borderRadius: 125,
+        borderWidth: 4,
+    },
+    monsterNameText: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        marginBottom: 4,
+        color: 'black',
+    },
+    monsterDescriptionText: {
+        fontSize: 16,
+        marginBottom: 20,
+    },
+    monsterModalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, .7)',
+        padding: 20,
+        },
+    monsterModalContent: {
+        width: '80%',
+        height: '50%',
+        backgroundColor: 'seashell',
+        padding: 20,
+        borderRadius: 20,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderWidth: 3,
+        borderColor: 'black',
+        },
+    monsterModalHeaderText: {
+        height: 30,
+        fontSize: 20,
+        fontWeight: 'bold',
+        marginBottom: 10,
+        alignSelf: 'center'
+        },
+    hatchButtonContainer: {
+        position: 'absolute',
+        bottom: 0,
+        width: '100%',
+        height: 50,
+        backgroundColor: 'green',
+        borderColor: 'black',
+        borderWidth: 3,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    hatchButtonText: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: 'white',
+    },
     disabledEgg: {
         opacity: 0.5,
         // Add any other styles to visually indicate that the egg is disabled

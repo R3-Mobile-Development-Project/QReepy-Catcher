@@ -56,6 +56,7 @@ const GalleryScreen = ({ navigation }) => {
   };
 
   const closeEggModal = async () => {
+    refreshMonsters();
     playButtonSound();
     setEggModalVisible(false);
   };
@@ -114,7 +115,6 @@ const GalleryScreen = ({ navigation }) => {
 
   const calculateNumColumns = () => {
     // Implement your logic to calculate the number of columns
-    // For simplicity, I'm using a constant value here
     return 3;
   };
 
