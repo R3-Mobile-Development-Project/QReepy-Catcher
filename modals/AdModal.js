@@ -1,17 +1,19 @@
 // AdModal.js
 import React, { useState, useEffect } from 'react';
-import { Modal, View, Image, StyleSheet } from 'react-native';
+import { Modal, View, Image, StyleSheet, TouchableOpacity, Linking } from 'react-native';
 
 const AdModal = ({ isVisible, onClose, adContent }) => {
   useEffect(() => {
     let timer;
     if (isVisible) {
-      timer = setTimeout(() => {
-        onClose(); // Close the modal after 3 seconds
-      }, 3000);
+      timer = setTimeout(onClose, 3000);
     }
     return () => clearTimeout(timer);
   }, [isVisible]);
+
+  const handlePress = () => {
+    Linking.openURL(adContent.url).catch(err => console.error("Couldn't load page", err));
+  };
 
   return (
     <Modal
@@ -21,13 +23,13 @@ const AdModal = ({ isVisible, onClose, adContent }) => {
       onRequestClose={onClose}
     >
       <View style={styles.centeredView}>
-        <View style={styles.modalView}>
+        <TouchableOpacity style={styles.modalView} onPress={handlePress}>
           <Image 
-            source={adContent.image} // Use the adContent prop for the image source
+            source={adContent.image}
             style={styles.image}
           />
           {/* Additional content can go here */}
-        </View>
+        </TouchableOpacity>
       </View>
     </Modal>
   );

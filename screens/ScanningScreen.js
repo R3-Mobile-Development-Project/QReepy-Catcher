@@ -39,8 +39,8 @@ export default function ScanningScreen({ navigation }) {
   const [adModalVisible, setAdModalVisible] = useState(false);
   const [currentAdIndex, setCurrentAdIndex] = useState(0); // New state to track current ad
   const ads = [
-    { image: adImage1,  },
-    { image: adImage2,  }
+    { image: adImage1, url: 'https://dictionary.cambridge.org/dictionary/english/patience' },
+    { image: adImage2, url: 'https://www.vr.fi/' },
   ]
   // Function to load the last 10 scanned barcodes from AsyncStorage
 const loadScannedBarcodes = async () => {
