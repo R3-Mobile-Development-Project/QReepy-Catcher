@@ -31,6 +31,8 @@ const MonsterInfoModal = ({ isModalVisible, selectedMonster, onClose }) => {
     playCloseSound();
     onClose();
   };
+
+  
  return (
   <Modal
   animationType="slide"
@@ -42,14 +44,14 @@ const MonsterInfoModal = ({ isModalVisible, selectedMonster, onClose }) => {
     {selectedMonster && (
       <>
         <Image source={{ uri: selectedMonster.image }} style={styles.image} />
-        <Text style={styles.monsterName}>{selectedMonster.name}</Text>
-       <Text style={styles.rarity}>Rarity: {selectedMonster.rarity}</Text>
-       <Text style={styles.age}>Age: {selectedMonster.age}</Text>
-       <Text style={styles.title}>Title: {selectedMonster.title}</Text>
-       <Text style={styles.nature}>Nature: {selectedMonster.nature}</Text>
-       <Text style={styles.background}>Background: {selectedMonster.background}</Text>
-        {/* Include other details of selectedMonster here */}
-        {/* ... */}
+        <View style={styles.textContainer}>
+ <Text style={styles.monsterName}>{selectedMonster.name}</Text>
+ <Text style={styles.rarity}>Rarity: {selectedMonster.rarity}</Text>
+ <Text style={styles.age}>Age: {selectedMonster.age}</Text>
+ <Text style={styles.title}>Title: {selectedMonster.title}</Text>
+ <Text style={styles.nature}>Nature: {selectedMonster.nature}</Text>
+ <Text style={styles.background}>Background: {selectedMonster.background}</Text>
+</View>
       </>
     )}
     <TouchableOpacity onPress={handleClosePress} style={styles.closeButton}>
@@ -63,8 +65,8 @@ const MonsterInfoModal = ({ isModalVisible, selectedMonster, onClose }) => {
 
 const styles = StyleSheet.create({
   modalView: {
+    flex: 1,
     margin: 20,
-    //backgroundColor: transparent,
     borderRadius: 20,
     padding: 35,
     alignItems: "center",
@@ -88,6 +90,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'salmon',
     alignItems: 'center',
     justifyContent: 'center',
+    flex: 1,
   },
   closeButtonText: {
     fontSize: 18,
@@ -99,11 +102,10 @@ const styles = StyleSheet.create({
     borderRadius: 90,
     borderWidth: 2,
     borderColor: 'black',
-
   },
-  modalText: {
-    marginBottom: 20,
-    textAlign: "center",
+  textContainer: {
+    flex: 1, // Add this line to make the text container take up the remaining space
+    alignItems: "center",
   },
   monsterName: {
     fontSize: 20,
@@ -151,7 +153,6 @@ const styles = StyleSheet.create({
   background: {
     fontSize: 14,
     color: 'black',
-    marginBottom: 64,
     backgroundColor: 'rgba(255, 255, 255, 0.3)', // Transparent white background
         paddingLeft: 4,
         paddingRight: 4,
