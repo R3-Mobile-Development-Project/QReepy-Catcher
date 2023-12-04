@@ -270,20 +270,13 @@ const EggModal = ({ visible, onClose }) => {
 
     const renderHatchButton = () => {
         if (selectedEggIndex !== null) {
-          if (isTrackingEgg) {
-            return (
-              <TouchableOpacity onPress={() => startHatching(selectedEggIndex)}>
-                <Text>{isHatching ? "Hatching..." : "Start Hatching"}</Text>
-              </TouchableOpacity>
-            );
-          }
-          else {
-            return (
-              <TouchableOpacity onPress={() => startHatching(selectedEggIndex)}>
-                <Text>Start Hatching</Text>
-              </TouchableOpacity>
-            );
-          }
+          const buttonStyle = isTrackingEgg ? styles.hatchingButton : styles.startHatchingButton;
+
+          return (
+            <TouchableOpacity onPress={() => startHatching(selectedEggIndex)} style={buttonStyle}>
+              <Text style={styles.buttonText}>{isHatching ? "Hatching..." : "Start Hatching"}</Text>
+            </TouchableOpacity>
+          );
         }
         return null;
       };
@@ -374,6 +367,23 @@ const EggModal = ({ visible, onClose }) => {
 };
 
 const styles = StyleSheet.create({
+    hatchingButton: {
+        backgroundColor: 'darkorange', // Change the background color as needed
+        padding: 10,
+        borderRadius: 5,
+        margin: 5,
+      },
+      startHatchingButton: {
+        backgroundColor: 'green', // Change the background color as needed
+        padding: 10,
+        borderRadius: 5,
+        margin: 5,
+      },
+      buttonText: {
+        color: 'white', // Change the text color as needed
+        textAlign: 'center',
+        fontWeight: 'bold',
+      },
     monsterImage: {
         width: 250,
         height: 250,
@@ -395,7 +405,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'rgba(0, 0, 0, .7)',
+        backgroundColor: 'rgba(0, 0, 0, 0.7)',
         padding: 20,
         },
     monsterModalContent: {
@@ -403,7 +413,7 @@ const styles = StyleSheet.create({
         height: '50%',
         backgroundColor: 'seashell',
         padding: 20,
-        borderRadius: 20,
+        borderRadius: 40,
         alignItems: 'center',
         justifyContent: 'center',
         borderWidth: 3,

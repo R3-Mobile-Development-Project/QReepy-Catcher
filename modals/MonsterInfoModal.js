@@ -2,14 +2,53 @@ import { Modal, View, Text, StyleSheet, Button, TouchableOpacity, Image, ScrollV
 import { MaterialIcons } from '@expo/vector-icons';
 import { Audio } from 'expo-av';
 import React, { useState, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const MonsterInfoModal = ({ isModalVisible, selectedMonster, onClose }) => {
+const MonsterInfoModal = ({ isModalVisible, selectedMonster, onClose, onSell }) => {
 
   const [closeSound, setCloseSound] = useState();
+  const [sellSound, setSellSound] = useState();
   //const monsterColor = selectedMonster?.[0]?.dominantColors'
   const dominantColors = selectedMonster?.dominantColors;
   const backgroundColor = dominantColors ? `rgb(${dominantColors[0]}, ${dominantColors[1]}, ${dominantColors[2]})` : 'white';
 
+  const handleSellPress = async () => {
+    playSellSound();
+    try {
+      // Retrieve the userId from AsyncStorage
+      const userId = await AsyncStorage.getItem('userId');
+      console.log('User ID:', userId);
+  
+      // Retrieve the monsters array from AsyncStorage
+      const monsters = await AsyncStorage.getItem(`monsters_${userId}`);
+      const monstersArray = monsters ? JSON.parse(monsters) : [];
+  
+      // Find the index of the selected monster in the array
+      const index = monstersArray.findIndex((monster) => monster.id === selectedMonster.id);
+  
+      if (index !== -1) {
+        // Remove the selected monster from the array
+        monstersArray.splice(index, 1);
+  
+        // Update AsyncStorage with the modified array
+        await AsyncStorage.setItem(`monsters_${userId}`, JSON.stringify(monstersArray));
+        console.log('Monster sold:', selectedMonster.name, 'for user ID:', userId);
+
+      // Update coin quantity in AsyncStorage
+      const coinQuantity = await AsyncStorage.getItem(`coins_${userId}`);
+      const currentCoins = coinQuantity ? JSON.parse(coinQuantity) : 0;
+      const newCoins = currentCoins + 1;
+      await AsyncStorage.setItem(`coins_${userId}`, JSON.stringify(newCoins));
+      console.log('Coins updated to:', newCoins, 'for user ID:', userId);
+      }
+    } catch (error) {
+      console.error('Error selling monster:', error);
+    }
+  
+    // Close the modal or perform other actions as needed
+    onSell(onClose());
+  };
+  
 
   useEffect(() => {
     return () => {
@@ -32,6 +71,18 @@ const MonsterInfoModal = ({ isModalVisible, selectedMonster, onClose }) => {
     onClose();
   };
 
+  const playSellSound = async () => {
+    try {
+      const { sound } = await Audio.Sound.createAsync(
+        require('../assets/sounds/ETRA_TOIMII.wav')
+      );
+      setSellSound(sound);
+      await sound.playAsync();
+    } catch (error) {
+      console.error('Error playing sell sound:', error);
+    }
+  };
+
   
  return (
     <Modal
@@ -45,11 +96,12 @@ const MonsterInfoModal = ({ isModalVisible, selectedMonster, onClose }) => {
           {selectedMonster && (
             <>
               <Image source={{ uri: selectedMonster.image }} style={styles.image} />
+           {/*   <View style={styles.modalLine} />  */}
               <ScrollView contentContainerStyle={styles.scrollViewContent}>
-                <View style={styles.rowContainer}>
+            {/*    <View style={styles.rowContainer}> */}
                   <Text style={styles.monsterName}>{selectedMonster.name}</Text>
                   <Text style={styles.title}>{selectedMonster.title}</Text>
-                </View>
+            {/*    </View>  */}
 
                 <Text style={styles.rarity}>{selectedMonster.rarity} QReep</Text>
                 <Text style={styles.age}>Age: {selectedMonster.age}</Text>
@@ -59,17 +111,28 @@ const MonsterInfoModal = ({ isModalVisible, selectedMonster, onClose }) => {
               </ScrollView>
             </>
           )}
-          <TouchableOpacity onPress={handleClosePress} style={styles.closeButton}>
-            <MaterialIcons name="close" size={50} color="black" />
-          </TouchableOpacity>
+          <View style={styles.modalLine} />
+              <View style={styles.buttonContainer}>
+                <TouchableOpacity onPress={handleSellPress} style={styles.sellButton}>
+                  <Text style={styles.sellButtonText}>Sell</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={handleClosePress} style={styles.closeButton}>
+                  <MaterialIcons name="close" size={50} color="black" />
+                </TouchableOpacity>
+              </View>
         </View>
       </View>
-      
     </Modal>
  );
 };
 
 const styles = StyleSheet.create({
+  modalLine: {
+    height: 3,
+    width: '100%',
+    backgroundColor: 'black',
+   // marginVertical: 20,
+  },
   rowContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -78,7 +141,8 @@ const styles = StyleSheet.create({
   },
   scrollViewContent: {
     flexGrow: 1,
-    paddingBottom: 80,
+    paddingBottom: 4,
+    paddingTop: 10,
   },
   modalContainer: {
     flex: 1,
@@ -89,7 +153,8 @@ const styles = StyleSheet.create({
   modalContent: {
     width: '90%',
     height: '85%',
-    padding: 20,
+    paddingTop: 10,
+    paddingBottom: 74,
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
@@ -106,9 +171,30 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  closeButton: {
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 40,
     position: 'absolute',
-    bottom: 0,
+    bottom: 2,
+    width: '100%',
+  },
+  sellButton: {
+    width: 100,
+    height: 70,
+    borderRadius: 20,
+    borderColor: 'black',
+    borderWidth: 3,
+    backgroundColor: 'orange', // Customize the color for the Sell button
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  sellButtonText: {
+    fontSize: 18,
+    color: 'black', // Customize the text color for the Sell button
+    fontWeight: 'bold',
+  },
+  closeButton: {
     width: 70,
     height: 70,
     borderRadius: 35,
@@ -117,17 +203,16 @@ const styles = StyleSheet.create({
     backgroundColor: 'salmon',
     alignItems: 'center',
     justifyContent: 'center',
-    flex: 1,
   },
   closeButtonText: {
     fontSize: 18,
   },
   image: {
-    width: 300, // Set the image width to 100% to fit the container
-    height: 300,
-    marginBottom: 20,
+    width: '95%', // Set the image width to 100% to fit the container
+    height: '60%',
+  //  marginBottom: 4,
     borderRadius: 30,
-    borderWidth: 2,
+    borderWidth: 3,
     borderColor: 'black',
   },
   textContainer: {
@@ -135,10 +220,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   monsterName: {
+    alignSelf: 'center',
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)', // Transparent white background
+    marginBottom: 0,
+    backgroundColor: 'rgba(255, 255, 255, 0.6)', // Transparent white background
         paddingLeft: 4,
         paddingRight: 4,
         borderRadius: 8, // Add border radius for rounded corners
@@ -148,7 +234,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 18,
     marginBottom: 10,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)', // Transparent white background
+    backgroundColor: 'rgba(255, 255, 255, 0.6)', // Transparent white background
         paddingLeft: 4,
         paddingRight: 4,
         borderRadius: 8, // Add border radius for rounded corners
@@ -156,16 +242,17 @@ const styles = StyleSheet.create({
   age: {
     fontSize: 20,
     marginBottom: 12,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)', // Transparent white background
+    backgroundColor: 'rgba(255, 255, 255, 0.6)', // Transparent white background
         paddingLeft: 4,
         paddingRight: 4,
         borderRadius: 8, // Add border radius for rounded corners
   },
   title: {
+    alignSelf: 'center',
     fontSize: 20,
     fontWeight: '500',
-    marginBottom: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)', // Transparent white background
+    marginBottom: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.6)', // Transparent white background
         paddingLeft: 4,
         paddingRight: 4,
         borderRadius: 8, // Add border radius for rounded corners
@@ -173,7 +260,7 @@ const styles = StyleSheet.create({
   nature: {
     fontSize: 20,
     marginBottom: 12,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)', // Transparent white background
+    backgroundColor: 'rgba(255, 255, 255, 0.6)', // Transparent white background
         paddingLeft: 4,
         paddingRight: 4,
         borderRadius: 8, // Add border radius for rounded corners
@@ -182,7 +269,7 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: '400',
     color: 'black',
-    backgroundColor: 'rgba(255, 255, 255, 0.3)', // Transparent white background
+    backgroundColor: 'rgba(255, 255, 255, 0.6)', // Transparent white background
         paddingLeft: 4,
         paddingRight: 4,
         borderRadius: 8, // Add border radius for rounded corners

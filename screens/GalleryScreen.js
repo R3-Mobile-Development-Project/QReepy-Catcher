@@ -23,7 +23,7 @@ const GalleryScreen = ({ navigation }) => {
   const [selectedMonster, setSelectedMonster] = useState(null);
 
   const handleItemPress = (monster) => {
-    console.log(monster);
+    console.log(monster.name, 'opened on index:', monsters.indexOf(monster));
     const imageIndex = monsters.indexOf(monster);
     const imageUrl = images[imageIndex];
     setSelectedMonster({ ...monster, image: imageUrl });
@@ -240,6 +240,7 @@ return (
  isModalVisible={isModalVisible}
  selectedMonster={selectedMonster}
  onClose={closeMonsterInfoModal}
+ onSell={refreshMonsters}
 />
 <EggModal visible={eggModalVisible} onClose={closeEggModal} />
 </View>

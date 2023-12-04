@@ -59,6 +59,7 @@ const styles = StyleSheet.create({
       width: '100%', // Adjust as needed
       height: '100%', // Adjust as needed
       resizeMode: 'cover', // Avoids scaling the image
+      alignSelf: 'center',
     },
     // ... other styles ...
   });
