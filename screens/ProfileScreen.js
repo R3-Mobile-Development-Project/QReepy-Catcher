@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ImageBackground, Switch, Alert } from 'react-native';
 import { getAuth, signOut } from 'firebase/auth';
 import { MaterialIcons,FontAwesome5 } from '@expo/vector-icons';
@@ -6,6 +6,7 @@ import AchievementsModal from '../modals/AchievementsModal';
 import { Audio } from 'expo-av';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Modal from 'react-native-modal';
+import { fetchAchievements } from '../utils/monsterUtils';
 import { useMusic } from '../utils/MusicContext'; // Import useMusic hook
 
 const backgroundImage = require('../assets/images/paper-decorations-halloween-pack_23-2148635839.jpg');
@@ -17,6 +18,12 @@ const ProfileScreen = () => {
     const [isMusicMuted, setIsMusicMuted] = useState(false);
     const [isModalVisible, setModalVisible] = useState(false);
     const { playMusic, stopMusic } = useMusic(); // Use the useMusic hook
+    const [achievements, setAchievements] = useState([]);
+
+    useEffect(() => {
+      fetchAchievements(setAchievements);
+      
+     }, []);
 
     const handleLogout = async () => {
       playSignoutSound(); // Play button sound on logout button press
@@ -224,6 +231,7 @@ const ProfileScreen = () => {
         <AchievementsModal
           visible={achievementsModalVisible}
           onClose={closeAchievementsModal}
+          achievements={achievements}
         />
       </View>
     );

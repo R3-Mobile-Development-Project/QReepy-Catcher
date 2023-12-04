@@ -167,3 +167,19 @@ export const fetchMonsterImageURL = async (monsterId, userId) => {
     throw error;
   }
 };
+
+export const fetchAchievements = async (setAchievements) => {
+  try {
+    const db = getFirestore();
+    const querySnapshot = await getDocs(collection(db, 'achievements'));
+    const achievements = [];
+    querySnapshot.forEach((doc) => {
+      achievements.push(doc.data());
+    });
+    setAchievements(achievements);
+    console.log(achievements);
+  } catch (error) {
+    console.error('Error reading achievements from Firestore: ', error);
+    throw error;
+  }
+ };

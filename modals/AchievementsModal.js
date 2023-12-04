@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, Modal, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 
-const AchievementsModal = ({ visible, onClose }) => {
+const AchievementsModal = ({ visible, onClose, achievements }) => {
   return (
     <Modal
       animationType="slide"
@@ -14,15 +14,14 @@ const AchievementsModal = ({ visible, onClose }) => {
         <View style={styles.modalContent}>
           <Text style={styles.modalText}>Achievements</Text>
           <View style={styles.modalLine} />
-      <ScrollView contentContainerStyle={styles.scrollViewContent}>
-        <View style={styles.achievementContainer}>
-          <Text style={styles.achievementText}>Achievements coming soon!</Text>
-          <Text style={styles.achievementText}>Achievements coming soon!</Text>
-          <Text style={styles.achievementText}>Achievements coming soon!</Text>
-          {/* Add your achievements content here */}
-          <View style={styles.modalLine} />
-        </View>
-      </ScrollView>
+          <ScrollView contentContainerStyle={styles.scrollViewContent}>
+ {achievements.map((achievement, index) => (
+   <View key={index} style={styles.achievementContainer}>
+     <Text style={styles.achievementText}>{achievement.name}</Text>
+     {/* Add more details about the achievement here */}
+   </View>
+ ))}
+</ScrollView>
             <TouchableOpacity onPress={onClose} style={styles.closeButton}>
             <MaterialIcons name="close" size={50} color="black" />
           </TouchableOpacity>
