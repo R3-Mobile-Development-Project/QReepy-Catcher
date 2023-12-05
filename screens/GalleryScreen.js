@@ -117,10 +117,6 @@ const GalleryScreen = ({ navigation }) => {
       console.log('Error retrieving sorting method from AsyncStorage:', error);
     }
    };
-   
-   
-
-   
 
    useEffect(() => {
     getSortingMethod();
@@ -129,7 +125,6 @@ const GalleryScreen = ({ navigation }) => {
    useEffect(() => {
     saveSortingMethod(sortingMethod);
    }, [sortingMethod]);
-   
 
    useEffect(() => {
     // Sort monsters and images when sorting method changes
@@ -326,8 +321,8 @@ const styles = StyleSheet.create({
     borderColor: 'black',
   },
   image: {
-    width: 120, // Set the image width to 100% to fit the container
-    height: 120,
+    width: 110, // Set the image width to 100% to fit the container
+    height: 110,
     marginBottom: 4,
     borderRadius: 90,
     borderWidth: 2,

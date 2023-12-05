@@ -9,14 +9,14 @@ import { getStorage, ref, getDownloadURL } from 'firebase/storage';
 
 const EggModal = ({ visible, onClose }) => {
     const [savedEggs, setSavedEggs] = useState([]);
-    const [numColumns, setNumColumns] = useState(3);
+    const [numColumns, setNumColumns] = useState(2);
     const placeholders = Array.from({ length: (3 - savedEggs.length % 3) % 3 });
     const [selectedEggIndex, setSelectedEggIndex] = useState(null);
     const [isHatching, setIsHatching] = useState(false);
     const [caughtMonsters, setCaughtMonsters] = useState(0); // New state to track monsters caught
     const [isHatched, setIsHatched] = useState(false); // New state to track if the egg is hatched
     const [isTrackingEgg, setIsTrackingEgg] = useState(false);
-    const neededMonsters = 1; // LASKURIN TARVITSEMA ARVO ETTÄ MUNA KUORIUTUU
+    const neededMonsters = 3; // LASKURIN TARVITSEMA ARVO ETTÄ MUNA KUORIUTUU, TÄYTYY OLLA PIENEMPI TAI YHTÄSUURI KUIN SCANNINGSCREENIN arrayMax
     const [monsterModalVisible, setMonsterModalVisible] = useState(false);
     const [monsterData, setMonsterData] = useState({});
     const [imageURL, setImageURL] = useState('');
@@ -117,7 +117,7 @@ const EggModal = ({ visible, onClose }) => {
             await AsyncStorage.setItem(`selectedEggIndex_${userId}`, index.toString());
             // Save the isTrackingEgg state to AsyncStorage
             await AsyncStorage.setItem(`isTrackingEgg_${userId}`, 'true');
-            // Check if the number of caught monsters is 20
+            // Check if the number of caught monsters is equal to the needed monsters
             if (caughtMonsters >= neededMonsters) {
                 setIsHatched(true);
                 // setHatchedEggState({ index, borderColor: 'green' });
@@ -484,8 +484,10 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
     eggContainer: {
+     //   width: '32%',
+     //   height: '20%',
         marginBottom: 20,
-        marginHorizontal: 2,
+        marginHorizontal: 12,
     },
     loadingContainer: {
         width: 100,
