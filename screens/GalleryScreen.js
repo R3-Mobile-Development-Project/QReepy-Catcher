@@ -9,7 +9,6 @@ import MonsterInfoModal from '../modals/MonsterInfoModal';
 import { Audio } from 'expo-av';
 import EggModal from '../modals/EggModal';
 
-
 const backgroundImage = require('../assets/images/horrible-monster-2.jpg');
 
 const GalleryScreen = ({ navigation }) => {
@@ -18,9 +17,11 @@ const GalleryScreen = ({ navigation }) => {
   const [numColumns, setNumColumns] = useState(3);
   const [sortingMethod, setSortingMethod] = useState('id');
   const placeholders = Array.from({ length: (3 - monsters.length % 3) % 3 });
-  
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedMonster, setSelectedMonster] = useState(null);
+  const [sound, setSound] = useState();
+  const [eggModalVisible, setEggModalVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleItemPress = (monster) => {
     console.log(monster.name, 'opened on index:', monsters.indexOf(monster));
@@ -29,10 +30,6 @@ const GalleryScreen = ({ navigation }) => {
     setSelectedMonster({ ...monster, image: imageUrl });
     setIsModalVisible(true);
    };
-
-  const [sound, setSound] = useState();
-
-  const [eggModalVisible, setEggModalVisible] = useState(false);
 
   useEffect(() => {
     return sound
@@ -130,6 +127,7 @@ const GalleryScreen = ({ navigation }) => {
         refreshMonsters();
       }, [])
     );
+
 // Function to sort monsters
 const sortMonsters = (monsters) => {
   if (sortingMethod === 'name') {
@@ -143,12 +141,25 @@ const sortMonsters = (monsters) => {
 
 // Function to get images based on monster IDs
 const getImages = async (monsterIds) => {
-  const images = [];
-  for (const monsterId of monsterIds) {
-    const imageUrl = await fetchMonsterImageURL(monsterId);
-    images.push(imageUrl);
+  try {
+    const cachedImages = {}; // Simple in-memory cache
+
+    const imagePromises = monsterIds.map(async (monsterId) => {
+      if (cachedImages[monsterId]) {
+        return cachedImages[monsterId];
+      }
+
+      const imageUrl = await fetchMonsterImageURL(monsterId);
+      cachedImages[monsterId] = imageUrl;
+
+      return imageUrl;
+    });
+
+    return Promise.all(imagePromises);
+  } catch (error) {
+    console.error('Error fetching images:', error);
+    return [];
   }
-  return images;
 };
 
 //use the getImages function to get the images for the monsters
@@ -156,18 +167,16 @@ const refreshMonsters = async () => {
   try {
     const userId = await AsyncStorage.getItem('userId');
     const monstersData = await AsyncStorage.getItem(`monsters_${userId}`);
-
     const monsters = monstersData ? JSON.parse(monstersData) : [];
-
     const sortedMonsters = sortMonsters(monsters);
 
     // Set the sorted monsters first
     setMonsters(sortedMonsters);
-
+    // Then get the images for the monsters
     const monsterIds = sortedMonsters.map(monster => monster.id);
     const images = await getImages(monsterIds);
-
     setImages(images);
+
   } catch (error) {
     console.error('Error retrieving monsters from AsyncStorage:', error);
   }
@@ -214,11 +223,11 @@ return (
               <View style={styles.monsterContainer}>
               {images[index] ? (
                 <TouchableOpacity onPress={() => handleItemPress(item)}>
-                  <Image 
-                source={{ uri: images[index] }}
-                style={styles.image}  // Set fixed width and height for testing
-                resizeMode="contain"
-/>
+                  <Image
+                    source={{ uri: images[index] }}
+                    style={styles.image}  // Set fixed width and height for testing
+                    resizeMode="contain"
+                  />
                 </TouchableOpacity>
               ) : (
                 <View style={styles.loadingContainer}>
@@ -227,7 +236,6 @@ return (
               )}
               <Text style={styles.monsterName}>{item.name}</Text>
             </View>
-            
             );
           }}
         />
@@ -306,12 +314,6 @@ const styles = StyleSheet.create({
   },
   invisible: {
     backgroundColor: 'transparent',
-  },
-  sortingContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%',
-    padding: 10,
   },
   sortingContainer: {
     flexDirection: 'row',
