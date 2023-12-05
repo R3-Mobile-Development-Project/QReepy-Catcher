@@ -22,6 +22,8 @@ const GalleryScreen = ({ navigation }) => {
   const [sound, setSound] = useState();
   const [eggModalVisible, setEggModalVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const SORT_KEY = 'sorting_method';
+
 
   const handleItemPress = (monster) => {
     console.log(monster.name, 'opened on index:', monsters.indexOf(monster));
@@ -62,52 +64,77 @@ const GalleryScreen = ({ navigation }) => {
   const sortMonstersAndImages = async () => {
     // Pair each monster with its image
     const paired = monsters.map((monster, index) => ({ monster, image: images[index] }));
-
+   
     // Sort the pairs
     if (sortingMethod === 'name') {
       paired.sort((a, b) => a.monster.name.localeCompare(b.monster.name));
+      console.log('SORTED BY NAME, paired:')
+      paired.forEach(item => {
+        console.log(`Name: ${item.monster.name}, ID: ${item.monster.id}`);
+      });
     } else { // Default sort by ID
       paired.sort((a, b) => a.monster.id - b.monster.id);
+      console.log('SORTED BY ID, paired:');
+      paired.forEach(item => {
+      console.log(`Name: ${item.monster.name}, ID: ${item.monster.id}`);
+      });
     }
-
+   
     // Separate the pairs back into monsters and images
     const sortedMonsters = paired.map(pair => pair.monster);
     const sortedImages = paired.map(pair => pair.image);
-
+   
     setMonsters(sortedMonsters);
     setImages(sortedImages);
-
+   
     // Save the sorting method to AsyncStorage
     try {
-      await AsyncStorage.setItem('sortingMethod', sortingMethod);
+      // Convert the sortingMethod to a JSON string before saving
+      await AsyncStorage.setItem(SORT_KEY, JSON.stringify(sortingMethod));
     } catch (error) {
       console.error('Error saving sorting method to AsyncStorage:', error);
     }
-  };
+   };
+   
 
-  /*
-  useEffect(() => {
-    // Retrieve the sorting method from AsyncStorage
-    const getSortingMethod = async () => {
-      try {
-        const savedSortingMethod = await AsyncStorage.getItem('sortingMethod');
-        if (savedSortingMethod) {
-          setSortingMethod(savedSortingMethod);
-        }
-      } catch (error) {
-        console.error('Error retrieving sorting method from AsyncStorage:', error);
+  const saveSortingMethod = async (sortingMethod) => {
+    try {
+      // Convert the sortingMethod to a JSON string before saving
+      await AsyncStorage.setItem(SORT_KEY, JSON.stringify(sortingMethod));
+    } catch (error) {
+      console.log('Error saving sorting method to AsyncStorage:', error);
+    }
+   };
+   
+   const getSortingMethod = async () => {
+    try {
+      const value = await AsyncStorage.getItem(SORT_KEY);
+      if (value !== null) {
+        // Parse the value back into its original form
+        setSortingMethod(JSON.parse(value));
       }
-    };
-    getSortingMethod(); // Call the function to retrieve the sorting method
-    // Sort monsters and images when the sorting method changes
-  sortMonstersAndImages();
-}, [sortingMethod]);
-*/
+    } catch (error) {
+      console.log('Error retrieving sorting method from AsyncStorage:', error);
+    }
+   };
+   
+   
 
+   
 
-  useEffect(() => {
+   useEffect(() => {
+    getSortingMethod();
+   }, []);
+
+   useEffect(() => {
+    saveSortingMethod(sortingMethod);
+   }, [sortingMethod]);
+   
+
+   useEffect(() => {
+    // Sort monsters and images when sorting method changes
     sortMonstersAndImages();
-  }, [sortingMethod]); // Re-sort whenever the sorting method changes
+  }, [sortingMethod, monsters.length, images.length]); // Re-sort whenever the sorting method changes
 
 
   const calculateNumColumns = () => {
@@ -124,7 +151,7 @@ const GalleryScreen = ({ navigation }) => {
     useFocusEffect(
       React.useCallback(() => {
         refreshMonsters();
-      }, [])
+      }, [sortingMethod])
     );
 
 // Function to sort monsters
