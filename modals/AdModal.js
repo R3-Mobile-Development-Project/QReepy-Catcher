@@ -1,6 +1,10 @@
 // AdModal.js
 import React, { useState, useEffect } from 'react';
 import { Modal, View, Image, StyleSheet, TouchableOpacity, Linking } from 'react-native';
+import { Dimensions } from 'react-native';
+
+const screenWidth = Dimensions.get('window').width;
+const screenHeight = Dimensions.get('window').height;
 
 const AdModal = ({ isVisible, onClose, adContent }) => {
   useEffect(() => {
@@ -56,10 +60,11 @@ const styles = StyleSheet.create({
       height: '100%', // Adjust height as needed
     },
     image: {
-      width: '100%', // Adjust as needed
-      height: '100%', // Adjust as needed
-      resizeMode: 'cover', // Avoids scaling the image
+      width: screenWidth * 0.99, // 90% of screen width
+      height: screenHeight * 0.99, // 90% of screen height
+      resizeMode: 'contain',
     },
+    
     // ... other styles ...
   });
   
