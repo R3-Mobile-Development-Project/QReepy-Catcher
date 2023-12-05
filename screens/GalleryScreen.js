@@ -111,15 +111,14 @@ const GalleryScreen = ({ navigation }) => {
 
 
   const calculateNumColumns = () => {
-    // Implement your logic to calculate the number of columns
     return 3;
   };
 
   useEffect(() => {
     // Update the number of columns dynamically based on your logic
-    const updatedNumColumns = calculateNumColumns(); // Implement your logic to calculate the number of columns
+    const updatedNumColumns = calculateNumColumns();
     setNumColumns(updatedNumColumns);
-  }, [/* Dependencies for the update, if any */]);
+  }, []);
 
     // Use useFocusEffect to refresh monsters when the screen is focused
     useFocusEffect(
@@ -245,13 +244,13 @@ return (
     {/* Modal for displaying monster details */}
 
     <MonsterInfoModal
- isModalVisible={isModalVisible}
- selectedMonster={selectedMonster}
- onClose={closeMonsterInfoModal}
- onSell={refreshMonsters}
-/>
-<EggModal visible={eggModalVisible} onClose={closeEggModal} />
-</View>
+      isModalVisible={isModalVisible}
+      selectedMonster={selectedMonster}
+      onClose={closeMonsterInfoModal}
+      onSell={refreshMonsters}
+    />
+    <EggModal visible={eggModalVisible} onClose={closeEggModal} />
+  </View>
 );
 
 

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ImageBackground, Switch, Alert } from 'react-native';
 import { getAuth, signOut } from 'firebase/auth';
-import { MaterialIcons,FontAwesome5 } from '@expo/vector-icons';
+import { MaterialIcons, FontAwesome5, MaterialCommunityIcons } from '@expo/vector-icons';
 import AchievementsModal from '../modals/AchievementsModal';
 import { Audio } from 'expo-av';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -147,7 +147,7 @@ const ProfileScreen = () => {
       playDeleteSound(); // Play delete sound on delete button press
       console.log(`Collection for user ${userId} cleared successfully!`);
       toggleModal(); // Close the modal after deletion
-      Alert.alert('Collection has been deleted! Please relog for all changes to take effect.');
+      Alert.alert('Collection has been deleted! Please relog for all changes.');
       } catch (error) {
         console.error('Error deleting monsters:', error);
       }
@@ -188,16 +188,14 @@ const ProfileScreen = () => {
               <MaterialIcons name="logout" size={24} color="black" />
             </TouchableOpacity>
             <TouchableOpacity onPress={openAchievementsModal} style={styles.achievementsButton}>
-            <FontAwesome5  name="trophy" size={24} color="black" />
-
               <Text style={styles.achievementsButtonText}>ACHIEVEMENTS</Text>
+              <FontAwesome5  name="trophy" size={24} color="black" />
             </TouchableOpacity>
-
             {/* Clear AsyncStorage Button */}
-          <TouchableOpacity onPress={clearMonstersForUser} style={styles.clearButton}>
-            <Text style={styles.clearButtonText}>DELETE YOUR COLLECTION</Text>
-
-          </TouchableOpacity>
+            <TouchableOpacity onPress={clearMonstersForUser} style={styles.clearButton}>
+              <Text style={styles.clearButtonText}>DELETE COLLECTION</Text>
+              <MaterialCommunityIcons name="trash-can" size={24} color="black" />
+            </TouchableOpacity>
 
           {/* Confirmation Modal */}
           <Modal
@@ -261,18 +259,20 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   button: {
+    width: 200,
+    height: 60,
     flexDirection: 'row',
     backgroundColor: 'red',
-    borderRadius: 20,
+    borderRadius: 10,
     paddingHorizontal: 10,
-    paddingVertical: 20,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 20,
+    marginTop: 10,
     borderColor: 'black',
     borderWidth: 3,
   },
   buttonText: {
+    textAlign: 'center',
     color: 'black',
     fontWeight: 'bold',
     marginRight: 10,
@@ -286,8 +286,10 @@ const styles = StyleSheet.create({
     alignContent: 'center',
   },
   achievementsButton: {
+    flexDirection: 'row',
+    paddingHorizontal: 10,
     marginTop: 10,
-    width: 170,
+    width: 200,
     height: 60,
     backgroundColor: 'lightyellow',
     alignItems: 'center',
@@ -297,11 +299,16 @@ const styles = StyleSheet.create({
     borderWidth: 3,
   },
   achievementsButtonText: {
-    fontSize: 18,
+    textAlign: 'center',
+    color: 'black',
     fontWeight: 'bold',
+    marginRight: 10,
+    fontSize: 18,
   },
   // Clear AsyncStorage Button Styles
   clearButton: {
+    flexDirection: 'row',
+    paddingHorizontal: 10,
     marginTop: 10,
     width: 200,
     height: 60,
@@ -313,8 +320,11 @@ const styles = StyleSheet.create({
     borderWidth: 3,
   },
   clearButtonText: {
-    fontSize: 18,
+    textAlign: 'center',
+    color: 'black',
     fontWeight: 'bold',
+    marginRight: 10,
+    fontSize: 18,
   },
   modalContent: {
     backgroundColor: 'lightgrey',
