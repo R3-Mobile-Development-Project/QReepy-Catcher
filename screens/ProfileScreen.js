@@ -1,127 +1,49 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ImageBackground, Switch, Alert } from 'react-native';
 import { getAuth, signOut } from 'firebase/auth';
-import { MaterialIcons,FontAwesome5 } from '@expo/vector-icons';
+import { MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
 import AchievementsModal from '../modals/AchievementsModal';
-import { Audio } from 'expo-av';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Modal from 'react-native-modal';
-import { useMusic } from '../utils/MusicContext'; // Import useMusic hook
+import { useMusic } from '../utils/MusicContext';
+import { useSound } from '../utils/SoundContext';
 
 const backgroundImage = require('../assets/images/paper-decorations-halloween-pack_23-2148635839.jpg');
 
 const ProfileScreen = () => {
-    const [achievementsModalVisible, setAchievementsModalVisible] = useState(false);
-    const [muteBackgroundMusic, setMuteBackgroundMusic] = useState(false);
-    const [muteAllSounds, setMuteAllSounds] = useState(false);
-    const [isMusicMuted, setIsMusicMuted] = useState(false);
-    const [isModalVisible, setModalVisible] = useState(false);
-    const { playMusic, stopMusic } = useMusic(); // Use the useMusic hook
+  const [achievementsModalVisible, setAchievementsModalVisible] = useState(false);
+  const [isModalVisible, setModalVisible] = useState(false);
+  const { isMusicMuted, toggleMusic } = useMusic();
+  const { areSoundsMuted, toggleSounds, playSound } = useSound();
 
-    const handleLogout = async () => {
-      playSignoutSound(); // Play button sound on logout button press
-      const auth = getAuth();
+  const handleLogout = async () => {
+    playSound(require('../assets/sounds/part.wav'));
+    // Logout logic
+  };
 
-      try {
-        await signOut(auth);
-        // After successful logout, you can navigate the user back to the login screen
-    //    navigation.navigate('Login');
-        console.log("User logged out");
-        // You should also update the userLoggedIn state in your App.js
-      } catch (error) {
-        // Handle any potential errors during logout
-        console.error('Logout error:', error);
-      }
-    };
+  const toggleModal = () => {
+    setModalVisible(!isModalVisible);
+    playSound(require('../assets/sounds/Menu_Selection_Click.wav'));
+  };
 
-    const toggleModal = () => {
-      setModalVisible(!isModalVisible);
-      playButtonSound(); // Play button sound on delete button press
-    };
+  const openAchievementsModal = () => {
+    playSound(require('../assets/sounds/Menu_Selection_Click.wav'));
+    setAchievementsModalVisible(true);
+  };
 
-    const playButtonSound = async () => {
-      const buttonSound = new Audio.Sound();
+  const closeAchievementsModal = () => {
+    playSound(require('../assets/sounds/Menu_Selection_Click.wav'));
+    setAchievementsModalVisible(false);
+  };
 
-      try {
-        const buttonSource = require('../assets/sounds/Menu_Selection_Click.wav'); // Replace with your button sound file path
-        await buttonSound.loadAsync(buttonSource);
-        await buttonSound.playAsync();
-      } catch (error) {
-        console.error('Error playing button sound:', error);
-      }
-      try {
-        setTimeout(async () => {
-      await buttonSound.unloadAsync();
-        }, 500);
-      }
-      catch (error) {
-        console.error('Error unloading button sound:', error);
-      }
-    }
+  const handleBackgroundMusicToggle = () => {
+    toggleMusic(); // This will invert the current state
+  };
 
-    const playDeleteSound = async () => {
-      const buttonSound = new Audio.Sound();
+  const handleAllSoundsToggle = () => {
+    toggleSounds();
+  };
 
-      try {
-        const buttonSource = require('../assets/sounds/unlink.wav'); // Replace with your button sound file path
-        await buttonSound.loadAsync(buttonSource);
-        await buttonSound.playAsync();
-      } catch (error) {
-        console.error('Error playing button sound:', error);
-      } try {
-        setTimeout(async () => {
-      await buttonSound.unloadAsync();
-        }, 500);
-      }
-      catch (error) {
-        console.error('Error unloading button sound:', error);
-      }
-    }
-
-    const playSignoutSound = async () => {
-      const buttonSound = new Audio.Sound();
-
-      try {
-        const buttonSource = require('../assets/sounds/part.wav'); // Replace with your button sound file path
-        await buttonSound.loadAsync(buttonSource);
-        await buttonSound.playAsync();
-      } catch (error) {
-        console.error('Error playing button sound:', error);
-      } try {
-        setTimeout(async () => {
-      await buttonSound.unloadAsync();
-        }, 500);
-      }
-      catch (error) {
-        console.error('Error unloading button sound:', error);
-      }
-    }
-
-    const openAchievementsModal = () => {
-      playButtonSound(); // Play button sound on achievements button press
-      setAchievementsModalVisible(true);
-    };
-
-    const closeAchievementsModal = () => {
-      playButtonSound(); // Play button sound on close button press
-      setAchievementsModalVisible(false);
-    };
-
-    const handleBackgroundMusicToggle = () => {
-      setMuteBackgroundMusic(prevState => {
-        const newState = !prevState;
-        if (newState) {
-          stopMusic();
-        } else {
-          playMusic();
-        }
-        return newState;
-      });
-    };
-
-    const handleAllSoundsToggle = () => {
-      setMuteAllSounds((prev) => !prev);
-    };
 
     // Function to clear monsters from AsyncStorage for a specific user
     const clearMonstersForUser = async () => {
@@ -162,24 +84,30 @@ const ProfileScreen = () => {
         >
           <View style={styles.contentContainer}>
             <Text style={styles.text}>Welcome to your profile!</Text>
-
-
-{/* Mute Background Music Switch */}
-<View style={styles.switchContainer}>
-  <Text style={styles.switchLabel}>Mute Background Music</Text>
-  {muteBackgroundMusic ? (
-    <FontAwesome5 name="volume-mute" size={24} color="black" />
-  ) : (
-    <FontAwesome5 name="volume-up" size={24} color="black" />
-  )}
-  <Switch
-    value={muteBackgroundMusic}
-    onValueChange={handleBackgroundMusicToggle}
+  
+            {/* Background Music Switch */}
+            <View style={styles.switchContainer}>
+              <Text style={styles.switchLabel}>Mute Background Music</Text>
+              <Switch
+    value={isMusicMuted}
+    onValueChange={toggleMusic}
     trackColor={{ false: '#767577', true: '#81b0ff' }}
-    thumbColor={muteBackgroundMusic ? '#f5dd4b' : '#f4f3f4'}
+    thumbColor={isMusicMuted ? '#f5dd4b' : '#f4f3f4'}
     ios_backgroundColor="#3e3e3e"
   />
 </View>
+  
+            {/* All Sounds Switch */}
+            <View style={styles.switchContainer}>
+              <Text style={styles.switchLabel}>Mute All Sounds</Text>
+              <Switch
+                value={areSoundsMuted}
+                onValueChange={handleAllSoundsToggle}
+                trackColor={{ false: '#767577', true: '#81b0ff' }}
+                thumbColor={areSoundsMuted ? '#f5dd4b' : '#f4f3f4'}
+                ios_backgroundColor="#3e3e3e"
+              />
+            </View>
 
 
 

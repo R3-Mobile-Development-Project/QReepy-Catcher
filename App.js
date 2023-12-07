@@ -18,6 +18,8 @@ import ScanningScreen from './screens/ScanningScreen';
 import SplashScreen from './screens/SplashScreen';
 import GalleryScreen from './screens/GalleryScreen';
 import { MusicProvider } from './utils/MusicContext'; // Import MusicProvider from MusicContext
+import { SoundProvider } from './utils/SoundContext';
+
 import BannerAd from './utils/BannerAd'; // Import the BannerAd component
 
 // Initialize Firebase
@@ -57,6 +59,8 @@ export default function App() {
 
     <NavigationContainer>
         <MusicProvider>
+        <SoundProvider>
+
 
       <StatusBar style="auto" />
       {showSplash ? (
@@ -121,6 +125,7 @@ export default function App() {
           <Stack.Screen name="Login" component={AuthScreen} options={{ headerShown: false }} />
         </Stack.Navigator>
       )}
+          </SoundProvider>
         </MusicProvider>
         <BannerAd />
 
