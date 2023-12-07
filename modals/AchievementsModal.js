@@ -1,8 +1,9 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { View, Text, Modal, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 
-const AchievementsModal = ({ visible, onClose, achievements }) => {
+
+const DescriptionModal = ({ visible, onClose, achievement }) => {
   return (
     <Modal
       animationType="slide"
@@ -12,24 +13,64 @@ const AchievementsModal = ({ visible, onClose, achievements }) => {
     >
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
-          <Text style={styles.modalText}>Achievements</Text>
-          <View style={styles.modalLine} />
-          <ScrollView contentContainerStyle={styles.scrollViewContent}>
- {achievements.map((achievement, index) => (
-   <View key={index} style={styles.achievementContainer}>
-     <Text style={styles.achievementText}>{achievement.name}</Text>
-     {/* Add more details about the achievement here */}
-   </View>
- ))}
-</ScrollView>
-            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+          <Text style={styles.modalText}>{achievement.name}</Text>
+          <Text style={styles.modalText}>{achievement.description}</Text>
+          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
             <MaterialIcons name="close" size={50} color="black" />
           </TouchableOpacity>
         </View>
       </View>
     </Modal>
   );
-};
+ };
+ 
+ const AchievementsModal = ({ visible, onClose, achievements }) => {
+
+  const [selectedAchievement, setSelectedAchievement] = React.useState({
+    name: "",
+    description: "",
+    // Add other properties here
+   });
+  const [descriptionModalVisible, setDescriptionModalVisible] = React.useState(false);
+ 
+  return (
+    <View>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={visible}
+        onRequestClose={onClose}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalText}>Achievements</Text>
+            <View style={styles.modalLine} />
+            <ScrollView contentContainerStyle={styles.scrollViewContent}>
+              {achievements.map((achievement, index) => (
+                <TouchableOpacity key={index} onPress={() => {
+                 setSelectedAchievement(achievement);
+                 setDescriptionModalVisible(true);
+                }}>
+                 <View style={styles.achievementContainer}>
+                   <Text style={styles.achievementText}>{achievement.name}</Text>
+                 </View>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+              <MaterialIcons name="close" size={50} color="black" />
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+      <DescriptionModal
+        visible={descriptionModalVisible}
+        onClose={() => setDescriptionModalVisible(false)}
+        achievement={selectedAchievement}
+      />
+    </View>
+  );
+ };
 
 const styles = StyleSheet.create({
   modalContainer: {

@@ -21,9 +21,21 @@ const ProfileScreen = () => {
     const [achievements, setAchievements] = useState([]);
 
     useEffect(() => {
-      fetchAchievements(setAchievements);
-      
-     }, []);
+      if (achievementsModalVisible) {
+       fetchAchievements()
+         .then(data => setAchievements(data))
+         .catch(error => console.error(error));
+      }
+     }, [achievementsModalVisible]);
+
+     const checkAchievements = () => {
+      achievements.forEach(achievement => {
+      const count = userProgress[achievement.trigger.monsterRange[0]] || 0;
+      if (count >= achievement.trigger.count) {
+        console.log(`User has achieved: ${achievement.name}`);
+      }
+      });
+     };
 
     const handleLogout = async () => {
       playSignoutSound(); // Play button sound on logout button press
@@ -149,6 +161,8 @@ const ProfileScreen = () => {
       await AsyncStorage.removeItem(`isTrackingEgg_${userId}`);
       //Remove caught monsters from AsyncStorage
       await AsyncStorage.removeItem(`caughtMonsters_${userId}`);
+      //Remove caught monsters from AsyncStorage
+      await AsyncStorage.removeItem(`userProgress_${userId}`); // Remove achievements
 
     //  await AsyncStorage.removeItem(`images_${userId}`);
       playDeleteSound(); // Play delete sound on delete button press
