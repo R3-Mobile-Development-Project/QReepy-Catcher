@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ImageBackground, Switch, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ImageBackground,  Switch, Alert } from 'react-native';
 import { getAuth, signOut } from 'firebase/auth';
 import { MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
 import AchievementsModal from '../modals/AchievementsModal';
@@ -12,10 +12,13 @@ const backgroundImage = require('../assets/images/paper-decorations-halloween-pa
 
 const ProfileScreen = () => {
   const [achievementsModalVisible, setAchievementsModalVisible] = useState(false);
+  const [isAudioSettingsModalVisible, setAudioSettingsModalVisible] = useState(false);
   const [isModalVisible, setModalVisible] = useState(false);
   const { isMusicMuted, toggleMusic } = useMusic();
   const { areSoundsMuted, toggleSounds, playSound } = useSound();
-
+  const handleAudioSettingsToggle = () => {
+    setAudioSettingsModalVisible(!isAudioSettingsModalVisible);
+};
   const handleLogout = async () => {
     playSound(require('../assets/sounds/part.wav'));
     // Logout logic
@@ -85,30 +88,49 @@ const ProfileScreen = () => {
           <View style={styles.contentContainer}>
             <Text style={styles.text}>Welcome to your profile!</Text>
   
-            {/* Background Music Switch */}
-            <View style={styles.switchContainer}>
-              <Text style={styles.switchLabel}>Mute Background Music</Text>
-              <Switch
-    value={isMusicMuted}
-    onValueChange={toggleMusic}
-    trackColor={{ false: '#767577', true: '#81b0ff' }}
-    thumbColor={isMusicMuted ? '#f5dd4b' : '#f4f3f4'}
-    ios_backgroundColor="#3e3e3e"
-  />
-</View>
+            {/* Audio Settings Button */}
+            <TouchableOpacity onPress={handleAudioSettingsToggle} style={styles.audioSettingsButton}>
+            <FontAwesome5  name="music" size={24} color="black" />
+              <Text style={styles.audioSettingsButtonText}>Audio Settings</Text>
+            </TouchableOpacity>
   
-            {/* All Sounds Switch */}
-            <View style={styles.switchContainer}>
-              <Text style={styles.switchLabel}>Mute All Sounds</Text>
-              <Switch
-                value={areSoundsMuted}
-                onValueChange={handleAllSoundsToggle}
-                trackColor={{ false: '#767577', true: '#81b0ff' }}
-                thumbColor={areSoundsMuted ? '#f5dd4b' : '#f4f3f4'}
-                ios_backgroundColor="#3e3e3e"
-              />
-            </View>
+            {/* Audio Settings Modal */}
+<Modal
+  visible={isAudioSettingsModalVisible}
+  animationType="slide"
+  transparent={true}
+  onRequestClose={handleAudioSettingsToggle}
+>
+  <View style={styles.audioModalView}>
+    <Text style={styles.audioModalText}>Audio Settings</Text>
 
+    {/* Background Music Switch */}
+    <View style={styles.audioSwitchContainer}>
+      <Text style={styles.audioSwitchLabel}>Mute Background Music</Text>
+      <Switch
+        value={isMusicMuted}
+        onValueChange={toggleMusic}
+        trackColor={{ false: '#767577', true: '#81b0ff' }}
+        thumbColor={isMusicMuted ? '#f5dd4b' : '#f4f3f4'}
+      />
+    </View>
+
+    {/* All Sounds Switch */}
+    <View style={styles.audioSwitchContainer}>
+      <Text style={styles.audioSwitchLabel}>Mute All Sounds</Text>
+      <Switch
+        value={areSoundsMuted}
+        onValueChange={toggleSounds}
+        trackColor={{ false: '#767577', true: '#81b0ff' }}
+        thumbColor={areSoundsMuted ? '#f5dd4b' : '#f4f3f4'}
+      />
+    </View>
+
+    <TouchableOpacity onPress={handleAudioSettingsToggle} style={styles.audioCloseButton}>
+      <Text style={styles.audioCloseButtonText}>Close</Text>
+    </TouchableOpacity>
+  </View>
+</Modal>
 
 
             <TouchableOpacity style={styles.button} onPress={handleLogout}>
@@ -278,6 +300,64 @@ const styles = StyleSheet.create({
   modalDeleteButtonText: {
     color: 'white',
     fontWeight: 'bold',
+  },
+  // Styles for Audio Settings Modal
+  audioSettingsButton: {
+    marginTop: 10,
+    width: 170,
+    height: 60,
+    backgroundColor: 'lightgreen',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 10,
+    borderColor: 'black',
+    borderWidth: 3,
+  },
+  audioSettingsButtonText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  audioModalView: {
+    margin: 20,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 35,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  audioModalText: {
+    marginBottom: 15,
+    textAlign: 'center',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  audioSwitchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 10,
+  },
+  audioSwitchLabel: {
+    fontSize: 18,
+    marginRight: 10,
+  },
+  audioCloseButton: {
+    backgroundColor: '#2196F3',
+    borderRadius: 20,
+    padding: 10,
+    elevation: 2,
+    marginTop: 20,
+  },
+  audioCloseButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
 });
 
