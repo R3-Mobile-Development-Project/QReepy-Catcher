@@ -7,7 +7,13 @@ const MusicContext = createContext();
 
 let soundInstance = null;
 
-export const useMusic = () => useContext(MusicContext);
+export const useMusic = () => {
+  const context = useContext(MusicContext);
+  if (context === undefined) {
+    throw new Error('useMusic must be used within a MusicProvider');
+  }
+  return context;
+};
 
 export const MusicProvider = ({ children }) => {
   const [isMusicMuted, setIsMusicMuted] = useState(false);
@@ -26,26 +32,27 @@ export const MusicProvider = ({ children }) => {
     }
   };
 
-  const controlMusic = async () => {
+  const playMusic = async () => {
     if (isSoundLoaded) {
-      if (isMusicMuted) {
-        await soundInstance.pauseAsync();
-      } else {
-        await soundInstance.playAsync();
-      }
+      await soundInstance.playAsync();
+    }
+  };
+
+  const stopMusic = async () => {
+    if (isSoundLoaded) {
+      await soundInstance.pauseAsync();
     }
   };
 
   const toggleMusic = async () => {
     const newMutedState = !isMusicMuted;
-    setIsMusicMuted(newMutedState); // Toggle the muted state
+    setIsMusicMuted(newMutedState);
     await AsyncStorage.setItem('isMusicMuted', JSON.stringify(newMutedState));
-  
-    // Wait for the state to be set, then control music based on new state
+    
     if (newMutedState) {
-      stopMusic(); // Muted, so stop music
+      await stopMusic();
     } else {
-      playMusic(); // Unmuted, so play music
+      await playMusic();
     }
   };
 
@@ -69,7 +76,11 @@ export const MusicProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    controlMusic();
+    if (isMusicMuted) {
+      stopMusic();
+    } else {
+      playMusic();
+    }
   }, [isMusicMuted, isSoundLoaded]);
 
   return (
