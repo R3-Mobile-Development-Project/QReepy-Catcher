@@ -5,20 +5,20 @@ import { Audio } from 'expo-av';
 import { useSound } from '../utils/SoundContext'; // Import useSound hook
 
 const SplashScreen = () => {
-  const { areSoundsMuted } = useSound(); // Use the useSound hook
+  const { areSoundsMuted, isInitialized } = useSound(); // Use new state
   const opacity = new Animated.Value(0);
   const scale = new Animated.Value(0.5);
   const translationX = new Animated.Value(-500);
   const translationY = new Animated.Value(-500);
 
-  async function playAudio() {
+   // Function to play audio
+   async function playAudio() {
     if (!areSoundsMuted) {
       const sound = new Audio.Sound();
       try {
         const source = require('../assets/sounds/MESSAGE-B_Accept_TOIMII.wav');
         await sound.loadAsync(source);
         await sound.playAsync();
-        // Optionally handle the playback completion
         sound.setOnPlaybackStatusUpdate((status) => {
           if (status.didJustFinish) {
             sound.unloadAsync();
@@ -30,8 +30,15 @@ const SplashScreen = () => {
     }
   }
 
+  // useEffect for playing audio
   useEffect(() => {
-    playAudio();
+    if (isInitialized) {
+      playAudio();
+    }
+  }, [isInitialized, areSoundsMuted]);
+
+  // useEffect for animations
+  useEffect(() => {
     Animated.parallel([
       Animated.timing(opacity, {
         toValue: 1,
@@ -52,9 +59,8 @@ const SplashScreen = () => {
       }),
     ]).start();
 
-    // Add a delay of 1000ms (1 second) for the "Catcher" text animation
     Animated.sequence([
-      Animated.delay(600), // Wait for 1 second
+      Animated.delay(600),
       Animated.timing(translationX, {
         toValue: 0,
         duration: 1000,
@@ -62,7 +68,8 @@ const SplashScreen = () => {
         useNativeDriver: true,
       }),
     ]).start();
-  }, []);
+  }, []); // Empty dependency array to run once on mount
+
 
   return (
     <ImageBackground

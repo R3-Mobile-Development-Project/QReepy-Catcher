@@ -8,22 +8,25 @@ export const useSound = () => useContext(SoundContext);
 
 export const SoundProvider = ({ children }) => {
     const [areSoundsMuted, setAreSoundsMuted] = useState(false);
+    const [isInitialized, setIsInitialized] = useState(false); // New state for initialization
 
-    // Fetch the sound preference from AsyncStorage
-    const fetchSoundPreference = async () => {
-        try {
-            const value = await AsyncStorage.getItem('areSoundsMuted');
-            if (value !== null) {
-                setAreSoundsMuted(JSON.parse(value));
-            }
-        } catch (error) {
-            console.error('Error fetching sound preferences:', error);
+// Fetch the sound preference from AsyncStorage
+const fetchSoundPreference = async () => {
+    try {
+        const value = await AsyncStorage.getItem('areSoundsMuted');
+        if (value !== null) {
+            setAreSoundsMuted(JSON.parse(value));
         }
-    };
+    } catch (error) {
+        console.error('Error fetching sound preferences:', error);
+    } finally {
+        setIsInitialized(true); // Set initialization state to true after fetching
+    }
+};
 
-    useEffect(() => {
-        fetchSoundPreference();
-    }, []);
+useEffect(() => {
+    fetchSoundPreference();
+}, []);
 
     const playSound = async (soundFile) => {
         if (!areSoundsMuted) {
@@ -48,7 +51,7 @@ export const SoundProvider = ({ children }) => {
     };
 
     return (
-        <SoundContext.Provider value={{ areSoundsMuted, toggleSounds, playSound }}>
+        <SoundContext.Provider value={{ areSoundsMuted, toggleSounds, playSound, isInitialized }}>
             {children}
         </SoundContext.Provider>
     );
