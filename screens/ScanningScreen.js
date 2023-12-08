@@ -11,7 +11,7 @@ import ScanningModal from '../modals/ScanningModal';
 import AdModal from '../modals/AdModal';
 import adImage1 from '../assets/images/adpicture1.png';
 import adImage2 from '../assets/images/adpicture2.png';
-
+import { useSound } from '../utils/SoundContext'; // Import useSound hook
 import { findMonster, fetchMonsterDetailsFromFirestore, fetchMonsterImageURL } from '../utils/monsterUtils';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -36,6 +36,7 @@ export default function ScanningScreen({ navigation }) {
   const [isDebouncingScan, setIsDebouncingScan] = useState(false);
   const [scannedBarcodes, setScannedBarcodes] = useState([]);
   const [scanningMessage, setScanningMessage] = useState('');
+  const { areSoundsMuted } = useSound(); // Use the useSound hook
   const [adModalVisible, setAdModalVisible] = useState(false);
   const [currentAdIndex, setCurrentAdIndex] = useState(0); // New state to track current ad
   const ads = [
@@ -123,15 +124,17 @@ const initiateScanning = () => {
     }
   }, [cameraActive]);
 
-  const playTorchSound = async () => {
-    const torchSound = new Audio.Sound();
 
-    try {
-      const torchSource = require('../assets/sounds/wall.wav'); // Replace with your torch sound file path
-      await torchSound.loadAsync(torchSource);
-      await torchSound.playAsync();
-    } catch (error) {
-      console.error('Error playing torch sound:', error);
+  const playTorchSound = async () => {
+    if (!areSoundsMuted) {
+      const torchSound = new Audio.Sound();
+      try {
+        const torchSource = require('../assets/sounds/wall.wav');
+        await torchSound.loadAsync(torchSource);
+        await torchSound.playAsync();
+      } catch (error) {
+        console.error('Error playing torch sound:', error);
+      }
     }
   };
 
@@ -169,17 +172,6 @@ const initiateScanning = () => {
     setIsDebouncingScan(true); // Start debounce cooldown
     // Set a timeout to clear the debounce state after a short period
     setTimeout(() => setIsDebouncingScan(false), 2000); // Adjust the cooldown time as needed
-
-    /*
-    // Check for duplicate scans
-    if (data === lastScannedData) {
-      console.log('SCANNINGSCREEN: Duplicate scan detected');
-      setScanningMessage('You scanned the same code again.');
-      setShowMessage(true);
-      setIsScanningActive(false); // Stop scanning after detecting a duplicate
-      return;
-    }
-    */
 
     const foundMonsterId = findMonster(); // Assuming this function processes 'data' to find a monster
 
@@ -234,16 +226,17 @@ const initiateScanning = () => {
   };
 
   const playButtonSound = async () => {
-    const buttonSound = new Audio.Sound();
-
-    try {
-      const buttonSource = require('../assets/sounds/Menu_Selection_Click.wav'); // Replace with your button sound file path
-      await buttonSound.loadAsync(buttonSource);
-      await buttonSound.playAsync();
-    } catch (error) {
-      console.error('Error playing button sound:', error);
+    if (!areSoundsMuted) {
+      const buttonSound = new Audio.Sound();
+      try {
+        const buttonSource = require('../assets/sounds/Menu_Selection_Click.wav');
+        await buttonSound.loadAsync(buttonSource);
+        await buttonSound.playAsync();
+      } catch (error) {
+        console.error('Error playing button sound:', error);
+      }
     }
-  }
+  };
 
   const hideMessage = () => {
     setShowMessage(false);

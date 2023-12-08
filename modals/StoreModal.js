@@ -6,6 +6,7 @@ import { getFirestore, collection, query, onSnapshot, where, getDocs } from 'fir
 import { getStorage, ref, getDownloadURL } from 'firebase/storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
+import { useSound } from '../utils/SoundContext'; // Import useSound hook
 
 const StoreModal = ({ visible, onClose }) => {
     const [closeSound, setCloseSound] = useState();
@@ -19,6 +20,7 @@ const StoreModal = ({ visible, onClose }) => {
     const [message, setMessage] = useState('');
     const [timer, setTimer] = useState(null);
     const [fetchingEgg, setFetchingEgg] = useState(false);
+    const { areSoundsMuted } = useSound(); // Use the useSound hook
 
     const spinValue = useRef(new Animated.Value(0)).current;
 
@@ -39,14 +41,16 @@ const StoreModal = ({ visible, onClose }) => {
         };
     }, [closeSound]);
 
+    // Updated playCloseSound function
     const playCloseSound = async () => {
-        const { sound } = await Audio.Sound.createAsync(
-            require('../assets/sounds/Menu_Selection_Click.wav')
-        );
-        setCloseSound(sound);
-        await sound.playAsync();
+        if (!areSoundsMuted) {
+            const { sound } = await Audio.Sound.createAsync(
+                require('../assets/sounds/Menu_Selection_Click.wav')
+            );
+            setCloseSound(sound);
+            await sound.playAsync();
+        }
     };
-
     const handleClosePress = () => {
         setEggBought(false); // Reset egg state on modal close
         setEggQuantity(0);
@@ -143,14 +147,17 @@ const StoreModal = ({ visible, onClose }) => {
         }
     };
 
-    // play the sell sound effect
+    // Updated playSellSound function
     const playSellSound = async () => {
-        const { sound } = await Audio.Sound.createAsync(
-            require('../assets/sounds/ETRA_TOIMII.wav')
-        );
-        setCloseSound(sound);
-        await sound.playAsync();
+        if (!areSoundsMuted) {
+            const { sound } = await Audio.Sound.createAsync(
+                require('../assets/sounds/ETRA_TOIMII.wav')
+            );
+            setCloseSound(sound);
+            await sound.playAsync();
+        }
     };
+
 
     const handleBuyEggPress = async () => {
         if (fetchingEgg) {

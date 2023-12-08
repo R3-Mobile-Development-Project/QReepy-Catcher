@@ -8,6 +8,7 @@ import { findMonster, fetchMonsterImageURL } from '../utils/monsterUtils';
 import MonsterInfoModal from '../modals/MonsterInfoModal';
 import { Audio } from 'expo-av';
 import EggModal from '../modals/EggModal';
+import { useSound } from '../utils/SoundContext';
 
 
 const backgroundImage = require('../assets/images/horrible-monster-2.jpg');
@@ -21,6 +22,7 @@ const GalleryScreen = ({ navigation }) => {
   
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedMonster, setSelectedMonster] = useState(null);
+  const { areSoundsMuted } = useSound();
 
   const handleItemPress = (monster) => {
     console.log(monster);
@@ -42,12 +44,17 @@ const GalleryScreen = ({ navigation }) => {
       : undefined;
   }, [sound]);
 
+  // Use the useSound hook
+
+  // Updated playButtonSound function
   const playButtonSound = async () => {
-    const { sound } = await Audio.Sound.createAsync(
-      require('../assets/sounds/Menu_Selection_Click.wav')
-    );
-    setSound(sound);
-    await sound.playAsync();
+    if (!areSoundsMuted) {
+      const { sound } = await Audio.Sound.createAsync(
+        require('../assets/sounds/Menu_Selection_Click.wav')
+      );
+      setSound(sound);
+      await sound.playAsync();
+    }
   };
 
   const openEggModal = async () => {
@@ -87,25 +94,6 @@ const GalleryScreen = ({ navigation }) => {
       console.error('Error saving sorting method to AsyncStorage:', error);
     }
   };
-
-  /*
-  useEffect(() => {
-    // Retrieve the sorting method from AsyncStorage
-    const getSortingMethod = async () => {
-      try {
-        const savedSortingMethod = await AsyncStorage.getItem('sortingMethod');
-        if (savedSortingMethod) {
-          setSortingMethod(savedSortingMethod);
-        }
-      } catch (error) {
-        console.error('Error retrieving sorting method from AsyncStorage:', error);
-      }
-    };
-    getSortingMethod(); // Call the function to retrieve the sorting method
-    // Sort monsters and images when the sorting method changes
-  sortMonstersAndImages();
-}, [sortingMethod]);
-*/
 
 
   useEffect(() => {
@@ -291,8 +279,8 @@ const styles = StyleSheet.create({
     borderColor: 'black',
   },
   image: {
-    width: 120, // Set the image width to 100% to fit the container
-    height: 120,
+    width: 115, // Set the image width to 100% to fit the container
+    height: 115,
     marginBottom: 4,
     borderRadius: 90,
     borderWidth: 2,

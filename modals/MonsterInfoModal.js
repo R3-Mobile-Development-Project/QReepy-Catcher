@@ -1,15 +1,15 @@
-import { Modal, View, Text, StyleSheet, Button, TouchableOpacity, Image, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { Modal, View, Text, StyleSheet, TouchableOpacity, Image, ScrollView } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Audio } from 'expo-av';
-import React, { useState, useEffect } from 'react';
+import { useSound } from '../utils/SoundContext'; // Import useSound hook
 
 const MonsterInfoModal = ({ isModalVisible, selectedMonster, onClose }) => {
-
   const [closeSound, setCloseSound] = useState();
-  //const monsterColor = selectedMonster?.[0]?.dominantColors'
+  const { areSoundsMuted } = useSound(); // Use the useSound hook
+
   const dominantColors = selectedMonster?.dominantColors;
   const backgroundColor = dominantColors ? `rgb(${dominantColors[0]}, ${dominantColors[1]}, ${dominantColors[2]})` : 'white';
-
 
   useEffect(() => {
     return () => {
@@ -20,18 +20,19 @@ const MonsterInfoModal = ({ isModalVisible, selectedMonster, onClose }) => {
   }, [closeSound]);
 
   const playCloseSound = async () => {
-    const { sound } = await Audio.Sound.createAsync(
-      require('../assets/sounds/Menu_Selection_Click.wav')
-    );
-    setCloseSound(sound);
-    await sound.playAsync();
+    if (!areSoundsMuted) {
+      const { sound } = await Audio.Sound.createAsync(
+        require('../assets/sounds/Menu_Selection_Click.wav')
+      );
+      setCloseSound(sound);
+      await sound.playAsync();
+    }
   };
 
   const handleClosePress = () => {
     playCloseSound();
     onClose();
   };
-
   
  return (
     <Modal

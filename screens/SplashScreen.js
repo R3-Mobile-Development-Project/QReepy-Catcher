@@ -1,36 +1,32 @@
 
-// TÄMÄ SIVU KÄYNNISTYY ENSIMMÄISENÄ, KUN SOVELLUS AVATAAN
-
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Animated, Easing, ImageBackground, Button } from 'react-native';
-import { useFonts } from '@expo-google-fonts/inter';
+import { View, Text, StyleSheet, Animated, Easing, ImageBackground } from 'react-native';
 import { Audio } from 'expo-av';
+import { useSound } from '../utils/SoundContext'; // Import useSound hook
 
 const SplashScreen = () => {
+  const { areSoundsMuted } = useSound(); // Use the useSound hook
   const opacity = new Animated.Value(0);
   const scale = new Animated.Value(0.5);
   const translationX = new Animated.Value(-500);
   const translationY = new Animated.Value(-500);
 
   async function playAudio() {
-    const sound = new Audio.Sound();
-
-    try {
-      const source = require('../assets/sounds/MESSAGE-B_Accept_TOIMII.wav');
-      await sound.loadAsync(source);
-      await sound.playAsync();
-      // Add other logic or event listeners as needed
-
-      // Optionally, wait for the playback to finish
-      sound.setOnPlaybackStatusUpdate((status) => {
-        if (status.didJustFinish) {
-          // Handle playback completion
-          sound.unloadAsync(); // Unload the audio when playback is complete
-        }
-      });
-
-    } catch (error) {
-      console.error('Error playing audio:', error);
+    if (!areSoundsMuted) {
+      const sound = new Audio.Sound();
+      try {
+        const source = require('../assets/sounds/MESSAGE-B_Accept_TOIMII.wav');
+        await sound.loadAsync(source);
+        await sound.playAsync();
+        // Optionally handle the playback completion
+        sound.setOnPlaybackStatusUpdate((status) => {
+          if (status.didJustFinish) {
+            sound.unloadAsync();
+          }
+        });
+      } catch (error) {
+        console.error('Error playing audio:', error);
+      }
     }
   }
 
