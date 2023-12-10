@@ -53,7 +53,6 @@ const loadScannedBarcodes = async () => {
   } catch (error) {
     console.error('Error loading scanned barcodes from AsyncStorage:', error);
   }
-  
 };
 
 useEffect(() => {
@@ -64,7 +63,7 @@ useEffect(() => {
 // Function to save the last 10 scanned barcodes to AsyncStorage
 const saveScannedBarcodes = async () => {
   try {
-    const slicedBarcodes = scannedBarcodes.slice(-1);
+    const slicedBarcodes = scannedBarcodes.slice(-1); //VAIHDA MÄÄRÄÄ, JOS HALUAT ENEMMÄN TAI VÄHEMMÄN TALLENNETTAVIA KOODEJA
     await AsyncStorage.setItem('lastScannedBarcodes', JSON.stringify(slicedBarcodes));
     const savedBarcodes = await AsyncStorage.getItem('lastScannedBarcodes');
     console.log('SCANNINGSCREEN: Scanned barcodes saved to AsyncStorage:', savedBarcodes);
@@ -81,7 +80,6 @@ const initiateScanning = () => {
       setAdModalVisible(false);
     }, 3000);
     return;
-    
     }
     setLastScannedData(null);
     setIsScanningActive(true);
@@ -150,8 +148,7 @@ const initiateScanning = () => {
     // Ignore scans if not scanning or if debouncing or if barcode already scanned
   if (!isScanningActive || isDebouncingScan || scannedBarcodes.includes(data)){
 
-    //set setScanningMessage to "barcode already scanned"
-  setScanningMessage('Barcode already scanned, try scanning another code.');
+  setScanningMessage('Code already scanned, try scanning another.');
   setIsScanningActive(false);
   setShowMessage(true);
 //  console.log('SCANNINGSCREEN: Scanned barcodes:', scannedBarcodes);
@@ -169,17 +166,6 @@ const initiateScanning = () => {
     setIsDebouncingScan(true); // Start debounce cooldown
     // Set a timeout to clear the debounce state after a short period
     setTimeout(() => setIsDebouncingScan(false), 2000); // Adjust the cooldown time as needed
-
-    /*
-    // Check for duplicate scans
-    if (data === lastScannedData) {
-      console.log('SCANNINGSCREEN: Duplicate scan detected');
-      setScanningMessage('You scanned the same code again.');
-      setShowMessage(true);
-      setIsScanningActive(false); // Stop scanning after detecting a duplicate
-      return;
-    }
-    */
 
     const foundMonsterId = findMonster(); // Assuming this function processes 'data' to find a monster
 
@@ -201,9 +187,14 @@ const initiateScanning = () => {
 
       parsedExistingMonsters.push(foundMonsterId);
 
+      const arrayMax = 5; // VAIHDA TÄMÄN ARVO VÄHINTÄÄN SAMAAN KUIN MITÄ EGGMODALIN neededMonsters
+      // Keep only the last monsters caught up to the arrayMax value
+      if (parsedExistingMonsters.length > arrayMax) {
+        parsedExistingMonsters = parsedExistingMonsters.slice(-arrayMax);
+      }
+
       // Store the updated array in AsyncStorage
       await AsyncStorage.setItem(`caughtMonsters_${userId}`, JSON.stringify(parsedExistingMonsters));
-
       const storedMonsterIdsString = await AsyncStorage.getItem(`caughtMonsters_${userId}`);
       console.log(`SCANNINGSCREEN: ${storedMonsterIdsString} monsters caught for user ID: ${userId}`);
 
@@ -225,7 +216,7 @@ const initiateScanning = () => {
       // No valid monster found
       setNoMonsterFound(true);
       setShowMessage(true);
-      setScanningMessage('No monster found, try a different code.');
+      setScanningMessage('No QReep found, try a different code.');
       setIsScanningActive(false);
       console.log(`SCANNINGSCREEN: No monster found.`);
     }

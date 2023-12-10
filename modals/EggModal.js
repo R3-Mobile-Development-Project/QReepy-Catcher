@@ -9,14 +9,14 @@ import { getStorage, ref, getDownloadURL } from 'firebase/storage';
 
 const EggModal = ({ visible, onClose }) => {
     const [savedEggs, setSavedEggs] = useState([]);
-    const [numColumns, setNumColumns] = useState(3);
+    const [numColumns, setNumColumns] = useState(2);
     const placeholders = Array.from({ length: (3 - savedEggs.length % 3) % 3 });
     const [selectedEggIndex, setSelectedEggIndex] = useState(null);
     const [isHatching, setIsHatching] = useState(false);
     const [caughtMonsters, setCaughtMonsters] = useState(0); // New state to track monsters caught
     const [isHatched, setIsHatched] = useState(false); // New state to track if the egg is hatched
     const [isTrackingEgg, setIsTrackingEgg] = useState(false);
-    const neededMonsters = 1; // LASKURIN TARVITSEMA ARVO ETTÄ MUNA KUORIUTUU
+    const neededMonsters = 3; // LASKURIN TARVITSEMA ARVO ETTÄ MUNA KUORIUTUU, TÄYTYY OLLA PIENEMPI TAI YHTÄSUURI KUIN SCANNINGSCREENIN arrayMax
     const [monsterModalVisible, setMonsterModalVisible] = useState(false);
     const [monsterData, setMonsterData] = useState({});
     const [imageURL, setImageURL] = useState('');
@@ -117,7 +117,7 @@ const EggModal = ({ visible, onClose }) => {
             await AsyncStorage.setItem(`selectedEggIndex_${userId}`, index.toString());
             // Save the isTrackingEgg state to AsyncStorage
             await AsyncStorage.setItem(`isTrackingEgg_${userId}`, 'true');
-            // Check if the number of caught monsters is 20
+            // Check if the number of caught monsters is equal to the needed monsters
             if (caughtMonsters >= neededMonsters) {
                 setIsHatched(true);
                 // setHatchedEggState({ index, borderColor: 'green' });
@@ -270,20 +270,13 @@ const EggModal = ({ visible, onClose }) => {
 
     const renderHatchButton = () => {
         if (selectedEggIndex !== null) {
-          if (isTrackingEgg) {
-            return (
-              <TouchableOpacity onPress={() => startHatching(selectedEggIndex)}>
-                <Text>{isHatching ? "Hatching..." : "Start Hatching"}</Text>
-              </TouchableOpacity>
-            );
-          }
-          else {
-            return (
-              <TouchableOpacity onPress={() => startHatching(selectedEggIndex)}>
-                <Text>Start Hatching</Text>
-              </TouchableOpacity>
-            );
-          }
+          const buttonStyle = isTrackingEgg ? styles.hatchingButton : styles.startHatchingButton;
+
+          return (
+            <TouchableOpacity onPress={() => startHatching(selectedEggIndex)} style={buttonStyle}>
+              <Text style={styles.buttonText}>{isHatching ? "Hatching..." : "Start Hatching"}</Text>
+            </TouchableOpacity>
+          );
         }
         return null;
       };
@@ -374,6 +367,23 @@ const EggModal = ({ visible, onClose }) => {
 };
 
 const styles = StyleSheet.create({
+    hatchingButton: {
+        backgroundColor: 'darkorange', // Change the background color as needed
+        padding: 10,
+        borderRadius: 5,
+        margin: 5,
+      },
+      startHatchingButton: {
+        backgroundColor: 'green', // Change the background color as needed
+        padding: 10,
+        borderRadius: 5,
+        margin: 5,
+      },
+      buttonText: {
+        color: 'white', // Change the text color as needed
+        textAlign: 'center',
+        fontWeight: 'bold',
+      },
     monsterImage: {
         width: 250,
         height: 250,
@@ -395,7 +405,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'rgba(0, 0, 0, .7)',
+        backgroundColor: 'rgba(0, 0, 0, 0.7)',
         padding: 20,
         },
     monsterModalContent: {
@@ -403,7 +413,7 @@ const styles = StyleSheet.create({
         height: '50%',
         backgroundColor: 'seashell',
         padding: 20,
-        borderRadius: 20,
+        borderRadius: 40,
         alignItems: 'center',
         justifyContent: 'center',
         borderWidth: 3,
@@ -474,8 +484,10 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
     eggContainer: {
+     //   width: '32%',
+     //   height: '20%',
         marginBottom: 20,
-        marginHorizontal: 2,
+        marginHorizontal: 12,
     },
     loadingContainer: {
         width: 100,

@@ -109,6 +109,7 @@ const HomeScreen = ({ navigation }) => {
       */}
       <TouchableOpacity onPress={openCreditsModal} style={styles.creditsButton}>
           <Text style={styles.creditsButtonText}>CREDITS</Text>
+          <MaterialIcons name="groups" size={24} color="black" />
       </TouchableOpacity>
       <View style={styles.coinContainer}>
         <Image source={require('../assets/images/coin4.png')} style={styles.image} />
@@ -156,8 +157,10 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   creditsButton: {
+    flexDirection: 'row',
+    paddingHorizontal: 10,
     marginTop: 10,
-    width: 120,
+    width: 200,
     height: 60,
     backgroundColor: 'lightblue',
     alignItems: 'center',
@@ -167,8 +170,11 @@ const styles = StyleSheet.create({
     borderWidth: 3,
   },
   creditsButtonText: {
-    fontSize: 18,
+    textAlign: 'center',
+    color: 'black',
     fontWeight: 'bold',
+    marginRight: 10,
+    fontSize: 18,
   },
   image: {
     width: 140, // Set the width as per your requirements

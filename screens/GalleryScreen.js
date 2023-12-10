@@ -9,7 +9,6 @@ import MonsterInfoModal from '../modals/MonsterInfoModal';
 import { Audio } from 'expo-av';
 import EggModal from '../modals/EggModal';
 
-
 const backgroundImage = require('../assets/images/horrible-monster-2.jpg');
 
 const GalleryScreen = ({ navigation }) => {
@@ -18,21 +17,21 @@ const GalleryScreen = ({ navigation }) => {
   const [numColumns, setNumColumns] = useState(3);
   const [sortingMethod, setSortingMethod] = useState('id');
   const placeholders = Array.from({ length: (3 - monsters.length % 3) % 3 });
-  
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedMonster, setSelectedMonster] = useState(null);
+  const [sound, setSound] = useState();
+  const [eggModalVisible, setEggModalVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const SORT_KEY = 'sorting_method';
+
 
   const handleItemPress = (monster) => {
-    console.log(monster);
+    console.log(monster.name, 'opened on index:', monsters.indexOf(monster));
     const imageIndex = monsters.indexOf(monster);
     const imageUrl = images[imageIndex];
     setSelectedMonster({ ...monster, image: imageUrl });
     setIsModalVisible(true);
    };
-
-  const [sound, setSound] = useState();
-
-  const [eggModalVisible, setEggModalVisible] = useState(false);
 
   useEffect(() => {
     return sound
@@ -65,71 +64,91 @@ const GalleryScreen = ({ navigation }) => {
   const sortMonstersAndImages = async () => {
     // Pair each monster with its image
     const paired = monsters.map((monster, index) => ({ monster, image: images[index] }));
-
+   
     // Sort the pairs
     if (sortingMethod === 'name') {
       paired.sort((a, b) => a.monster.name.localeCompare(b.monster.name));
+      console.log('SORTED BY NAME, paired:')
+      paired.forEach(item => {
+        console.log(`Name: ${item.monster.name}, ID: ${item.monster.id}`);
+      });
     } else { // Default sort by ID
       paired.sort((a, b) => a.monster.id - b.monster.id);
+      console.log('SORTED BY ID, paired:');
+      paired.forEach(item => {
+      console.log(`Name: ${item.monster.name}, ID: ${item.monster.id}`);
+      });
     }
-
+   
     // Separate the pairs back into monsters and images
     const sortedMonsters = paired.map(pair => pair.monster);
     const sortedImages = paired.map(pair => pair.image);
-
+   
     setMonsters(sortedMonsters);
     setImages(sortedImages);
-
+   
     // Save the sorting method to AsyncStorage
     try {
-      await AsyncStorage.setItem('sortingMethod', sortingMethod);
+      // Convert the sortingMethod to a JSON string before saving
+      await AsyncStorage.setItem(SORT_KEY, JSON.stringify(sortingMethod));
     } catch (error) {
       console.error('Error saving sorting method to AsyncStorage:', error);
     }
-  };
+   };
+   
 
-  /*
-  useEffect(() => {
-    // Retrieve the sorting method from AsyncStorage
-    const getSortingMethod = async () => {
-      try {
-        const savedSortingMethod = await AsyncStorage.getItem('sortingMethod');
-        if (savedSortingMethod) {
-          setSortingMethod(savedSortingMethod);
-        }
-      } catch (error) {
-        console.error('Error retrieving sorting method from AsyncStorage:', error);
+  const saveSortingMethod = async (sortingMethod) => {
+    try {
+      // Convert the sortingMethod to a JSON string before saving
+      await AsyncStorage.setItem(SORT_KEY, JSON.stringify(sortingMethod));
+    } catch (error) {
+      console.log('Error saving sorting method to AsyncStorage:', error);
+    }
+   };
+   
+   const getSortingMethod = async () => {
+    try {
+      const value = await AsyncStorage.getItem(SORT_KEY);
+      if (value !== null) {
+        // Parse the value back into its original form
+        setSortingMethod(JSON.parse(value));
       }
-    };
-    getSortingMethod(); // Call the function to retrieve the sorting method
-    // Sort monsters and images when the sorting method changes
-  sortMonstersAndImages();
-}, [sortingMethod]);
-*/
+    } catch (error) {
+      console.log('Error retrieving sorting method from AsyncStorage:', error);
+    }
+   };
 
+   useEffect(() => {
+    getSortingMethod();
+   }, []);
 
-  useEffect(() => {
+   useEffect(() => {
+    saveSortingMethod(sortingMethod);
+   }, [sortingMethod]);
+
+   useEffect(() => {
+    // Sort monsters and images when sorting method changes
     sortMonstersAndImages();
-  }, [sortingMethod]); // Re-sort whenever the sorting method changes
+  }, [sortingMethod, monsters.length, images.length]); // Re-sort whenever the sorting method changes
 
 
   const calculateNumColumns = () => {
-    // Implement your logic to calculate the number of columns
     return 3;
   };
 
   useEffect(() => {
     // Update the number of columns dynamically based on your logic
-    const updatedNumColumns = calculateNumColumns(); // Implement your logic to calculate the number of columns
+    const updatedNumColumns = calculateNumColumns();
     setNumColumns(updatedNumColumns);
-  }, [/* Dependencies for the update, if any */]);
+  }, []);
 
     // Use useFocusEffect to refresh monsters when the screen is focused
     useFocusEffect(
       React.useCallback(() => {
         refreshMonsters();
-      }, [])
+      }, [sortingMethod])
     );
+
 // Function to sort monsters
 const sortMonsters = (monsters) => {
   if (sortingMethod === 'name') {
@@ -143,12 +162,25 @@ const sortMonsters = (monsters) => {
 
 // Function to get images based on monster IDs
 const getImages = async (monsterIds) => {
-  const images = [];
-  for (const monsterId of monsterIds) {
-    const imageUrl = await fetchMonsterImageURL(monsterId);
-    images.push(imageUrl);
+  try {
+    const cachedImages = {}; // Simple in-memory cache
+
+    const imagePromises = monsterIds.map(async (monsterId) => {
+      if (cachedImages[monsterId]) {
+        return cachedImages[monsterId];
+      }
+
+      const imageUrl = await fetchMonsterImageURL(monsterId);
+      cachedImages[monsterId] = imageUrl;
+
+      return imageUrl;
+    });
+
+    return Promise.all(imagePromises);
+  } catch (error) {
+    console.error('Error fetching images:', error);
+    return [];
   }
-  return images;
 };
 
 //use the getImages function to get the images for the monsters
@@ -156,18 +188,16 @@ const refreshMonsters = async () => {
   try {
     const userId = await AsyncStorage.getItem('userId');
     const monstersData = await AsyncStorage.getItem(`monsters_${userId}`);
-
     const monsters = monstersData ? JSON.parse(monstersData) : [];
-
     const sortedMonsters = sortMonsters(monsters);
 
     // Set the sorted monsters first
     setMonsters(sortedMonsters);
-
+    // Then get the images for the monsters
     const monsterIds = sortedMonsters.map(monster => monster.id);
     const images = await getImages(monsterIds);
-
     setImages(images);
+
   } catch (error) {
     console.error('Error retrieving monsters from AsyncStorage:', error);
   }
@@ -214,11 +244,11 @@ return (
               <View style={styles.monsterContainer}>
               {images[index] ? (
                 <TouchableOpacity onPress={() => handleItemPress(item)}>
-                  <Image 
-                source={{ uri: images[index] }}
-                style={styles.image}  // Set fixed width and height for testing
-                resizeMode="contain"
-/>
+                  <Image
+                    source={{ uri: images[index] }}
+                    style={styles.image}  // Set fixed width and height for testing
+                    resizeMode="contain"
+                  />
                 </TouchableOpacity>
               ) : (
                 <View style={styles.loadingContainer}>
@@ -227,7 +257,6 @@ return (
               )}
               <Text style={styles.monsterName}>{item.name}</Text>
             </View>
-            
             );
           }}
         />
@@ -237,12 +266,13 @@ return (
     {/* Modal for displaying monster details */}
 
     <MonsterInfoModal
- isModalVisible={isModalVisible}
- selectedMonster={selectedMonster}
- onClose={closeMonsterInfoModal}
-/>
-<EggModal visible={eggModalVisible} onClose={closeEggModal} />
-</View>
+      isModalVisible={isModalVisible}
+      selectedMonster={selectedMonster}
+      onClose={closeMonsterInfoModal}
+      onSell={refreshMonsters}
+    />
+    <EggModal visible={eggModalVisible} onClose={closeEggModal} />
+  </View>
 );
 
 
@@ -291,8 +321,8 @@ const styles = StyleSheet.create({
     borderColor: 'black',
   },
   image: {
-    width: 120, // Set the image width to 100% to fit the container
-    height: 120,
+    width: 110, // Set the image width to 100% to fit the container
+    height: 110,
     marginBottom: 4,
     borderRadius: 90,
     borderWidth: 2,
@@ -305,12 +335,6 @@ const styles = StyleSheet.create({
   },
   invisible: {
     backgroundColor: 'transparent',
-  },
-  sortingContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%',
-    padding: 10,
   },
   sortingContainer: {
     flexDirection: 'row',
