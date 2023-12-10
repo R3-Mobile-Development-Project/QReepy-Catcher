@@ -91,7 +91,7 @@ const MonsterInfoModal = ({ isModalVisible, selectedMonster, onClose, onSell }) 
     animationType="fade"
     transparent={true}
     visible={isModalVisible}
-    onRequestClose={() => isModalVisible(false)}
+    onRequestClose={() => onClose(false)}
     >
       <View style={styles.modalContainer}>
         <View style={{ ...styles.modalContent, backgroundColor: backgroundColor }}>

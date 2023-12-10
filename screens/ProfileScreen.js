@@ -85,11 +85,6 @@ const ProfileScreen = () => {
       }
     }
 
-  const toggleModal = () => {
-    setModalVisible(!isModalVisible);
-    playSound(require('../assets/sounds/Menu_Selection_Click.wav'));
-  };
-
   const openAchievementsModal = () => {
     playSound(require('../assets/sounds/Menu_Selection_Click.wav'));
     setAchievementsModalVisible(true);

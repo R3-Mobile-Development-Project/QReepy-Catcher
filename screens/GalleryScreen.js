@@ -273,7 +273,7 @@ return (
     <MonsterInfoModal
       isModalVisible={isModalVisible}
       selectedMonster={selectedMonster}
-      onClose={closeMonsterInfoModal}
+      onClose={onClose}
       onSell={refreshMonsters}
     />
     <EggModal visible={eggModalVisible} onClose={closeEggModal} />
