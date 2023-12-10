@@ -6,6 +6,7 @@ import { getFirestore, collection, query, onSnapshot, where, getDocs } from 'fir
 import { getStorage, ref, getDownloadURL } from 'firebase/storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
+import { useSound } from '../utils/SoundContext'; // Import useSound hook
 
 const StoreModal = ({ visible, onClose }) => {
     const [closeSound, setCloseSound] = useState();
@@ -19,8 +20,10 @@ const StoreModal = ({ visible, onClose }) => {
     const [message, setMessage] = useState('');
     const [timer, setTimer] = useState(null);
     const [fetchingEgg, setFetchingEgg] = useState(false);
+    const { areSoundsMuted } = useSound(); // Use the useSound hook
 
     const spinValue = useRef(new Animated.Value(0)).current;
+    const spinValueRef = useRef(spinValue);
 
     useFocusEffect(
         React.useCallback(() => {
@@ -35,18 +38,21 @@ const StoreModal = ({ visible, onClose }) => {
             if (closeSound) {
                 closeSound.unloadAsync();
             }
-            spinValue.setValue(0);
+            spinValueRef.current.stopAnimation(); // Stop the spin animation
+            spinValueRef.current.setValue(0); // Reset spin value to 0
         };
     }, [closeSound]);
 
+    // Updated playCloseSound function
     const playCloseSound = async () => {
-        const { sound } = await Audio.Sound.createAsync(
-            require('../assets/sounds/Menu_Selection_Click.wav')
-        );
-        setCloseSound(sound);
-        await sound.playAsync();
+        if (!areSoundsMuted) {
+            const { sound } = await Audio.Sound.createAsync(
+                require('../assets/sounds/Menu_Selection_Click.wav')
+            );
+            setCloseSound(sound);
+            await sound.playAsync();
+        }
     };
-
     const handleClosePress = () => {
         setEggBought(false); // Reset egg state on modal close
         setEggQuantity(0);
@@ -60,10 +66,10 @@ const StoreModal = ({ visible, onClose }) => {
         const coins = await AsyncStorage.getItem(`coins_${userId}`);
         // If coins exist, return the quantity as a number
         if (coins) {
-            return parseInt(coins);
+            return parseInt(coins); //JOS 0 KOLIKKOA, VAIHDA ARVO HALUTTUUN SUMMAAN, OSTA MUNA NIIN PÄIVITTYY, VAIHDA SITTEN TAKAISIN coins
         }
         // If coins do not exist, return 0
-        return 0; //VAIHDA ARVO HALUTTUUN SUMMAAN, OSTA MUNA NIIN PÄIVITTYY, VAIHDA SITTEN TAKAISIN 0
+        return 0; //JOS KOLIKOITA, VAIHDA ARVO HALUTTUUN SUMMAAN, OSTA MUNA NIIN PÄIVITTYY, VAIHDA SITTEN TAKAISIN 0
     };
 
     // fetch a random egg from Firebase storage
@@ -143,14 +149,17 @@ const StoreModal = ({ visible, onClose }) => {
         }
     };
 
-    // play the sell sound effect
+    // Updated playSellSound function
     const playSellSound = async () => {
-        const { sound } = await Audio.Sound.createAsync(
-            require('../assets/sounds/ETRA_TOIMII.wav')
-        );
-        setCloseSound(sound);
-        await sound.playAsync();
+        if (!areSoundsMuted) {
+            const { sound } = await Audio.Sound.createAsync(
+                require('../assets/sounds/ETRA_TOIMII.wav')
+            );
+            setCloseSound(sound);
+            await sound.playAsync();
+        }
     };
+
 
     const handleBuyEggPress = async () => {
         if (fetchingEgg) {
@@ -197,6 +206,7 @@ const StoreModal = ({ visible, onClose }) => {
                 setFetchingEgg(false);
                 setMessage('');
             }, 3000);
+            stopSpinAnimation();
             setTimer(newTimer);
             setFetchingEgg(true);
         } else {
@@ -210,19 +220,26 @@ const StoreModal = ({ visible, onClose }) => {
     };
 
     const startSpinAnimation = () => {
+        spinValue.stopAnimation(); // Stop the current spin animation
         Animated.loop(
             Animated.timing(spinValue, {
                 toValue: 1,
                 duration: 10000, // Adjust the duration as needed
                 easing: Easing.linear,
                 useNativeDriver: true,
-             //   resetBeforeIteration: true,
             })
         ).start();
     };
 
+    const stopSpinAnimation = () => {
+        spinValue.stopAnimation(); // Stop the current spin animation
+        spinValue.setValue(0); // Reset spin value to 0
+    };
+    
+
     useEffect(() => {
         if (visible || eggBought) {
+       //     stopSpinAnimation();
             startSpinAnimation();
         }
     }, [visible, eggBought]);
