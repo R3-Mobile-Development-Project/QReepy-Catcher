@@ -10,7 +10,6 @@ const MonsterInfoModal = ({ isModalVisible, selectedMonster, onClose }) => {
   const dominantColors = selectedMonster?.dominantColors;
   const backgroundColor = dominantColors ? `rgb(${dominantColors[0]}, ${dominantColors[1]}, ${dominantColors[2]})` : 'white';
 
-
   useEffect(() => {
     return () => {
       if (closeSound) {
@@ -38,7 +37,7 @@ const MonsterInfoModal = ({ isModalVisible, selectedMonster, onClose }) => {
   animationType="slide"
   transparent={true}
   visible={isModalVisible}
-  onRequestClose={() => isModalVisible(false)}
+  onRequestClose={() => onClose(false)}
 >
 <View style={{...styles.modalView, backgroundColor: backgroundColor}}>
     {selectedMonster && (

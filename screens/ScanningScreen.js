@@ -203,10 +203,24 @@ const initiateScanning = () => {
 
       // Store the updated array in AsyncStorage
       await AsyncStorage.setItem(`caughtMonsters_${userId}`, JSON.stringify(parsedExistingMonsters));
+      //await AsyncStorage.setItem(`achievedMonsterIds_${userId}`, JSON.stringify(parsedExistingMonsters)); // Add this line
+
 
       const storedMonsterIdsString = await AsyncStorage.getItem(`caughtMonsters_${userId}`);
       console.log(`SCANNINGSCREEN: ${storedMonsterIdsString} monsters caught for user ID: ${userId}`);
 
+      // Check for achievements after the monster is found and saved
+      /*if (achievements !== undefined) {
+        const newAchievement = await checkAchievement(foundMonsterId, achievements, userId);
+        // Trigger the callback to update the component
+        if (newAchievement) {
+          // If there is a new achievement, display an alert
+          console.log(`New Achievement Unlocked: ${newAchievement}`)
+          //AchievementAlert.show(achievementMessage);
+        }
+       } else {
+        console.log('achievements is undefined');
+       }*/
 
       try {
         const fetchedMonsterInfo = await fetchMonsterDetailsFromFirestore(foundMonsterId);

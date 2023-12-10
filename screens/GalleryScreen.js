@@ -60,6 +60,10 @@ const GalleryScreen = ({ navigation }) => {
     setEggModalVisible(false);
   };
 
+  const onClose = () => {
+    setIsModalVisible(false);
+   };
+
 
   const sortMonstersAndImages = async () => {
     // Pair each monster with its image
@@ -173,10 +177,6 @@ const refreshMonsters = async () => {
   }
 };
 
-const closeMonsterInfoModal = () => {
- setIsModalVisible(false);
-};
-
 return (
   <View style={styles.container}>
     <ImageBackground source={backgroundImage} style={styles.backgroundImage} resizeMode="cover">
@@ -239,7 +239,7 @@ return (
     <MonsterInfoModal
  isModalVisible={isModalVisible}
  selectedMonster={selectedMonster}
- onClose={closeMonsterInfoModal}
+ onClose={onClose}
 />
 <EggModal visible={eggModalVisible} onClose={closeEggModal} />
 </View>

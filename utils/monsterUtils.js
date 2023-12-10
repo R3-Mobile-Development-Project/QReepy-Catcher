@@ -1,9 +1,8 @@
 import { getFirestore, collection, query, onSnapshot, where, getDocs } from 'firebase/firestore';
 import { getStorage, ref, getDownloadURL } from 'firebase/storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import AchievementAlert from '../modals/AchievementAlert';
 
-export const findMonster = () => {
+export function findMonster() {
   const randomNumber = Math.random() * 100;
   let foundMonsterId;
 
@@ -28,53 +27,52 @@ export const saveMonsterToAsyncStorage = async (monster, userId) => {
     // Parse existing monsters or initialize an empty array
     const parsedExistingMonsters = existingMonsters ? JSON.parse(existingMonsters) : [];
     
-    // Extract existing uniqueMonsterIds or initialize an empty set
-    const existingUniqueMonsterIds = new Set(await AsyncStorage.getItem(`uniqueMonsterIds_${userId}`) || []);
- 
-    const monsterId = monster.id;
- 
-    // Check if the monsterId is already in the set
-    if (!existingUniqueMonsterIds.has(monsterId)) {
-      // Add the new monster to the array
-      parsedExistingMonsters.push(monster);
-      // Add the monsterId to the set
-      existingUniqueMonsterIds.add(monsterId);
- 
-      // Save the updated monsters array and uniqueMonsterIds set to AsyncStorage
-      await AsyncStorage.setItem(`monsters_${userId}`, JSON.stringify(parsedExistingMonsters));
-      await AsyncStorage.setItem(`uniqueMonsterIds_${userId}`, JSON.stringify(Array.from(existingUniqueMonsterIds)));
-    }
- 
+    // Add the new monster to the array
+    parsedExistingMonsters.push(monster);
+
+    // Save the updated monsters array to AsyncStorage
+    await AsyncStorage.setItem(`monsters_${userId}`, JSON.stringify(parsedExistingMonsters));
+
     // Update the user's progress towards the achievements
     const userProgress = await AsyncStorage.getItem(`userProgress_${userId}`);
     const parsedUserProgress = userProgress ? JSON.parse(userProgress) : {};
- 
+
+    const monsterId = monster.id;
+
     if (parsedUserProgress[monsterId]) {
       parsedUserProgress[monsterId]++;
     } else {
       parsedUserProgress[monsterId] = 1;
     }
- 
+
     // Log the updated user progress
     console.log(`Updated user progress for monster ${monsterId}:`, parsedUserProgress[monsterId]);
- 
+
     await AsyncStorage.setItem(`userProgress_${userId}`, JSON.stringify(parsedUserProgress));
- 
+
     // Check if the user has achieved any of the achievements
     const newAchievements = await checkAchievements(userId);
- 
+
     // Trigger the callback to update the component
     if (newAchievements.length > 0) {
       // If there are new achievements, display an alert
       const achievementMessage = `New Achievements: ${newAchievements.join(', ')}`;
       AchievementAlert.show(achievementMessage);
     }
- 
+
+    /*const newAchievement = await checkAchievement(monster.id, achievements);
+
+    // Trigger the callback to update the component
+    if (newAchievement) {
+      // If there is a new achievement, display an alert
+      console.log(`New Achievement Unlocked: ${newAchievement}`)
+      //AchievementAlert.show(achievementMessage);
+    }*/
   } catch (error) {
     console.error('Error saving monster to AsyncStorage:', error);
     throw error;
   }
- };
+};
 
 /*
 export const saveImageToAsyncStorage = async (imageUrl, userId) => {
@@ -228,6 +226,16 @@ export const fetchAchievements = async () => {
   }
 };
 
+const fetchMonsters = async (userId) => {
+  try {
+    const monsters = await AsyncStorage.getItem(`monsters_${userId}`);
+    return JSON.parse(monsters) || [];
+  } catch (error) {
+    console.error('Error fetching monsters from AsyncStorage:', error);
+    throw error;
+  }
+ };
+
 export const checkAchievements = async (userId) => {
   try {
     // Retrieve user progress from AsyncStorage
@@ -266,7 +274,7 @@ export const checkAchievements = async (userId) => {
 
         case 'collectAll':
           const collectedAllCount = calculateCollectedAll(parsedUserProgress, triggerMonsterRange);
-          console.log(`Collected all count: ${collectedAllCount}`);
+          //console.log(`Collected all count: ${collectedAllCount}`);
           if (collectedAllCount >= triggerCount) {
             // Achievement unlocked
             console.log(`Achievement unlocked: ${achievement.name}`);
@@ -298,51 +306,46 @@ export const checkAchievements = async (userId) => {
 
 const calculateCollectedCount = async (userId, monsterRange) => {
   let collectedCount = 0;
-  
-  // Retrieve uniqueMonsterIds set from AsyncStorage
-  const uniqueMonsterIds = new Set(await AsyncStorage.getItem(`uniqueMonsterIds_${userId}`) || []);
-  //console.log(uniqueMonsterIds)
+  const monsters = await fetchMonsters(userId);
+ 
   for (let i = monsterRange[0]; i <= monsterRange[1]; i++) {
     const monsterId = i.toString();
-    if (uniqueMonsterIds.has(monsterId)) {
+    if (monsters.includes(monsterId)) {
       collectedCount += userProgress[monsterId] || 0;
     }
   }
-
+ 
   return collectedCount;
-};
+ };
 
 // Updated calculateCollectedSpecific function to use uniqueMonsterIds set
 const calculateCollectedSpecific = async (userId, specificMonsters) => {
   let collectedSpecificCount = 0;
-
-  // Retrieve uniqueMonsterIds set from AsyncStorage
-  const uniqueMonsterIds = new Set(await AsyncStorage.getItem(`uniqueMonsterIds_${userId}`) || []);
-
+  const monsters = await fetchMonsters(userId);
+ 
   specificMonsters.forEach((monsterId) => {
     const stringMonsterId = monsterId.toString();
-    if (uniqueMonsterIds.has(stringMonsterId)) {
+    if (monsters.includes(stringMonsterId)) {
       collectedSpecificCount += userProgress[stringMonsterId] || 0;
     }
   });
-
+ 
   return collectedSpecificCount;
-};
+ };
 
-const calculateCollectedAll = async (userId, monsterRange) => {
-  // Retrieve uniqueMonsterIds set from AsyncStorage
-  const uniqueMonsterIds = new Set(await AsyncStorage.getItem(`uniqueMonsterIds_${userId}`) || []);
-
+ const calculateCollectedAll = async (userId, monsterRange) => {
+  const monsters = await fetchMonsters(userId);
+ 
   for (let i = monsterRange[0]; i <= monsterRange[1]; i++) {
     const monsterId = i.toString();
-    console.log(`Monster ID: ${monsterId}`);
-    if (!uniqueMonsterIds.has(monsterId) || userProgress[monsterId] < 1) {
+    //console.log(`Monster ID: ${monsterId}`);
+    if (!monsters.includes(monsterId) || userProgress[monsterId] < 1) {
       return 0; // Not all monsters in the range are collected
     }
   }
-
+ 
   return 1; // All monsters in the range are collected
-};
+ };
 
 // Updated calculateFirstCatch function to use uniqueMonsterIds set
 const calculateFirstCatch = (userProgress, monsterRange) => {

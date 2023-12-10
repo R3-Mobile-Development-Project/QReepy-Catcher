@@ -6,12 +6,13 @@ import AchievementsModal from '../modals/AchievementsModal';
 import { Audio } from 'expo-av';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Modal from 'react-native-modal';
-import { fetchAchievements } from '../utils/monsterUtils';
+//import { fetchAchievements } from '../utils/monsterUtils';
 import { useMusic } from '../utils/MusicContext'; // Import useMusic hook
 
 const backgroundImage = require('../assets/images/paper-decorations-halloween-pack_23-2148635839.jpg');
 
 const ProfileScreen = () => {
+
     const [achievementsModalVisible, setAchievementsModalVisible] = useState(false);
     const [muteBackgroundMusic, setMuteBackgroundMusic] = useState(false);
     const [muteAllSounds, setMuteAllSounds] = useState(false);
@@ -20,22 +21,31 @@ const ProfileScreen = () => {
     const { playMusic, stopMusic } = useMusic(); // Use the useMusic hook
     const [achievements, setAchievements] = useState([]);
 
-    useEffect(() => {
+    /*useEffect(() => {
+      const fetchAchievedMonsterIds = async () => {
+        const userId = await AsyncStorage.getItem('userId');
+        const achievedMonsterIds = await getAchievedMonsterIds(userId);
+        console.log(`ACHIEVEMENTSUTILS: Retrieved achieved monster IDs from AsyncStorage: ${achievedMonsterIds}`);
+      };
+      fetchAchievedMonsterIds();
+     }, []);*/
+
+    /*useEffect(() => {
       if (achievementsModalVisible) {
        fetchAchievements()
          .then(data => setAchievements(data))
          .catch(error => console.error(error));
       }
-     }, [achievementsModalVisible]);
+     }, [achievementsModalVisible]);*/
 
-     const checkAchievements = () => {
+     /*const checkAchievements = () => {
       achievements.forEach(achievement => {
       const count = userProgress[achievement.trigger.monsterRange[0]] || 0;
       if (count >= achievement.trigger.count) {
         console.log(`User has achieved: ${achievement.name}`);
       }
       });
-     };
+     };*/
 
     const handleLogout = async () => {
       playSignoutSound(); // Play button sound on logout button press
@@ -162,7 +172,9 @@ const ProfileScreen = () => {
       //Remove caught monsters from AsyncStorage
       await AsyncStorage.removeItem(`caughtMonsters_${userId}`);
       //Remove caught monsters from AsyncStorage
-      await AsyncStorage.removeItem(`userProgress_${userId}`); // Remove achievements
+      await AsyncStorage.removeItem(`achievedMonsterIds_${userId}`);
+
+      //await AsyncStorage.removeItem(`userProgress_${userId}`); // Remove achievements
 
     //  await AsyncStorage.removeItem(`images_${userId}`);
       playDeleteSound(); // Play delete sound on delete button press

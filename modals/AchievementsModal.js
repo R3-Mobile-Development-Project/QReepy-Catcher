@@ -20,8 +20,7 @@ const DescriptionModal = ({ visible, onClose, achievement }) => {
           </TouchableOpacity>
         </View>
       </View>
-    </Modal>
-  );
+    </Modal>  );
  };
  
  const AchievementsModal = ({ visible, onClose, achievements }) => {
