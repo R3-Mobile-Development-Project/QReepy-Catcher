@@ -1,13 +1,15 @@
-import { Modal, View, Text, StyleSheet, Button, TouchableOpacity, Image, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { Modal, View, Text, StyleSheet, TouchableOpacity, Image, ScrollView } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Audio } from 'expo-av';
-import React, { useState, useEffect } from 'react';
+import { useSound } from '../utils/SoundContext'; // Import useSound hook
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const MonsterInfoModal = ({ isModalVisible, selectedMonster, onClose, onSell }) => {
 
   const [closeSound, setCloseSound] = useState();
   const [sellSound, setSellSound] = useState();
+  const { areSoundsMuted } = useSound(); // Use the useSound hook
   //const monsterColor = selectedMonster?.[0]?.dominantColors'
   const dominantColors = selectedMonster?.dominantColors;
   const backgroundColor = dominantColors ? `rgb(${dominantColors[0]}, ${dominantColors[1]}, ${dominantColors[2]})` : 'white';
@@ -49,7 +51,6 @@ const MonsterInfoModal = ({ isModalVisible, selectedMonster, onClose, onSell }) 
     onSell(onClose());
   };
   
-
   useEffect(() => {
     return () => {
       if (closeSound) {
@@ -59,11 +60,13 @@ const MonsterInfoModal = ({ isModalVisible, selectedMonster, onClose, onSell }) 
   }, [closeSound]);
 
   const playCloseSound = async () => {
-    const { sound } = await Audio.Sound.createAsync(
-      require('../assets/sounds/Menu_Selection_Click.wav')
-    );
-    setCloseSound(sound);
-    await sound.playAsync();
+    if (!areSoundsMuted) {
+      const { sound } = await Audio.Sound.createAsync(
+        require('../assets/sounds/Menu_Selection_Click.wav')
+      );
+      setCloseSound(sound);
+      await sound.playAsync();
+    }
   };
 
   const handleClosePress = () => {
@@ -82,7 +85,6 @@ const MonsterInfoModal = ({ isModalVisible, selectedMonster, onClose, onSell }) 
       console.error('Error playing sell sound:', error);
     }
   };
-
   
  return (
     <Modal

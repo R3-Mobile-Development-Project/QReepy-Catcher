@@ -18,6 +18,8 @@ import ScanningScreen from './screens/ScanningScreen';
 import SplashScreen from './screens/SplashScreen';
 import GalleryScreen from './screens/GalleryScreen';
 import { MusicProvider } from './utils/MusicContext'; // Import MusicProvider from MusicContext
+import { SoundProvider } from './utils/SoundContext';
+
 import BannerAd from './utils/BannerAd'; // Import the BannerAd component
 
 // Initialize Firebase
@@ -29,6 +31,7 @@ const Stack = createNativeStackNavigator();
 export default function App() {
   const [userLoggedIn, setUserLoggedIn] = useState(false); // Initialize user state variable
   const [showSplash, setShowSplash] = useState(true); // State to control whether to show the SplashScreen
+  const [soundSettingsReady, setSoundSettingsReady] = useState(false); // New state
 
   useEffect(() => {
     // Check if user is logged in or not
@@ -47,16 +50,27 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    // Simulate loading or any async tasks
-    setTimeout(() => {
-      setShowSplash(false);
-    }, 3000); // Adjust the duration of the SplashScreen as needed
+    // Simulate loading or any async tasks including sound settings
+    const loadSettings = async () => {
+      // Load sound settings here
+      // For example, check if sounds are muted from AsyncStorage or Context
+
+      // Simulating a delay to load settings
+      setTimeout(() => {
+        setSoundSettingsReady(true); // Set to true once settings are loaded
+        setShowSplash(false);
+      }, 3000);
+    };
+
+    loadSettings();
   }, []);
 
   return (
 
     <NavigationContainer>
         <MusicProvider>
+        <SoundProvider>
+
 
       <StatusBar style="auto" />
       {showSplash ? (
@@ -121,6 +135,7 @@ export default function App() {
           <Stack.Screen name="Login" component={AuthScreen} options={{ headerShown: false }} />
         </Stack.Navigator>
       )}
+          </SoundProvider>
         </MusicProvider>
         <BannerAd />
 

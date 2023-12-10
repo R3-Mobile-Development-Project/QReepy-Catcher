@@ -1,14 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  ImageBackground,
-  StyleSheet,
-  TouchableOpacity,
-  KeyboardAvoidingView,
-  Platform,
-  ActivityIndicator
+import { View, Text,TextInput, ImageBackground, StyleSheet,TouchableOpacity, KeyboardAvoidingView, Platform, ActivityIndicator
 } from 'react-native';
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth'; // Import Firebase authentication methods
 import firebase from 'firebase/app';
@@ -19,6 +10,7 @@ import { StatusBar } from 'expo-status-bar';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Audio } from 'expo-av';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useSound } from '../utils/SoundContext'; // Import useSound hook
 
 const AuthScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -27,6 +19,7 @@ const AuthScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(false); // Add loading state variable
   const [userLoggedIn, setUserLoggedIn] = useState(false); // Initialize user state variable
   const [userId, setUserId] = useState(null);
+  const { areSoundsMuted } = useSound(); // Use the useSound hook
 
   const backgroundImage = require('../assets/images/happy-monster-friends-border-banner_1308-158224.jpg');
 
@@ -45,59 +38,56 @@ const AuthScreen = ({ navigation }) => {
     return () => unsubscribe();
   }, []);
 
+  // Updated playSuccessSound function
   const playSuccessSound = async () => {
-    const successSound = new Audio.Sound();
-
-    try {
-      const successSource = require('../assets/sounds/exit_TOIMII.wav'); // Replace with your sound file path
-      await successSound.loadAsync(successSource);
-      await successSound.playAsync();
-    } catch (error) {
-      console.error('Error playing success sound:', error);
-    } try {
-      setTimeout(async () => {
-    await successSound.unloadAsync();
-      }, 1000);
-    }
-    catch (error) {
-      console.error('Error unloading button sound:', error);
+    if (!areSoundsMuted) {
+      const successSound = new Audio.Sound();
+      try {
+        const successSource = require('../assets/sounds/exit_TOIMII.wav');
+        await successSound.loadAsync(successSource);
+        await successSound.playAsync();
+        setTimeout(async () => {
+          await successSound.unloadAsync();
+        }, 1000);
+      } catch (error) {
+        console.error('Error with success sound:', error);
+      }
     }
   };
 
+  // Updated playErrorSound function
   const playErrorSound = async () => {
-    const errorSound = new Audio.Sound();
-
-    try {
-      const errorSource = require('../assets/sounds/ALERT_Error_TOIMII.wav'); // Replace with your error sound file path
-      await errorSound.loadAsync(errorSource);
-      await errorSound.playAsync();
-    } catch (error) {
-      console.error('Error playing error sound:', error);
-    } finally {
-      setTimeout(async () => {
-    await errorSound.unloadAsync();
-      }, 450);
+    if (!areSoundsMuted) {
+      const errorSound = new Audio.Sound();
+      try {
+        const errorSource = require('../assets/sounds/ALERT_Error_TOIMII.wav');
+        await errorSound.loadAsync(errorSource);
+        await errorSound.playAsync();
+        setTimeout(async () => {
+          await errorSound.unloadAsync();
+        }, 450);
+      } catch (error) {
+        console.error('Error with error sound:', error);
+      }
     }
   };
 
+  // Updated playButtonSound function
   const playButtonSound = async () => {
-    const buttonSound = new Audio.Sound();
-
-    try {
-      const buttonSource = require('../assets/sounds/Menu_Selection_Click.wav'); // Replace with your button sound file path
-      await buttonSound.loadAsync(buttonSource);
-      await buttonSound.playAsync();
-    } catch (error) {
-      console.error('Error playing button sound:', error);
-    } try {
-      setTimeout(async () => {
-    await buttonSound.unloadAsync();
-      }, 500);
+    if (!areSoundsMuted) {
+      const buttonSound = new Audio.Sound();
+      try {
+        const buttonSource = require('../assets/sounds/Menu_Selection_Click.wav');
+        await buttonSound.loadAsync(buttonSource);
+        await buttonSound.playAsync();
+        setTimeout(async () => {
+          await buttonSound.unloadAsync();
+        }, 500);
+      } catch (error) {
+        console.error('Error with button sound:', error);
+      }
     }
-    catch (error) {
-      console.error('Error unloading button sound:', error);
-    }
-  }
+  };
 
   const handleSignup = async () => {
     try {

@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, Modal, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Audio } from 'expo-av';
+import { useSound } from '../utils/SoundContext'; // Import useSound hook
 
 const CreditsModal = ({ visible, onClose }) => {
   const [closeSound, setCloseSound] = useState();
+  const { areSoundsMuted } = useSound(); // Use the useSound hook
 
   useEffect(() => {
     return () => {
@@ -15,11 +17,13 @@ const CreditsModal = ({ visible, onClose }) => {
   }, [closeSound]);
 
   const playCloseSound = async () => {
-    const { sound } = await Audio.Sound.createAsync(
-      require('../assets/sounds/Menu_Selection_Click.wav')
-    );
-    setCloseSound(sound);
-    await sound.playAsync();
+    if (!areSoundsMuted) {
+      const { sound } = await Audio.Sound.createAsync(
+        require('../assets/sounds/Menu_Selection_Click.wav')
+      );
+      setCloseSound(sound);
+      await sound.playAsync();
+    }
   };
 
   const handleClosePress = () => {

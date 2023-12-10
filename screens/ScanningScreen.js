@@ -11,7 +11,7 @@ import ScanningModal from '../modals/ScanningModal';
 import AdModal from '../modals/AdModal';
 import adImage1 from '../assets/images/adpicture1.png';
 import adImage2 from '../assets/images/adpicture2.png';
-
+import { useSound } from '../utils/SoundContext'; // Import useSound hook
 import { findMonster, fetchMonsterDetailsFromFirestore, fetchMonsterImageURL } from '../utils/monsterUtils';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -36,6 +36,8 @@ export default function ScanningScreen({ navigation }) {
   const [isDebouncingScan, setIsDebouncingScan] = useState(false);
   const [scannedBarcodes, setScannedBarcodes] = useState([]);
   const [scanningMessage, setScanningMessage] = useState('');
+  const scanningTimeoutRef = useRef(null); // Reference to store the scanning timeout
+  const { areSoundsMuted } = useSound(); // Use the useSound hook
   const [adModalVisible, setAdModalVisible] = useState(false);
   const [currentAdIndex, setCurrentAdIndex] = useState(0); // New state to track current ad
   const ads = [
@@ -86,7 +88,16 @@ const initiateScanning = () => {
     setIsDebouncingScan(false); // Reset debounce state
     setScanningMessage('SCANNING FOR QREEPS...');
     setShowMessage(true); // Show scanning message
-  };
+  // Clear any existing timeout
+  clearTimeout(scanningTimeoutRef.current);
+
+  // Set a new timeout
+  scanningTimeoutRef.current = setTimeout(() => {
+    setIsScanningActive(false);
+    setScanningMessage('Scanning timed out. Please try again.');
+    setShowMessage(true);
+  }, 30000); // 30 seconds timeout
+};
 
   useEffect(() => {
     if (isFocused) {
@@ -121,15 +132,17 @@ const initiateScanning = () => {
     }
   }, [cameraActive]);
 
-  const playTorchSound = async () => {
-    const torchSound = new Audio.Sound();
 
-    try {
-      const torchSource = require('../assets/sounds/wall.wav'); // Replace with your torch sound file path
-      await torchSound.loadAsync(torchSource);
-      await torchSound.playAsync();
-    } catch (error) {
-      console.error('Error playing torch sound:', error);
+  const playTorchSound = async () => {
+    if (!areSoundsMuted) {
+      const torchSound = new Audio.Sound();
+      try {
+        const torchSource = require('../assets/sounds/wall.wav');
+        await torchSound.loadAsync(torchSource);
+        await torchSound.playAsync();
+      } catch (error) {
+        console.error('Error playing torch sound:', error);
+      }
     }
   };
 
@@ -145,7 +158,10 @@ const initiateScanning = () => {
   };
 
   const handleBarCodeScanned = async ({ type, data }) => {
+        // Clear the timeout as soon as a barcode is scanned
+        clearTimeout(scanningTimeoutRef.current);
     // Ignore scans if not scanning or if debouncing or if barcode already scanned
+
   if (!isScanningActive || isDebouncingScan || scannedBarcodes.includes(data)){
 
   setScanningMessage('Code already scanned, try scanning another.');
@@ -168,24 +184,19 @@ const initiateScanning = () => {
     setTimeout(() => setIsDebouncingScan(false), 2000); // Adjust the cooldown time as needed
 
     const foundMonsterId = findMonster(); // Assuming this function processes 'data' to find a monster
-
+  
     if (foundMonsterId >= 1 && foundMonsterId <= 50) {
       // Valid monster found
       setIsScanningActive(false); // Stop scanning after a scan attempt
       setShowMessage(false); // Hide the scanning message
       console.log(`SCANNINGSCREEN: Found monster with ID: ${foundMonsterId}`);
-      
+  
       const userId = await AsyncStorage.getItem('userId');
       const existingMonsters = await AsyncStorage.getItem(`caughtMonsters_${userId}`);
-      let parsedExistingMonsters = [];
-
-      // Check if existingMonsters is not null or undefined
-      if (existingMonsters) {
-      // If it's not null or undefined, parse it
-      parsedExistingMonsters = JSON.parse(existingMonsters);
-      }
-
+      let parsedExistingMonsters = existingMonsters ? JSON.parse(existingMonsters) : [];
+  
       parsedExistingMonsters.push(foundMonsterId);
+      await AsyncStorage.setItem(`caughtMonsters_${userId}`, JSON.stringify(parsedExistingMonsters));
 
       const arrayMax = 5; // VAIHDA TÄMÄN ARVO VÄHINTÄÄN SAMAAN KUIN MITÄ EGGMODALIN neededMonsters
       // Keep only the last monsters caught up to the arrayMax value
@@ -198,17 +209,14 @@ const initiateScanning = () => {
       const storedMonsterIdsString = await AsyncStorage.getItem(`caughtMonsters_${userId}`);
       console.log(`SCANNINGSCREEN: ${storedMonsterIdsString} monsters caught for user ID: ${userId}`);
 
-
       try {
         const fetchedMonsterInfo = await fetchMonsterDetailsFromFirestore(foundMonsterId);
         const fetchedImageURL = await fetchMonsterImageURL(foundMonsterId);
-
+  
         setMonsterInfo(fetchedMonsterInfo);
         setImageURL(fetchedImageURL);
-
+  
         openModal();
-        // Log for successful scan
-     //   console.log(`Bar code with type ${type} and data ${data} has been scanned.`);
       } catch (error) {
         console.error('Error fetching monster details:', error);
       }
@@ -220,21 +228,37 @@ const initiateScanning = () => {
       setIsScanningActive(false);
       console.log(`SCANNINGSCREEN: No monster found.`);
     }
+  
     setLastScannedData(data);
-    setIsScanningActive(false); // Stop scanning after a scan attempt
-  };
-
-  const playButtonSound = async () => {
-    const buttonSound = new Audio.Sound();
-
-    try {
-      const buttonSource = require('../assets/sounds/Menu_Selection_Click.wav'); // Replace with your button sound file path
-      await buttonSound.loadAsync(buttonSource);
-      await buttonSound.playAsync();
-    } catch (error) {
-      console.error('Error playing button sound:', error);
+    setIsScanningActive(false); // Reset scanner after each scan attempt
+  
+    // Clear any existing timeout
+    if (scanningTimeoutRef.current) {
+      clearTimeout(scanningTimeoutRef.current);
     }
-  }
+  
+    // Reset the scanner timeout
+    scanningTimeoutRef.current = setTimeout(() => {
+      if (isScanningActive) {
+        setIsScanningActive(false);
+        setScanningMessage('Scanning timed out. Please try again.');
+        setShowMessage(true);
+      }
+    }, 3000); // 30 seconds timeout
+  };
+  
+  const playButtonSound = async () => {
+    if (!areSoundsMuted) {
+      const buttonSound = new Audio.Sound();
+      try {
+        const buttonSource = require('../assets/sounds/Menu_Selection_Click.wav');
+        await buttonSound.loadAsync(buttonSource);
+        await buttonSound.playAsync();
+      } catch (error) {
+        console.error('Error playing button sound:', error);
+      }
+    }
+  };
 
   const hideMessage = () => {
     setShowMessage(false);
@@ -267,6 +291,7 @@ const initiateScanning = () => {
     return <Text>No access to the camera</Text>;
   }
 
+  //JSX part
   return (
     <View style={{ flex: 1 }}>
       {cameraActive ? (
@@ -276,22 +301,21 @@ const initiateScanning = () => {
           ref={cameraRef}
           flashMode={torchOn}
           zoom={zoom}
-          autoFocus={Camera.Constants.AutoFocus.on} // Enable autofocus
+          autoFocus={Camera.Constants.AutoFocus.on}
           onBarCodeScanned={isScanningActive ? handleBarCodeScanned : undefined}
-          onCameraReady={() => {}}
-          onMountError={(error) => console.log('Camera mount error:', error)}
         >
           <View style={styles.buttonContainer}>
             <TouchableOpacity onPress={handleTorchToggle} style={styles.torchToggleButton}>
               <Ionicons name={torchOn ? 'ios-flashlight' : 'ios-flashlight-outline'} size={40} color="white" />
             </TouchableOpacity>
           </View>
-     {/*     <View style={styles.scannerFrame} /> */}
+
           <View style={styles.scannerButtonContainer}>
             <TouchableOpacity onPress={initiateScanning} style={styles.barcodeScannerButton}>
               <MaterialCommunityIcons name="barcode-scan" size={60} color="white" />
             </TouchableOpacity>
           </View>
+
           <Slider
             style={styles.sliderStyle}
             minimumValue={0}
@@ -309,36 +333,32 @@ const initiateScanning = () => {
           {/* Placeholder content or empty view */}
         </View>
       )}
-{/* Ad Modal */}
-{adModalVisible && (
+
+      {/* Ad Modal */}
+      {adModalVisible && (
         <AdModal
           isVisible={adModalVisible}
-          adContent={ads[currentAdIndex]} // Pass the current ad content
+          adContent={ads[currentAdIndex]}
           onClose={() => setAdModalVisible(false)}
         />
       )}
-{/* ALLA OLEVA NÄYTTÄÄ VIESTIN, JOS SKANNATTU KOODI ON JO SKANNATTU AIEMMIN. VOI TESTEISSÄ KOMMENTOIDA POIS */}
-{/* ALLA OLEVA NÄYTTÄÄ VIESTIN, JOS EI TULE MONSTERIA. VOI TESTEISSÄ KOMMENTOIDA POIS */}
-{/* --------------------------------------------------------------- */}
-{showMessage && (
-      <View style={styles.messageContainer}>
-        <Text style={styles.messageText}>{scanningMessage}</Text>
-        {/*
-        <TouchableOpacity onPress={hideMessage} style={styles.hideMessageButton}>
-          <Text style={styles.hideMessageText}>OK</Text>
-        </TouchableOpacity>
-        */}
-      </View>
-    )}
-{/* --------------------------------------------------------------- */}
+
+      {/* Message Container */}
+      {showMessage && (
+        <View style={styles.messageContainer}>
+          <Text style={styles.messageText}>{scanningMessage}</Text>
+        </View>
+      )}
+
+      {/* Scanning Modal */}
       {modalVisible && (
-      <ScanningModal
-        isVisible={modalVisible}
-        onClose={closeModal}
-        openGallery={() => navigation.navigate('Gallery')}
-        monsterInfo={monsterInfo}
-        imageURL={imageURL}
-      />
+        <ScanningModal
+          isVisible={modalVisible}
+          onClose={closeModal}
+          openGallery={() => navigation.navigate('Gallery')}
+          monsterInfo={monsterInfo}
+          imageURL={imageURL}
+        />
       )}
     </View>
   );

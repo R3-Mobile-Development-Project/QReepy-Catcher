@@ -8,6 +8,7 @@ import { findMonster, fetchMonsterImageURL } from '../utils/monsterUtils';
 import MonsterInfoModal from '../modals/MonsterInfoModal';
 import { Audio } from 'expo-av';
 import EggModal from '../modals/EggModal';
+import { useSound } from '../utils/SoundContext';
 
 const backgroundImage = require('../assets/images/horrible-monster-2.jpg');
 
@@ -19,11 +20,11 @@ const GalleryScreen = ({ navigation }) => {
   const placeholders = Array.from({ length: (3 - monsters.length % 3) % 3 });
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedMonster, setSelectedMonster] = useState(null);
+  const { areSoundsMuted } = useSound();
   const [sound, setSound] = useState();
   const [eggModalVisible, setEggModalVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const SORT_KEY = 'sorting_method';
-
 
   const handleItemPress = (monster) => {
     console.log(monster.name, 'opened on index:', monsters.indexOf(monster));
@@ -41,12 +42,17 @@ const GalleryScreen = ({ navigation }) => {
       : undefined;
   }, [sound]);
 
+  // Use the useSound hook
+
+  // Updated playButtonSound function
   const playButtonSound = async () => {
-    const { sound } = await Audio.Sound.createAsync(
-      require('../assets/sounds/Menu_Selection_Click.wav')
-    );
-    setSound(sound);
-    await sound.playAsync();
+    if (!areSoundsMuted) {
+      const { sound } = await Audio.Sound.createAsync(
+        require('../assets/sounds/Menu_Selection_Click.wav')
+      );
+      setSound(sound);
+      await sound.playAsync();
+    }
   };
 
   const openEggModal = async () => {
@@ -96,7 +102,6 @@ const GalleryScreen = ({ navigation }) => {
     }
    };
    
-
   const saveSortingMethod = async (sortingMethod) => {
     try {
       // Convert the sortingMethod to a JSON string before saving
