@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ImageBackground,  Switch, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ImageBackground, Switch, Alert } from 'react-native';
 import { getAuth, signOut } from 'firebase/auth';
 import { MaterialIcons, FontAwesome5, MaterialCommunityIcons } from '@expo/vector-icons';
 import AchievementsModal from '../modals/AchievementsModal';
@@ -11,18 +11,79 @@ import { useSound } from '../utils/SoundContext';
 const backgroundImage = require('../assets/images/paper-decorations-halloween-pack_23-2148635839.jpg');
 
 const ProfileScreen = () => {
-  const [achievementsModalVisible, setAchievementsModalVisible] = useState(false);
-  const [isAudioSettingsModalVisible, setAudioSettingsModalVisible] = useState(false);
-  const [isModalVisible, setModalVisible] = useState(false);
-  const { isMusicMuted, toggleMusic } = useMusic();
-  const { areSoundsMuted, toggleSounds, playSound } = useSound();
-  const handleAudioSettingsToggle = () => {
-    setAudioSettingsModalVisible(!isAudioSettingsModalVisible);
-};
-  const handleLogout = async () => {
-    playSound(require('../assets/sounds/part.wav'));
-    // Logout logic
-  };
+
+    const [achievementsModalVisible, setAchievementsModalVisible] = useState(false);
+    const [muteBackgroundMusic, setMuteBackgroundMusic] = useState(false);
+    const [muteAllSounds, setMuteAllSounds] = useState(false);
+    const [isModalVisible, setModalVisible] = useState(false);
+    const { playMusic, stopMusic } = useMusic(); // Use the useMusic hook
+    const [achievements, setAchievements] = useState([]);
+    const [isAudioSettingsModalVisible, setAudioSettingsModalVisible] = useState(false);
+    const { isMusicMuted, toggleMusic } = useMusic();
+    const { areSoundsMuted, toggleSounds, playSound } = useSound();
+    const handleAudioSettingsToggle = () => {
+      setAudioSettingsModalVisible(!isAudioSettingsModalVisible);
+    };
+
+    const handleLogout = async () => {
+      playSignoutSound(); // Play button sound on logout button press
+      const auth = getAuth();
+
+      try {
+        await signOut(auth);
+        // After successful logout, you can navigate the user back to the login screen
+    //    navigation.navigate('Login');
+        console.log("User logged out");
+        // You should also update the userLoggedIn state in your App.js
+      } catch (error) {
+        // Handle any potential errors during logout
+        console.error('Logout error:', error);
+      }
+    };
+
+    const toggleModal = () => {
+      setModalVisible(!isModalVisible);
+      playButtonSound(); // Play button sound on delete button press
+    };
+
+    const playButtonSound = async () => {
+      const buttonSound = new Audio.Sound();
+
+      try {
+        const buttonSource = require('../assets/sounds/Menu_Selection_Click.wav'); // Replace with your button sound file path
+        await buttonSound.loadAsync(buttonSource);
+        await buttonSound.playAsync();
+      } catch (error) {
+        console.error('Error playing button sound:', error);
+      }
+      try {
+        setTimeout(async () => {
+      await buttonSound.unloadAsync();
+        }, 500);
+      }
+      catch (error) {
+        console.error('Error unloading button sound:', error);
+      }
+    }
+
+    const playDeleteSound = async () => {
+      const buttonSound = new Audio.Sound();
+
+      try {
+        const buttonSource = require('../assets/sounds/unlink.wav'); // Replace with your button sound file path
+        await buttonSound.loadAsync(buttonSource);
+        await buttonSound.playAsync();
+      } catch (error) {
+        console.error('Error playing button sound:', error);
+      } try {
+        setTimeout(async () => {
+      await buttonSound.unloadAsync();
+        }, 500);
+      }
+      catch (error) {
+        console.error('Error unloading button sound:', error);
+      }
+    }
 
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
@@ -67,6 +128,10 @@ const ProfileScreen = () => {
       await AsyncStorage.removeItem(`isTrackingEgg_${userId}`);
       //Remove caught monsters from AsyncStorage
       await AsyncStorage.removeItem(`caughtMonsters_${userId}`);
+      //Remove caught monsters from AsyncStorage
+      await AsyncStorage.removeItem(`achievedMonsterIds_${userId}`);
+
+      //await AsyncStorage.removeItem(`userProgress_${userId}`); // Remove achievements
 
     //  await AsyncStorage.removeItem(`images_${userId}`);
       playDeleteSound(); // Play delete sound on delete button press
@@ -172,6 +237,7 @@ const ProfileScreen = () => {
         <AchievementsModal
           visible={achievementsModalVisible}
           onClose={closeAchievementsModal}
+          achievements={achievements}
         />
       </View>
     );

@@ -206,6 +206,7 @@ const initiateScanning = () => {
 
       // Store the updated array in AsyncStorage
       await AsyncStorage.setItem(`caughtMonsters_${userId}`, JSON.stringify(parsedExistingMonsters));
+
       const storedMonsterIdsString = await AsyncStorage.getItem(`caughtMonsters_${userId}`);
       console.log(`SCANNINGSCREEN: ${storedMonsterIdsString} monsters caught for user ID: ${userId}`);
 

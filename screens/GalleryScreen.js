@@ -66,6 +66,10 @@ const GalleryScreen = ({ navigation }) => {
     setEggModalVisible(false);
   };
 
+  const onClose = () => {
+    setIsModalVisible(false);
+   };
+
 
   const sortMonstersAndImages = async () => {
     // Pair each monster with its image
@@ -206,10 +210,6 @@ const refreshMonsters = async () => {
   } catch (error) {
     console.error('Error retrieving monsters from AsyncStorage:', error);
   }
-};
-
-const closeMonsterInfoModal = () => {
- setIsModalVisible(false);
 };
 
 return (
