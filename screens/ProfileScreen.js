@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, ImageBackground, Switch, Aler
 import { getAuth, signOut } from 'firebase/auth';
 import { MaterialIcons,FontAwesome5 } from '@expo/vector-icons';
 import AchievementsModal from '../modals/AchievementsModal';
+import ChPwModal from '../modals/AchievementsModal';
 import { Audio } from 'expo-av';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Modal from 'react-native-modal';
@@ -12,6 +13,7 @@ const backgroundImage = require('../assets/images/paper-decorations-halloween-pa
 
 const ProfileScreen = () => {
     const [achievementsModalVisible, setAchievementsModalVisible] = useState(false);
+    const [ChPwModalVisible, setChPwModalVisible] = useState(false);
     const [muteBackgroundMusic, setMuteBackgroundMusic] = useState(false);
     const [muteAllSounds, setMuteAllSounds] = useState(false);
     const [isMusicMuted, setIsMusicMuted] = useState(false);
@@ -102,10 +104,22 @@ const ProfileScreen = () => {
       setAchievementsModalVisible(true);
     };
 
+   
     const closeAchievementsModal = () => {
       playButtonSound(); // Play button sound on close button press
       setAchievementsModalVisible(false);
     };
+
+    const openChPwModal = () => {
+      playButtonSound(); // Play button sound on achievements button press
+      setChPwModalVisible(true);
+    };
+
+    const closeChPwModal = () => {
+      playButtonSound(); // Play button sound on close button press
+      setChPwModalVisible(false);
+    };
+
 
     const handleBackgroundMusicToggle = () => {
       setMuteBackgroundMusic(prevState => {
@@ -187,11 +201,16 @@ const ProfileScreen = () => {
               <Text style={styles.buttonText}>SIGN OUT</Text>
               <MaterialIcons name="logout" size={24} color="black" />
             </TouchableOpacity>
+            <TouchableOpacity onPress={openChPwModal} style={styles.chpwButton}>
+              <Text style={styles.chpwButtonText}>CHANGE PASSWORD</Text>
+            </TouchableOpacity>
             <TouchableOpacity onPress={openAchievementsModal} style={styles.achievementsButton}>
             <FontAwesome5  name="trophy" size={24} color="black" />
 
               <Text style={styles.achievementsButtonText}>ACHIEVEMENTS</Text>
             </TouchableOpacity>
+
+            
 
             {/* Clear AsyncStorage Button */}
           <TouchableOpacity onPress={clearMonstersForUser} style={styles.clearButton}>
@@ -225,7 +244,13 @@ const ProfileScreen = () => {
           visible={achievementsModalVisible}
           onClose={closeAchievementsModal}
         />
+         <ChPwModal
+          visible={ChPwModalVisible}
+          onClose={closeChPwModal}
+        />
       </View>
+
+      
     );
   };
 
@@ -285,6 +310,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignContent: 'center',
   },
+  
   achievementsButton: {
     marginTop: 10,
     width: 170,
@@ -300,6 +326,23 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
   },
+
+  chpwButton: {
+    marginTop: 10,
+    width: 170,
+    height: 60,
+    backgroundColor: 'lightyellow',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 10,
+    borderColor: 'black',
+    borderWidth: 3,
+  },
+  chpwButtonText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+
   // Clear AsyncStorage Button Styles
   clearButton: {
     marginTop: 10,
