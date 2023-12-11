@@ -103,8 +103,10 @@ const HomeScreen = ({ navigation }) => {
     >
       <View style={styles.contentContainer}>
       <View style={styles.textContainer}>
-        <Text style={styles.text}>Welcome to QReepy Catcher!</Text>
-        <Text></Text>
+
+      <Text style={styles.text}>Welcome to QReepy Catcher!</Text>
+        <Text style={styles.text}></Text>
+
         <Text style={styles.text}>Use the SCANNER to catch some QReeps by scanning QR and barcodes.</Text>
         <Text style={styles.text}>You can check out all caught QReeps in your COLLECTION.</Text>
         <Text style={styles.text}></Text>
@@ -120,7 +122,7 @@ const HomeScreen = ({ navigation }) => {
         <Text style={styles.coinText}>{userCoins}</Text>
       </View>
       <TouchableOpacity onPress={openStoreModal} style={styles.storeButton}>
-        <MaterialIcons name="store" size={140} color="purple" />
+        <MaterialIcons name="store" size={100} color="purple" />
         <Text style={styles.storeButtonText}>STORE</Text>
       </TouchableOpacity>
       </View>
@@ -146,7 +148,7 @@ const styles = StyleSheet.create({
   },
   textContainer: {
     margin: 10,
-    padding: 10,
+    paddingTop: 170,
     alignItems: 'center',
   },
   backgroundImage: {
@@ -181,8 +183,8 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
   image: {
-    width: 140, // Set the width as per your requirements
-    height: 140, // Set the height as per your requirements
+    width: 100, // Set the width as per your requirements
+    height: 100, // Set the height as per your requirements
     borderRadius: 70, // Set the borderRadius as per your requirements
     borderWidth: 3,
     borderColor: 'purple',
