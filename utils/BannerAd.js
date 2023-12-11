@@ -5,6 +5,7 @@ import { View, Text, StyleSheet, Animated, Easing, TouchableOpacity, Linking  } 
 const ads = [
   {
     text: "Your ad here? Contact us" ,
+    url: 'https://www.020202.fi/',
     displayDuration: 14000, // e.g., 26 seconds
     backgroundColor: '#0061E3'
     
