@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ImageBackground, Switch, Alert } from 'react-native';
 import { getAuth, signOut } from 'firebase/auth';
 import { MaterialIcons, FontAwesome5, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -7,6 +7,8 @@ import { Audio } from 'expo-av';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Modal from 'react-native-modal';
 import { useMusic } from '../utils/MusicContext'; // Import useMusic hook
+import { useSound } from '../utils/SoundContext'; // Import useSound hook
+import { fetchAchievements } from '../utils/monsterUtils';
 
 const backgroundImage = require('../assets/images/paper-decorations-halloween-pack_23-2148635839.jpg');
 
@@ -14,9 +16,27 @@ const ProfileScreen = () => {
     const [achievementsModalVisible, setAchievementsModalVisible] = useState(false);
     const [muteBackgroundMusic, setMuteBackgroundMusic] = useState(false);
     const [muteAllSounds, setMuteAllSounds] = useState(false);
-    const [isMusicMuted, setIsMusicMuted] = useState(false);
+    const { isMusicMuted, toggleMusic } = useMusic();
     const [isModalVisible, setModalVisible] = useState(false);
+    const [isAudioSettingsModalVisible, setAudioSettingsModalVisible] = useState(false);
+    const { areSoundsMuted, toggleSounds, playSound } = useSound();
     const { playMusic, stopMusic } = useMusic(); // Use the useMusic hook
+    const [achievements, setAchievements] = useState([]);
+
+    const handleAudioSettingsToggle = () => {
+      setAudioSettingsModalVisible(!isAudioSettingsModalVisible);
+    };
+
+    useEffect(() => {
+      if (achievementsModalVisible) {
+      fetchAchievements('firstCatch')
+        .then(data => {
+          setAchievements(data);
+          console.log(data);
+        })
+        .catch(error => console.error(error));
+      }
+     }, [achievementsModalVisible]);
 
     const handleLogout = async () => {
       playSignoutSound(); // Play button sound on logout button press
@@ -32,11 +52,6 @@ const ProfileScreen = () => {
         // Handle any potential errors during logout
         console.error('Logout error:', error);
       }
-    };
-
-    const toggleModal = () => {
-      setModalVisible(!isModalVisible);
-      playButtonSound(); // Play button sound on delete button press
     };
 
     const playButtonSound = async () => {
@@ -97,6 +112,11 @@ const ProfileScreen = () => {
       }
     }
 
+    const toggleModal = () => {
+      setModalVisible(!isModalVisible);
+      playSound(require('../assets/sounds/Menu_Selection_Click.wav'));
+    };
+
     const openAchievementsModal = () => {
       playButtonSound(); // Play button sound on achievements button press
       setAchievementsModalVisible(true);
@@ -108,19 +128,11 @@ const ProfileScreen = () => {
     };
 
     const handleBackgroundMusicToggle = () => {
-      setMuteBackgroundMusic(prevState => {
-        const newState = !prevState;
-        if (newState) {
-          stopMusic();
-        } else {
-          playMusic();
-        }
-        return newState;
-      });
+      toggleMusic(); // This will invert the current state
     };
-
+  
     const handleAllSoundsToggle = () => {
-      setMuteAllSounds((prev) => !prev);
+      toggleSounds();
     };
 
     // Function to clear monsters from AsyncStorage for a specific user
@@ -142,6 +154,10 @@ const ProfileScreen = () => {
       await AsyncStorage.removeItem(`isTrackingEgg_${userId}`);
       //Remove caught monsters from AsyncStorage
       await AsyncStorage.removeItem(`caughtMonsters_${userId}`);
+      //Remove caught monsters from AsyncStorage
+      await AsyncStorage.removeItem(`achievedMonsterIds_${userId}`);
+      // Remove achievements from AsyncStorage
+      await AsyncStorage.removeItem(`userProgress_${userId}`);
 
     //  await AsyncStorage.removeItem(`images_${userId}`);
       playDeleteSound(); // Play delete sound on delete button press
@@ -163,38 +179,62 @@ const ProfileScreen = () => {
           <View style={styles.contentContainer}>
             <Text style={styles.text}>Welcome to your profile!</Text>
 
+            {/* Audio Settings Button */}
+            <TouchableOpacity onPress={handleAudioSettingsToggle} style={styles.audioSettingsButton}>
+            <FontAwesome5  name="music" size={24} color="black" />
+              <Text style={styles.audioSettingsButtonText}>AUDIO SETTINGS</Text>
+            </TouchableOpacity>
 
-{/* Mute Background Music Switch */}
-<View style={styles.switchContainer}>
-  <Text style={styles.switchLabel}>Mute Background Music</Text>
-  {muteBackgroundMusic ? (
-    <FontAwesome5 name="volume-mute" size={24} color="black" />
-  ) : (
-    <FontAwesome5 name="volume-up" size={24} color="black" />
-  )}
-  <Switch
-    value={muteBackgroundMusic}
-    onValueChange={handleBackgroundMusicToggle}
-    trackColor={{ false: '#767577', true: '#81b0ff' }}
-    thumbColor={muteBackgroundMusic ? '#f5dd4b' : '#f4f3f4'}
-    ios_backgroundColor="#3e3e3e"
-  />
-</View>
+            {/* Audio Settings Modal */}
+<Modal
+  visible={isAudioSettingsModalVisible}
+  animationType="slide"
+  transparent={true}
+  onRequestClose={handleAudioSettingsToggle}
+>
+  <View style={styles.audioModalView}>
+    <Text style={styles.audioModalText}>Audio Settings</Text>
 
+    {/* Background Music Switch */}
+    <View style={styles.audioSwitchContainer}>
+      <Text style={styles.audioSwitchLabel}>Mute Background Music</Text>
+      <Switch
+        value={isMusicMuted}
+        onValueChange={toggleMusic}
+        trackColor={{ false: '#767577', true: '#81b0ff' }}
+        thumbColor={isMusicMuted ? '#f5dd4b' : '#f4f3f4'}
+      />
+    </View>
 
+    {/* All Sounds Switch */}
+    <View style={styles.audioSwitchContainer}>
+      <Text style={styles.audioSwitchLabel}>Mute All Sounds</Text>
+      <Switch
+        value={areSoundsMuted}
+        onValueChange={toggleSounds}
+        trackColor={{ false: '#767577', true: '#81b0ff' }}
+        thumbColor={areSoundsMuted ? '#f5dd4b' : '#f4f3f4'}
+      />
+    </View>
+
+    <TouchableOpacity onPress={handleAudioSettingsToggle} style={styles.audioCloseButton}>
+      <Text style={styles.audioCloseButtonText}>Close</Text>
+    </TouchableOpacity>
+  </View>
+</Modal>
 
             <TouchableOpacity style={styles.button} onPress={handleLogout}>
-              <Text style={styles.buttonText}>SIGN OUT</Text>
               <MaterialIcons name="logout" size={24} color="black" />
+              <Text style={styles.buttonText}>SIGN OUT</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={openAchievementsModal} style={styles.achievementsButton}>
-              <Text style={styles.achievementsButtonText}>ACHIEVEMENTS</Text>
               <FontAwesome5  name="trophy" size={24} color="black" />
+              <Text style={styles.achievementsButtonText}>ACHIEVEMENTS</Text>
             </TouchableOpacity>
             {/* Clear AsyncStorage Button */}
             <TouchableOpacity onPress={clearMonstersForUser} style={styles.clearButton}>
-              <Text style={styles.clearButtonText}>DELETE COLLECTION</Text>
               <MaterialCommunityIcons name="trash-can" size={24} color="black" />
+              <Text style={styles.clearButtonText}>DELETE COLLECTION</Text>
             </TouchableOpacity>
 
           {/* Confirmation Modal */}
@@ -222,6 +262,7 @@ const ProfileScreen = () => {
         <AchievementsModal
           visible={achievementsModalVisible}
           onClose={closeAchievementsModal}
+          achievements={achievements}
         />
       </View>
     );
@@ -260,8 +301,8 @@ const styles = StyleSheet.create({
   },
   button: {
     width: 200,
-    height: 60,
-    flexDirection: 'row',
+    height: 70,
+ //   flexDirection: 'row',
     backgroundColor: 'red',
     borderRadius: 10,
     paddingHorizontal: 10,
@@ -275,7 +316,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: 'black',
     fontWeight: 'bold',
-    marginRight: 10,
+  //  marginRight: 10,
     fontSize: 18,
   },
   backgroundImage: {
@@ -286,11 +327,11 @@ const styles = StyleSheet.create({
     alignContent: 'center',
   },
   achievementsButton: {
-    flexDirection: 'row',
+  //  flexDirection: 'row',
     paddingHorizontal: 10,
     marginTop: 10,
     width: 200,
-    height: 60,
+    height: 70,
     backgroundColor: 'lightyellow',
     alignItems: 'center',
     justifyContent: 'center',
@@ -302,16 +343,16 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: 'black',
     fontWeight: 'bold',
-    marginRight: 10,
+ //   marginRight: 10,
     fontSize: 18,
   },
   // Clear AsyncStorage Button Styles
   clearButton: {
-    flexDirection: 'row',
+ //   flexDirection: 'row',
     paddingHorizontal: 10,
     marginTop: 10,
     width: 200,
-    height: 60,
+    height: 70,
     backgroundColor: 'orange',
     alignItems: 'center',
     justifyContent: 'center',
@@ -323,8 +364,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: 'black',
     fontWeight: 'bold',
-    marginRight: 10,
-    fontSize: 18,
+ //   marginRight: 10,
+    fontSize: 16,
   },
   modalContent: {
     backgroundColor: 'lightgrey',
@@ -360,6 +401,64 @@ const styles = StyleSheet.create({
   modalDeleteButtonText: {
     color: 'white',
     fontWeight: 'bold',
+  },
+  // Styles for Audio Settings Modal
+  audioSettingsButton: {
+    marginTop: 10,
+    width: 200,
+    height: 70,
+    backgroundColor: 'lightgreen',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 10,
+    borderColor: 'black',
+    borderWidth: 3,
+  },
+  audioSettingsButtonText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  audioModalView: {
+    margin: 20,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 35,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  audioModalText: {
+    marginBottom: 15,
+    textAlign: 'center',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  audioSwitchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 10,
+  },
+  audioSwitchLabel: {
+    fontSize: 18,
+    marginRight: 10,
+  },
+  audioCloseButton: {
+    backgroundColor: '#2196F3',
+    borderRadius: 20,
+    padding: 10,
+    elevation: 2,
+    marginTop: 20,
+  },
+  audioCloseButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
 });
 

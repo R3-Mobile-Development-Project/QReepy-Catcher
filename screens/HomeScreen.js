@@ -6,6 +6,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import CreditsModal from '../modals/CreditsModal';
 import StoreModal from '../modals/StoreModal';
 import { useFocusEffect } from '@react-navigation/native';
+import { useSound } from '../utils/SoundContext'; // Import useSound hook
 
 const backgroundImage = require('../assets/images/doodle-monsters-set_90220-166.jpg');
 
@@ -14,6 +15,7 @@ const HomeScreen = ({ navigation }) => {
   const [sound, setSound] = useState();
   const [userCoins, setUserCoins] = useState(0);
   const [storeModalVisible, setStoreModalVisible] = useState(false);
+  const { areSoundsMuted } = useSound(); // Use the useSound hook
 
     const fetchUserData = async () => {
       try {
@@ -46,6 +48,21 @@ const HomeScreen = ({ navigation }) => {
     }, [])
   );
 
+  const playButtonSound = async () => {
+    if (!areSoundsMuted) {
+      const { sound } = await Audio.Sound.createAsync(
+        require('../assets/sounds/Menu_Selection_Click.wav')
+      );
+      await sound.playAsync();
+      sound.setOnPlaybackStatusUpdate((status) => {
+        if (status.didJustFinish) {
+          sound.unloadAsync();
+        }
+      });
+      return sound;
+    }
+  };
+
   useEffect(() => {
     return sound
       ? () => {
@@ -55,13 +72,8 @@ const HomeScreen = ({ navigation }) => {
   }, [sound]);
 
   const openCreditsModal = async () => {
-    // Load and play the sound effect
-    const { sound } = await Audio.Sound.createAsync(
-      require('../assets/sounds/Menu_Selection_Click.wav')
-    );
+    const sound = await playButtonSound();
     setSound(sound);
-    await sound.playAsync();
-
     setCreditsModalVisible(true);
   };
 
@@ -69,14 +81,10 @@ const HomeScreen = ({ navigation }) => {
     setCreditsModalVisible(false);
   };
 
+  
   const openStoreModal = async () => {
-    // Load and play the sound effect
-    const { sound } = await Audio.Sound.createAsync(
-      require('../assets/sounds/Menu_Selection_Click.wav')
-    );
+    const sound = await playButtonSound();
     setSound(sound);
-    await sound.playAsync();
-
     setStoreModalVisible(true);
   };
 
@@ -108,8 +116,8 @@ const HomeScreen = ({ navigation }) => {
       />
       */}
       <TouchableOpacity onPress={openCreditsModal} style={styles.creditsButton}>
-          <Text style={styles.creditsButtonText}>CREDITS</Text>
-          <MaterialIcons name="groups" size={24} color="black" />
+        <MaterialIcons name="groups" size={24} color="black" />
+        <Text style={styles.creditsButtonText}>CREDITS</Text>
       </TouchableOpacity>
       <View style={styles.coinContainer}>
         <Image source={require('../assets/images/coin4.png')} style={styles.image} />
@@ -157,11 +165,11 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   creditsButton: {
-    flexDirection: 'row',
+ //   flexDirection: 'row',
     paddingHorizontal: 10,
     marginTop: 10,
     width: 200,
-    height: 60,
+    height: 70,
     backgroundColor: 'lightblue',
     alignItems: 'center',
     justifyContent: 'center',
@@ -173,7 +181,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: 'black',
     fontWeight: 'bold',
-    marginRight: 10,
+ //   marginRight: 10,
     fontSize: 18,
   },
   image: {

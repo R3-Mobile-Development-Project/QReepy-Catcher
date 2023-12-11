@@ -3,6 +3,7 @@ import { View, Text, Image, StyleSheet, TouchableOpacity, Modal, ActivityIndicat
 import { MaterialIcons } from '@expo/vector-icons';
 import { Audio } from 'expo-av';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useSound } from '../utils/SoundContext'; // Import useSound hook
 
 const ScanningModal = ({ isVisible, onClose, openGallery, monsterInfo, imageURL }) => {
   const [sellSound, setSellSound] = useState();
@@ -11,6 +12,7 @@ const ScanningModal = ({ isVisible, onClose, openGallery, monsterInfo, imageURL 
   const monsterColor = monsterInfo[0]?.dominantColors;
   const [infoModalVisible, setInfoModalVisible] = useState(false);
   const [buttonSound, setButtonSound] = useState();
+  const { areSoundsMuted } = useSound(); // Use the useSound hook
 
   const toggleInfoModal = () => {
     setInfoModalVisible(!infoModalVisible);
@@ -56,46 +58,50 @@ const ScanningModal = ({ isVisible, onClose, openGallery, monsterInfo, imageURL 
   }, [sellSound, openModalSound]);
 
   const playButtonSound = async () => {
-    try {
-      const { sound } = await Audio.Sound.createAsync(
-        require('../assets/sounds/Menu_Selection_Click.wav')
-      );
-      setButtonSound(sound);
-      await sound.playAsync();
-    } catch (error) {
-      console.error('Error playing button sound:', error);
+    if (!areSoundsMuted) {
+      try {
+        const { sound } = await Audio.Sound.createAsync(
+          require('../assets/sounds/Menu_Selection_Click.wav')
+        );
+        setButtonSound(sound);
+        await sound.playAsync();
+      } catch (error) {
+        console.error('Error playing button sound:', error);
+      }
     }
-  }
+  };
 
   const playSellSound = async () => {
-    try {
-      const { sound } = await Audio.Sound.createAsync(
-        require('../assets/sounds/ETRA_TOIMII.wav')
-      );
-      setSellSound(sound);
-      await sound.playAsync();
-    } catch (error) {
-      console.error('Error playing sell sound:', error);
+    if (!areSoundsMuted) {
+      try {
+        const { sound } = await Audio.Sound.createAsync(
+          require('../assets/sounds/ETRA_TOIMII.wav')
+        );
+        setSellSound(sound);
+        await sound.playAsync();
+      } catch (error) {
+        console.error('Error playing sell sound:', error);
+      }
     }
   };
 
   const playOpenModalSound = async () => {
-    try {
-      const { sound } = await Audio.Sound.createAsync(
-        require('../assets/sounds/Win-sound.wav')
-      );
-      setOpenModalSound(sound);
-      await sound.playAsync();
-    } catch (error) {
-      console.error('Error playing open modal sound:', error);
+    if (!areSoundsMuted && isVisible) {
+      try {
+        const { sound } = await Audio.Sound.createAsync(
+          require('../assets/sounds/Win-sound.wav')
+        );
+        setOpenModalSound(sound);
+        await sound.playAsync();
+      } catch (error) {
+        console.error('Error playing open modal sound:', error);
+      }
     }
   };
 
   useEffect(() => {
-    if (isVisible) {
-      playOpenModalSound();
-    }
-  }, [isVisible]);
+    playOpenModalSound();
+  }, [isVisible, areSoundsMuted]); // React to changes in isVisible and sound settings
 
   const handleSellPress = async () => {
     playSellSound();

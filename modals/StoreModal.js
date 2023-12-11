@@ -6,6 +6,7 @@ import { getFirestore, collection, query, onSnapshot, where, getDocs } from 'fir
 import { getStorage, ref, getDownloadURL } from 'firebase/storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
+import { useSound } from '../utils/SoundContext'; // Import useSound hook
 
 const StoreModal = ({ visible, onClose }) => {
     const [closeSound, setCloseSound] = useState();
@@ -19,6 +20,7 @@ const StoreModal = ({ visible, onClose }) => {
     const [message, setMessage] = useState('');
     const [timer, setTimer] = useState(null);
     const [fetchingEgg, setFetchingEgg] = useState(false);
+    const { areSoundsMuted } = useSound(); // Use the useSound hook
 
     const spinValue = useRef(new Animated.Value(0)).current;
     const spinValueRef = useRef(spinValue);
@@ -41,12 +43,15 @@ const StoreModal = ({ visible, onClose }) => {
         };
     }, [closeSound]);
 
+    // Updated playCloseSound function
     const playCloseSound = async () => {
-        const { sound } = await Audio.Sound.createAsync(
-            require('../assets/sounds/Menu_Selection_Click.wav')
-        );
-        setCloseSound(sound);
-        await sound.playAsync();
+        if (!areSoundsMuted) {
+            const { sound } = await Audio.Sound.createAsync(
+                require('../assets/sounds/Menu_Selection_Click.wav')
+            );
+            setCloseSound(sound);
+            await sound.playAsync();
+        }
     };
 
     const handleClosePress = () => {
@@ -145,13 +150,15 @@ const StoreModal = ({ visible, onClose }) => {
         }
     };
 
-    // play the sell sound effect
+    // Updated playSellSound function
     const playSellSound = async () => {
-        const { sound } = await Audio.Sound.createAsync(
-            require('../assets/sounds/ETRA_TOIMII.wav')
-        );
-        setCloseSound(sound);
-        await sound.playAsync();
+        if (!areSoundsMuted) {
+            const { sound } = await Audio.Sound.createAsync(
+                require('../assets/sounds/ETRA_TOIMII.wav')
+            );
+            setCloseSound(sound);
+            await sound.playAsync();
+        }
     };
 
     const handleBuyEggPress = async () => {
@@ -301,9 +308,11 @@ const StoreModal = ({ visible, onClose }) => {
                             />
                         </View>
                         </ScrollView>
+                        <View style={styles.closeButtonContainer}>
                         <TouchableOpacity onPress={handleClosePress} style={styles.closeButton}>
                             <MaterialIcons name="close" size={50} color="black" />
                         </TouchableOpacity>
+                        </View>
                     </View>
                 </View>
             </View>
@@ -387,10 +396,10 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
     eggImage: {
-        width: 240,
-        height: 240,
+        width: '100%',
+        height: '100%',
         borderRadius: 120,
-        borderWidth: 2,
+    //    borderWidth: 2,
         borderColor: 'black',
     },
     loadingContainer: {
@@ -421,9 +430,15 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         color: 'white',
       },
-    closeButton: {
+    closeButtonContainer: {
         position: 'absolute',
-        bottom: 0,
+        bottom: 10,
+        width: '100%',
+        alignItems: 'center',
+      },
+    closeButton: {
+ //       position: 'absolute',
+ //       bottom: 0,
         width: 70,
         height: 70,
         borderRadius: 35,

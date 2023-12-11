@@ -11,7 +11,7 @@ import ScanningModal from '../modals/ScanningModal';
 import AdModal from '../modals/AdModal';
 import adImage1 from '../assets/images/adpicture1.png';
 import adImage2 from '../assets/images/adpicture2.png';
-
+import { useSound } from '../utils/SoundContext'; // Import useSound hook
 import { findMonster, fetchMonsterDetailsFromFirestore, fetchMonsterImageURL } from '../utils/monsterUtils';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -36,6 +36,8 @@ export default function ScanningScreen({ navigation }) {
   const [isDebouncingScan, setIsDebouncingScan] = useState(false);
   const [scannedBarcodes, setScannedBarcodes] = useState([]);
   const [scanningMessage, setScanningMessage] = useState('');
+  const scanningTimeoutRef = useRef(null); // Reference to store the scanning timeout
+  const { areSoundsMuted } = useSound(); // Use the useSound hook
   const [adModalVisible, setAdModalVisible] = useState(false);
   const [currentAdIndex, setCurrentAdIndex] = useState(0); // New state to track current ad
   const ads = [
@@ -86,6 +88,15 @@ const initiateScanning = () => {
     setIsDebouncingScan(false); // Reset debounce state
     setScanningMessage('SCANNING FOR QREEPS...');
     setShowMessage(true); // Show scanning message
+    // Clear any existing timeout
+  clearTimeout(scanningTimeoutRef.current);
+
+  // Set a new timeout
+  scanningTimeoutRef.current = setTimeout(() => {
+    setIsScanningActive(false);
+    setScanningMessage('Scanning timed out. Please try again.');
+    setShowMessage(true);
+  }, 30000); // 30 seconds timeout
   };
 
   useEffect(() => {
@@ -122,14 +133,15 @@ const initiateScanning = () => {
   }, [cameraActive]);
 
   const playTorchSound = async () => {
-    const torchSound = new Audio.Sound();
-
-    try {
-      const torchSource = require('../assets/sounds/wall.wav'); // Replace with your torch sound file path
-      await torchSound.loadAsync(torchSource);
-      await torchSound.playAsync();
-    } catch (error) {
-      console.error('Error playing torch sound:', error);
+    if (!areSoundsMuted) {
+      const torchSound = new Audio.Sound();
+      try {
+        const torchSource = require('../assets/sounds/wall.wav');
+        await torchSound.loadAsync(torchSource);
+        await torchSound.playAsync();
+      } catch (error) {
+        console.error('Error playing torch sound:', error);
+      }
     }
   };
 
@@ -145,6 +157,8 @@ const initiateScanning = () => {
   };
 
   const handleBarCodeScanned = async ({ type, data }) => {
+    // Clear the timeout as soon as a barcode is scanned
+    clearTimeout(scanningTimeoutRef.current);
     // Ignore scans if not scanning or if debouncing or if barcode already scanned
   if (!isScanningActive || isDebouncingScan || scannedBarcodes.includes(data)){
 
@@ -222,19 +236,34 @@ const initiateScanning = () => {
     }
     setLastScannedData(data);
     setIsScanningActive(false); // Stop scanning after a scan attempt
+
+    // Clear any existing timeout
+    if (scanningTimeoutRef.current) {
+      clearTimeout(scanningTimeoutRef.current);
+    }
+  
+    // Reset the scanner timeout
+    scanningTimeoutRef.current = setTimeout(() => {
+      if (isScanningActive) {
+        setIsScanningActive(false);
+        setScanningMessage('Scanning timed out. Please try again.');
+        setShowMessage(true);
+      }
+    }, 3000); // 30 seconds timeout
   };
 
   const playButtonSound = async () => {
-    const buttonSound = new Audio.Sound();
-
-    try {
-      const buttonSource = require('../assets/sounds/Menu_Selection_Click.wav'); // Replace with your button sound file path
-      await buttonSound.loadAsync(buttonSource);
-      await buttonSound.playAsync();
-    } catch (error) {
-      console.error('Error playing button sound:', error);
+    if (!areSoundsMuted) {
+      const buttonSound = new Audio.Sound();
+      try {
+        const buttonSource = require('../assets/sounds/Menu_Selection_Click.wav');
+        await buttonSound.loadAsync(buttonSource);
+        await buttonSound.playAsync();
+      } catch (error) {
+        console.error('Error playing button sound:', error);
+      }
     }
-  }
+  };
 
   const hideMessage = () => {
     setShowMessage(false);

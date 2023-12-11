@@ -1,63 +1,90 @@
 // MusicContext.js
-import React, { createContext, useState, useContext, useRef, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
 import { Audio } from 'expo-av';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const MusicContext = createContext();
 
-export const useMusic = () => useContext(MusicContext);
+let soundInstance = null;
+
+export const useMusic = () => {
+  const context = useContext(MusicContext);
+  if (context === undefined) {
+    throw new Error('useMusic must be used within a MusicProvider');
+  }
+  return context;
+};
 
 export const MusicProvider = ({ children }) => {
-  const [isMusicPlaying, setIsMusicPlaying] = useState(false);
-  const soundRef = useRef(null);
+  const [isMusicMuted, setIsMusicMuted] = useState(false);
+  const [isSoundLoaded, setIsSoundLoaded] = useState(false);
 
-  useEffect(() => {
-    let isMounted = true; // Flag to check if the component is mounted
-  
-    const initAudio = async () => {
-      const sound = new Audio.Sound();
-      soundRef.current = sound;
-  
+  const initAudio = async () => {
+    if (!soundInstance) {
+      soundInstance = new Audio.Sound();
       try {
         const source = require('../assets/sounds/happy_adveture.mp3');
-        await sound.loadAsync(source, { isLooping: true });
-  
-        if (isMounted) {
-          playMusic(); // Start playing music after successful loading
-        }
+        await soundInstance.loadAsync(source, { isLooping: true });
+        setIsSoundLoaded(true);
       } catch (error) {
-        console.error('Error loading audio:', error);
+        console.error('Error initializing audio:', error);
       }
-    };
-  
-    if (isMounted) {
-      initAudio();
     }
-  
-    return () => {
-      isMounted = false;
-      if (soundRef.current) {
-        soundRef.current.unloadAsync();
-      }
-    };
-  }, []);
-  
+  };
 
   const playMusic = async () => {
-    if (soundRef.current) {
-      await soundRef.current.playAsync();
-      setIsMusicPlaying(true);
+    if (isSoundLoaded) {
+      await soundInstance.playAsync();
     }
   };
 
   const stopMusic = async () => {
-    if (soundRef.current) {
-      await soundRef.current.stopAsync();
-      setIsMusicPlaying(false);
+    if (isSoundLoaded) {
+      await soundInstance.pauseAsync();
     }
   };
 
+  const toggleMusic = async () => {
+    const newMutedState = !isMusicMuted;
+    setIsMusicMuted(newMutedState);
+    await AsyncStorage.setItem('isMusicMuted', JSON.stringify(newMutedState));
+    
+    if (newMutedState) {
+      await stopMusic();
+    } else {
+      await playMusic();
+    }
+  };
+
+  const fetchMusicMuteState = async () => {
+    try {
+      const value = await AsyncStorage.getItem('isMusicMuted');
+      if (value !== null) {
+        setIsMusicMuted(JSON.parse(value));
+      }
+    } catch (error) {
+      console.error('Error fetching music mute state:', error);
+    }
+  };
+
+  useEffect(() => {
+    initAudio();
+  }, []);
+
+  useEffect(() => {
+    fetchMusicMuteState();
+  }, []);
+
+  useEffect(() => {
+    if (isMusicMuted) {
+      stopMusic();
+    } else {
+      playMusic();
+    }
+  }, [isMusicMuted, isSoundLoaded]);
+
   return (
-    <MusicContext.Provider value={{ isMusicPlaying, playMusic, stopMusic }}>
+    <MusicContext.Provider value={{ isMusicMuted, toggleMusic }}>
       {children}
     </MusicContext.Provider>
   );

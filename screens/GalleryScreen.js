@@ -8,6 +8,7 @@ import { findMonster, fetchMonsterImageURL } from '../utils/monsterUtils';
 import MonsterInfoModal from '../modals/MonsterInfoModal';
 import { Audio } from 'expo-av';
 import EggModal from '../modals/EggModal';
+import { useSound } from '../utils/SoundContext';
 
 const backgroundImage = require('../assets/images/horrible-monster-2.jpg');
 
@@ -19,6 +20,7 @@ const GalleryScreen = ({ navigation }) => {
   const placeholders = Array.from({ length: (3 - monsters.length % 3) % 3 });
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedMonster, setSelectedMonster] = useState(null);
+  const { areSoundsMuted } = useSound();
   const [sound, setSound] = useState();
   const [eggModalVisible, setEggModalVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -41,12 +43,15 @@ const GalleryScreen = ({ navigation }) => {
       : undefined;
   }, [sound]);
 
+  // Updated playButtonSound function
   const playButtonSound = async () => {
-    const { sound } = await Audio.Sound.createAsync(
-      require('../assets/sounds/Menu_Selection_Click.wav')
-    );
-    setSound(sound);
-    await sound.playAsync();
+    if (!areSoundsMuted) {
+      const { sound } = await Audio.Sound.createAsync(
+        require('../assets/sounds/Menu_Selection_Click.wav')
+      );
+      setSound(sound);
+      await sound.playAsync();
+    }
   };
 
   const openEggModal = async () => {
@@ -59,6 +64,10 @@ const GalleryScreen = ({ navigation }) => {
     playButtonSound();
     setEggModalVisible(false);
   };
+
+  const onClose = () => {
+    setIsModalVisible(false);
+   };
 
 
   const sortMonstersAndImages = async () => {
@@ -203,9 +212,11 @@ const refreshMonsters = async () => {
   }
 };
 
+/*
 const closeMonsterInfoModal = () => {
  setIsModalVisible(false);
 };
+*/
 
 return (
   <View style={styles.container}>
@@ -268,7 +279,7 @@ return (
     <MonsterInfoModal
       isModalVisible={isModalVisible}
       selectedMonster={selectedMonster}
-      onClose={closeMonsterInfoModal}
+      onClose={onClose}
       onSell={refreshMonsters}
     />
     <EggModal visible={eggModalVisible} onClose={closeEggModal} />

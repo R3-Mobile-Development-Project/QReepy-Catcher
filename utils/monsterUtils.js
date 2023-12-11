@@ -34,35 +34,39 @@ export const saveMonsterToAsyncStorage = async (monster, userId) => {
   //  console.log(`MONSTERUTILS: ${parsedExistingMonsters.length.toString()} monsters caught for user ID: ${userId}`);
   //  console.log(`MONSTERUTILS 1: Saved monster to AsyncStorage: ${monster.name} for user ID: ${userId}`);
 
+  // Update the user's progress towards the achievements
+  const userProgress = await AsyncStorage.getItem(`userProgress_${userId}`);
+  const parsedUserProgress = userProgress ? JSON.parse(userProgress) : {};
+
+  const monsterId = monster.id;
+
+  if (parsedUserProgress[monsterId]) {
+    parsedUserProgress[monsterId]++;
+  } else {
+    parsedUserProgress[monsterId] = 1;
+  }
+
+  // Log the updated user progress
+  console.log(`Updated user progress for monster ${monsterId}:`, parsedUserProgress[monsterId]);
+
+  await AsyncStorage.setItem(`userProgress_${userId}`, JSON.stringify(parsedUserProgress));
+
+  // Check if the user has achieved any of the achievements
+  const newAchievements = await checkAchievements(userId);
+
+  // Trigger the callback to update the component
+  if (newAchievements.length > 0) {
+    // If there are new achievements, display an alert
+    const achievementMessage = `New Achievements: ${newAchievements.join(', ')}`;
+    AchievementAlert.show(achievementMessage);
+  }
+
     // Trigger the callback to update the component
   } catch (error) {
     console.error('Error saving monster to AsyncStorage:', error);
     throw error;
   }
 };
-
-/*
-export const saveImageToAsyncStorage = async (imageUrl, userId) => {
-  try {
-    // Get existing images for the user from AsyncStorage
-    const existingImages = await AsyncStorage.getItem(`images_${userId}`);
-
-    // Parse existing images or initialize an empty array
-    const parsedExistingImages = existingImages ? JSON.parse(existingImages) : [];
-
-    // Add the new image URL to the array
-    parsedExistingImages.push(imageUrl);
-
-    // Save the updated images array to AsyncStorage
-    await AsyncStorage.setItem(`images_${userId}`, JSON.stringify(parsedExistingImages));
-
-//  console.log('Saved image URL:', imageUrl, 'for user ID:', userId);
-  } catch (error) {
-    console.error('Error saving image to AsyncStorage:', error);
-    throw error;
-  }
- };
-*/
 
 export const fetchMonsterDetailsFromFirestore = async (monsterId, userId) => {
   try {
@@ -166,4 +170,164 @@ export const fetchMonsterImageURL = async (monsterId, userId) => {
     console.error('Error fetching monster image URL: ', error);
     throw error;
   }
+};
+
+export const fetchAchievements = async (triggerType) => {
+  try {
+   const db = getFirestore();
+   const querySnapshot = await getDocs(collection(db, 'achievements'));
+   const achievements = [];
+ 
+   querySnapshot.forEach((doc) => {
+     const achievementData = doc.data();
+     if (achievementData.trigger.type === triggerType) {
+       const achievement = {
+         id: doc.id,
+         name: achievementData.name,
+         description: achievementData.description,
+         trigger: achievementData.trigger,
+       };
+ 
+       achievements.push(achievement);
+     }
+   });
+ 
+   return achievements;
+  } catch (error) {
+   console.error('Error reading achievements from Firestore: ', error);
+   throw error;
+  }
+ };
+
+const fetchMonsters = async (userId) => {
+  try {
+    const monsters = await AsyncStorage.getItem(`monsters_${userId}`);
+    return JSON.parse(monsters) || [];
+  } catch (error) {
+    console.error('Error fetching monsters from AsyncStorage:', error);
+    throw error;
+  }
+ };
+
+export const checkAchievements = async (userId) => {
+  try {
+    // Retrieve user progress from AsyncStorage
+    const userProgress = await AsyncStorage.getItem(`userProgress_${userId}`);
+    const parsedUserProgress = userProgress ? JSON.parse(userProgress) : {};
+
+    // Retrieve achievements from Firestore
+    const achievements = await fetchAchievements('firstCatch');
+
+    // Check each achievement
+    achievements.forEach(async (achievement) => {
+      const triggerType = achievement.trigger.type;
+      const triggerCount = achievement.trigger.count;
+      const triggerMonsterRange = achievement.trigger.monsterRange;
+      const triggerSpecificMonsters = achievement.trigger.specificMonsters;
+
+      // Implement different checks based on the trigger type
+      switch (triggerType) {
+        case 'collectCount':
+          const collectedCount = calculateCollectedCount(parsedUserProgress, triggerMonsterRange);
+          if (collectedCount >= triggerCount) {
+            // Achievement unlocked
+            console.log(`Achievement unlocked: ${achievement.name}`);
+            // Add logic to notify the user or update UI as needed
+          }
+          break;
+
+        case 'collectSpecific':
+          const collectedSpecificCount = calculateCollectedSpecific(parsedUserProgress, triggerSpecificMonsters);
+          if (collectedSpecificCount >= triggerCount) {
+            // Achievement unlocked
+            console.log(`Achievement unlocked: ${achievement.name}`);
+            // Add logic to notify the user or update UI as needed
+          }
+          break;
+
+        case 'collectAll':
+          const collectedAllCount = calculateCollectedAll(parsedUserProgress, triggerMonsterRange);
+          //console.log(`Collected all count: ${collectedAllCount}`);
+          if (collectedAllCount >= triggerCount) {
+            // Achievement unlocked
+            console.log(`Achievement unlocked: ${achievement.name}`);
+            // Add logic to notify the user or update UI as needed
+          }
+          break;
+
+        case 'firstCatch':
+          const hasCaughtFirstMonster = calculateFirstCatch(parsedUserProgress, triggerMonsterRange);
+          if (hasCaughtFirstMonster) {
+            // Achievement unlocked
+            console.log(`Achievement unlocked: ${achievement.name}`);
+            // Add logic to notify the user or update UI as needed
+          }
+          break;
+
+        // Add more cases for other trigger types if needed
+
+        default:
+          break;
+      }
+    });
+    return [];
+  } catch (error) {
+    console.error('Error checking achievements:', error);
+    //return []; // Return an empty array in case of an error
+  }
+};
+
+const calculateCollectedCount = async (userId, monsterRange) => {
+  let collectedCount = 0;
+  const monsters = await fetchMonsters(userId);
+ 
+  for (let i = monsterRange[0]; i <= monsterRange[1]; i++) {
+    const monsterId = i.toString();
+    if (monsters.includes(monsterId)) {
+      collectedCount += userProgress[monsterId] || 0;
+    }
+  }
+ 
+  return collectedCount;
+ };
+
+// Updated calculateCollectedSpecific function to use uniqueMonsterIds set
+const calculateCollectedSpecific = async (userId, specificMonsters) => {
+  let collectedSpecificCount = 0;
+  const monsters = await fetchMonsters(userId);
+ 
+  specificMonsters.forEach((monsterId) => {
+    const stringMonsterId = monsterId.toString();
+    if (monsters.includes(stringMonsterId)) {
+      collectedSpecificCount += userProgress[stringMonsterId] || 0;
+    }
+  });
+ 
+  return collectedSpecificCount;
+ };
+
+ const calculateCollectedAll = async (userId, monsterRange) => {
+  const monsters = await fetchMonsters(userId);
+ 
+  for (let i = monsterRange[0]; i <= monsterRange[1]; i++) {
+    const monsterId = i.toString();
+    //console.log(`Monster ID: ${monsterId}`);
+    if (!monsters.includes(monsterId) || userProgress[monsterId] < 1) {
+      return 0; // Not all monsters in the range are collected
+    }
+  }
+ 
+  return 1; // All monsters in the range are collected
+ };
+
+// Updated calculateFirstCatch function to use uniqueMonsterIds set
+const calculateFirstCatch = (userProgress, monsterRange) => {
+  for (let i = monsterRange[0]; i <= monsterRange[1]; i++) {
+    const monsterId = i.toString();
+    if (userProgress[monsterId] && userProgress[monsterId] > 0) {
+      return true; // User has caught at least one monster in the range
+    }
+  }
+
+  return false; // User has not caught any monster in the range
 };

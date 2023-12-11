@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, Modal, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Audio } from 'expo-av';
+import { useSound } from '../utils/SoundContext'; // Import useSound hook
 
 const CreditsModal = ({ visible, onClose }) => {
   const [closeSound, setCloseSound] = useState();
+  const { areSoundsMuted } = useSound(); // Use the useSound hook
 
   useEffect(() => {
     return () => {
@@ -15,11 +17,13 @@ const CreditsModal = ({ visible, onClose }) => {
   }, [closeSound]);
 
   const playCloseSound = async () => {
-    const { sound } = await Audio.Sound.createAsync(
-      require('../assets/sounds/Menu_Selection_Click.wav')
-    );
-    setCloseSound(sound);
-    await sound.playAsync();
+    if (!areSoundsMuted) {
+      const { sound } = await Audio.Sound.createAsync(
+        require('../assets/sounds/Menu_Selection_Click.wav')
+      );
+      setCloseSound(sound);
+      await sound.playAsync();
+    }
   };
 
   const handleClosePress = () => {
@@ -56,9 +60,11 @@ const CreditsModal = ({ visible, onClose }) => {
           <View style={styles.modalLine} />
         </View>
       </ScrollView>
+        <View style={styles.closeButtonContainer}>
           <TouchableOpacity onPress={handleClosePress} style={styles.closeButton}>
           <MaterialIcons name="close" size={50} color="black" />
           </TouchableOpacity>
+        </View>
         </View>
       </View>
     </Modal>
@@ -80,6 +86,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
+    paddingBottom: 80,
   },
   modalText: {
     fontSize: 24,
@@ -103,9 +110,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  closeButton: {
+  closeButtonContainer: {
     position: 'absolute',
-    bottom: 20,
+    bottom: 10,
+    width: '100%',
+    alignItems: 'center',
+  },
+  closeButton: {
+ //   position: 'absolute',
+ //   bottom: 20,
     width: 70,
     height: 70,
     borderRadius: 35,
