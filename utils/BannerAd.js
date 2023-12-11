@@ -4,6 +4,12 @@ import { View, Text, StyleSheet, Animated, Easing, TouchableOpacity, Linking  } 
 
 const ads = [
   {
+    text: "Your ad here? Contact us" ,
+    displayDuration: 14000, // e.g., 26 seconds
+    backgroundColor: '#0061E3'
+    
+  },
+  {
     text: "Life's too short to drink water! Grab a glass of fine whiskey and start turning your ordinary moments into extraordinary memories. Remember, whiskey may not solve all your problems, but it's worth a shot (or two)!😄🥃" ,
     url: 'https://en.wikipedia.org/wiki/Alcoholism',
     displayDuration: 24000, // e.g., 26 seconds
