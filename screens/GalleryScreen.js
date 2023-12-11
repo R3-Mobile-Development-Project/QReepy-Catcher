@@ -222,15 +222,15 @@ return (
   <View style={styles.container}>
     <ImageBackground source={backgroundImage} style={styles.backgroundImage} resizeMode="cover">
 
-   <View style={styles.sortingContainer}>
+    <View style={styles.sortingContainer}>
   <TouchableOpacity onPress={() => setSortingMethod('id')}>
-    <Icon name="sort" size={30} color="black" />
+    <Icon name="sort" size={30} color={sortingMethod === 'id' ? 'white' : 'black'} />
   </TouchableOpacity>
   <TouchableOpacity onPress={openEggModal}>
     <Ionicons name="egg-outline" size={30} color="black" />
   </TouchableOpacity>
   <TouchableOpacity onPress={() => setSortingMethod('name')}>
-    <Icon name="sort-by-alpha" size={30} color="black" />
+    <Icon name="sort-by-alpha" size={30} color={sortingMethod === 'name' ? 'white' : 'black'} />
   </TouchableOpacity>
 </View>
 
