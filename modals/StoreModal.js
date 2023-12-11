@@ -385,8 +385,8 @@ const styles = StyleSheet.create({
       //  margin: 20,
     },
     eggContainer: {
-        width: 240,
-        height: 240,
+        width: 180,
+        height: 180,
         borderRadius: 120,
         justifyContent: 'center',
         alignItems: 'center',
@@ -431,14 +431,14 @@ const styles = StyleSheet.create({
         color: 'white',
       },
     closeButtonContainer: {
-        position: 'absolute',
-        bottom: 10,
+      //  position: 'absolute',
+        //bottom: 10,
         width: '100%',
         alignItems: 'center',
       },
     closeButton: {
  //       position: 'absolute',
- //       bottom: 0,
+        bottom: -30,
         width: 70,
         height: 70,
         borderRadius: 35,
@@ -457,7 +457,7 @@ const styles = StyleSheet.create({
     },
     messageContainer: {
         position: 'absolute',
-        top: '50%', // Adjust as needed
+        top: '70%', // Adjust as needed
         left: 0,
         right: 0,
         alignItems: 'center',
