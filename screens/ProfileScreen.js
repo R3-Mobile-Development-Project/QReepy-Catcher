@@ -179,6 +179,12 @@ const ProfileScreen = () => {
           <View style={styles.contentContainer}>
             <Text style={styles.text}>Welcome to your profile!</Text>
 
+            {/* Achievements Button */}
+            <TouchableOpacity onPress={openAchievementsModal} style={styles.achievementsButton}>
+              <FontAwesome5  name="trophy" size={24} color="black" />
+              <Text style={styles.achievementsButtonText}>ACHIEVEMENTS</Text>
+            </TouchableOpacity>
+
             {/* Audio Settings Button */}
             <TouchableOpacity onPress={handleAudioSettingsToggle} style={styles.audioSettingsButton}>
             <FontAwesome5  name="music" size={24} color="black" />
@@ -186,57 +192,48 @@ const ProfileScreen = () => {
             </TouchableOpacity>
 
             {/* Audio Settings Modal */}
-<Modal
-  visible={isAudioSettingsModalVisible}
-  animationType="slide"
-  transparent={true}
-  onRequestClose={handleAudioSettingsToggle}
->
-  <View style={styles.audioModalView}>
-    <Text style={styles.audioModalText}>Audio Settings</Text>
+            <Modal
+              visible={isAudioSettingsModalVisible}
+              animationType="slide"
+              transparent={true}
+              onRequestClose={handleAudioSettingsToggle}
+            >
+            <View style={styles.audioModalView}>
+            <Text style={styles.audioModalText}>Audio Settings</Text>
 
-    {/* Background Music Switch */}
-    <View style={styles.audioSwitchContainer}>
-      <Text style={styles.audioSwitchLabel}>Mute Background Music</Text>
-      <Switch
-        value={isMusicMuted}
-        onValueChange={toggleMusic}
-        trackColor={{ false: '#767577', true: '#81b0ff' }}
-        thumbColor={isMusicMuted ? '#f5dd4b' : '#f4f3f4'}
-      />
-    </View>
+          {/* Background Music Switch */}
+          <View style={styles.audioSwitchContainer}>
+          <Text style={styles.audioSwitchLabel}>Mute Background Music</Text>
+          <Switch
+            value={isMusicMuted}
+            onValueChange={toggleMusic}
+            trackColor={{ false: '#767577', true: '#81b0ff' }}
+            thumbColor={isMusicMuted ? '#f5dd4b' : '#f4f3f4'}
+          />
+        </View>
 
-    {/* All Sounds Switch */}
-    <View style={styles.audioSwitchContainer}>
-      <Text style={styles.audioSwitchLabel}>Mute All Sounds</Text>
-      <Switch
-        value={areSoundsMuted}
-        onValueChange={toggleSounds}
-        trackColor={{ false: '#767577', true: '#81b0ff' }}
-        thumbColor={areSoundsMuted ? '#f5dd4b' : '#f4f3f4'}
-      />
-    </View>
+        {/* All Sounds Switch */}
+        <View style={styles.audioSwitchContainer}>
+          <Text style={styles.audioSwitchLabel}>Mute All Sounds</Text>
+          <Switch
+            value={areSoundsMuted}
+            onValueChange={toggleSounds}
+            trackColor={{ false: '#767577', true: '#81b0ff' }}
+            thumbColor={areSoundsMuted ? '#f5dd4b' : '#f4f3f4'}
+          />
+        </View>
 
-    <TouchableOpacity onPress={handleAudioSettingsToggle} style={styles.audioCloseButton}>
-      <Text style={styles.audioCloseButtonText}>Close</Text>
-    </TouchableOpacity>
-  </View>
-</Modal>
+        <TouchableOpacity onPress={handleAudioSettingsToggle} style={styles.audioCloseButton}>
+          <Text style={styles.audioCloseButtonText}>Close</Text>
+        </TouchableOpacity>
+      </View>
+    </Modal>
 
-            <TouchableOpacity style={styles.button} onPress={handleLogout}>
-              <MaterialIcons name="logout" size={24} color="black" />
-              <Text style={styles.buttonText}>SIGN OUT</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={openAchievementsModal} style={styles.achievementsButton}>
-              <FontAwesome5  name="trophy" size={24} color="black" />
-              <Text style={styles.achievementsButtonText}>ACHIEVEMENTS</Text>
-            </TouchableOpacity>
-            {/* Clear AsyncStorage Button */}
+            {/* Delete Collection Button */}
             <TouchableOpacity onPress={clearMonstersForUser} style={styles.clearButton}>
               <MaterialCommunityIcons name="trash-can" size={24} color="black" />
               <Text style={styles.clearButtonText}>DELETE COLLECTION</Text>
             </TouchableOpacity>
-
           {/* Confirmation Modal */}
           <Modal
             isVisible={isModalVisible}
@@ -255,6 +252,11 @@ const ProfileScreen = () => {
               </View>
             </View>
           </Modal>
+
+          <TouchableOpacity style={styles.button} onPress={handleLogout}>
+              <MaterialIcons name="logout" size={24} color="black" />
+              <Text style={styles.buttonText}>SIGN OUT</Text>
+          </TouchableOpacity>
 
 
           </View>

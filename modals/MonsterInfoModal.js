@@ -113,7 +113,6 @@ const MonsterInfoModal = ({ isModalVisible, selectedMonster, onClose, onSell }) 
               </ScrollView>
             </>
           )}
-          <View style={styles.modalLine} />
               <View style={styles.buttonContainer}>
                 <TouchableOpacity onPress={handleSellPress} style={styles.sellButton}>
                   <Text style={styles.sellButtonText}>Sell</Text>
