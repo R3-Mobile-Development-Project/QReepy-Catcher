@@ -75,7 +75,6 @@ const saveScannedBarcodes = async () => {
 };
 
 const initiateScanning = () => {
-  playScanningSound(); // Call the function to play the scanning sound
   if (Math.random() < 0.2) {
     setAdModalVisible(true);
     setCurrentAdIndex((prevIndex) => (prevIndex + 1) % ads.length); // Alternate between ads
@@ -84,20 +83,22 @@ const initiateScanning = () => {
     }, 3000);
     return;
     }
+    playScanningSound(); // Call the function to play the scanning sound
     setLastScannedData(null);
     setIsScanningActive(true);
     setIsDebouncingScan(false); // Reset debounce state
     setScanningMessage('SCANNING FOR QREEPS...');
     setShowMessage(true); // Show scanning message
-    // Clear any existing timeout
-  clearTimeout(scanningTimeoutRef.current);
 
-  // Set a new timeout
-  scanningTimeoutRef.current = setTimeout(() => {
-    setIsScanningActive(false);
-    setScanningMessage('Scanning timed out. Please try again.');
-    setShowMessage(true);
-  }, 30000); // 30 seconds timeout
+    // Clear any existing timeout
+    clearTimeout(scanningTimeoutRef.current);
+
+    // Set a new timeout
+    scanningTimeoutRef.current = setTimeout(() => {
+      setIsScanningActive(false);
+      setScanningMessage('Scanning timed out. Please try again.');
+      setShowMessage(true);
+      }, 30000); // 30 seconds timeout
   };
 
   useEffect(() => {
@@ -250,20 +251,6 @@ const initiateScanning = () => {
     }
     setLastScannedData(data);
     setIsScanningActive(false); // Stop scanning after a scan attempt
-
-    // Clear any existing timeout
-    if (scanningTimeoutRef.current) {
-      clearTimeout(scanningTimeoutRef.current);
-    }
-  
-    // Reset the scanner timeout
-    scanningTimeoutRef.current = setTimeout(() => {
-      if (isScanningActive) {
-        setIsScanningActive(false);
-        setScanningMessage('Scanning timed out. Please try again.');
-        setShowMessage(true);
-      }
-    }, 3000); // 30 seconds timeout
   };
 
   const playButtonSound = async () => {
