@@ -278,7 +278,6 @@ const StoreModal = ({ visible, onClose }) => {
                             <Text style={styles.modalHeaderText}>Buy Egg</Text>
                         </TouchableOpacity>
 
-                        {/* create a carousel of eggs */}
                         <ScrollView>
                             <View style={styles.eggContainer}>
                             {eggUrl ? (

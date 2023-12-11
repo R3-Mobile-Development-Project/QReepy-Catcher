@@ -103,19 +103,16 @@ const HomeScreen = ({ navigation }) => {
     >
       <View style={styles.contentContainer}>
       <View style={styles.textContainer}>
+
       <Text style={styles.text}>Welcome to QReepy Catcher!</Text>
         <Text style={styles.text}></Text>
+
         <Text style={styles.text}>Use the SCANNER to catch some QReeps by scanning QR and barcodes.</Text>
         <Text style={styles.text}>You can check out all caught QReeps in your COLLECTION.</Text>
         <Text style={styles.text}></Text>
         <Text style={styles.text}>More coming soon!</Text>
       </View>
-      {/*}
-      <Button
-        title="Go to Profile"
-        onPress={() => navigation.navigate('Profile')}
-      />
-      */}
+
       <TouchableOpacity onPress={openCreditsModal} style={styles.creditsButton}>
         <MaterialIcons name="groups" size={24} color="black" />
         <Text style={styles.creditsButtonText}>CREDITS</Text>

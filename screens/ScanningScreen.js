@@ -75,6 +75,7 @@ const saveScannedBarcodes = async () => {
 };
 
 const initiateScanning = () => {
+  playScanningSound(); // Call the function to play the scanning sound
   if (Math.random() < 0.2) {
     setAdModalVisible(true);
     setCurrentAdIndex((prevIndex) => (prevIndex + 1) % ads.length); // Alternate between ads
@@ -131,6 +132,19 @@ const initiateScanning = () => {
       })();
     }
   }, [cameraActive]);
+
+  const playScanningSound = async () => {
+    if (!areSoundsMuted) {
+      const scanningSound = new Audio.Sound();
+      try {
+        const scanningSource = require('../assets/sounds/MESSAGE-B_Decline_TOIMII.wav');
+        await scanningSound.loadAsync(scanningSource);
+        await scanningSound.playAsync();
+      } catch (error) {
+        console.error('Error playing scanning sound:', error);
+      }
+    }
+  };
 
   const playTorchSound = async () => {
     if (!areSoundsMuted) {
