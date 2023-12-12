@@ -26,7 +26,6 @@ const EggModal = ({ visible, onClose }) => {
     const [monsterSound, setMonsterSound] = useState();
     const { areSoundsMuted } = useSound(); // Use the useSound hook
     //const [hatchedEggState, setHatchedEggState] = useState({ index: null, borderColor: 'red' });
-
     //const borderColor = useRef(new Animated.Value(0)).current;
 
     useEffect(() => {
@@ -92,6 +91,10 @@ const EggModal = ({ visible, onClose }) => {
                 const isTrackingEgg = await AsyncStorage.getItem(`isTrackingEgg_${userId}`);
                 setIsTrackingEgg(isTrackingEgg === 'true');
 
+                // Check if the selected egg is actively hatching
+                const isHatching = await AsyncStorage.getItem(`isHatching_${userId}`);
+                setIsHatching(isHatching === 'true');
+
             } catch (error) {
                 console.error('Error fetching saved eggs:', error);
             }
@@ -151,9 +154,9 @@ const EggModal = ({ visible, onClose }) => {
 
             setCaughtMonsters(0);
             setIsTrackingEgg(true);
-
-            // If not already hatching, start the process
             setIsHatching(true);
+            // Save the isHatching state to AsyncStorage
+            await AsyncStorage.setItem(`isHatching_${userId}`, 'true');
             // Save the selected egg index to AsyncStorage
             await AsyncStorage.setItem(`selectedEggIndex_${userId}`, index.toString());
             // Save the isTrackingEgg state to AsyncStorage
@@ -213,12 +216,7 @@ const EggModal = ({ visible, onClose }) => {
                 try {
                     // Fetch monster data using the randomly chosen monsterId
                     const monsterData = await fetchMonsterDetailsFromFirestore(randomMonsterId, userId);
-               //     console.log(`EGGMODAL: Random Monster Data: ${monsterData}`);
-               //     console.log('Monster Data:', JSON.stringify(monsterData, null, 2));
-                    // Assuming monsterData is an array of objects
                     console.log('EGGMODAL: Monster Name:', monsterData[0].name);
-            //        console.log('Monnster name:', monsterData.name)
-
                     setMonsterData(monsterData);
                     // Fetch image URL for the monster
                     const imageUrl = await fetchMonsterImageURL(randomMonsterId, userId);
@@ -257,6 +255,10 @@ const EggModal = ({ visible, onClose }) => {
         const isTrackingEgg = await AsyncStorage.getItem(`isTrackingEgg_${userId}`);
         await AsyncStorage.setItem(`isTrackingEgg_${userId}`, 'false');
         console.log(`EGGMODAL: Removed tracking egg: ${isTrackingEgg} for user ID: ${userId}`)
+
+        const isHatching = await AsyncStorage.getItem(`isHatching_${userId}`);
+        await AsyncStorage.setItem(`isHatching_${userId}`, 'false');
+        console.log(`EGGMODAL: Removed isHatching: ${isHatching} for user ID: ${userId}`)
 
         //delete egg from async storage
         const parsedBoughtEggs = JSON.parse(boughtEggs);

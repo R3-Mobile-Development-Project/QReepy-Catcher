@@ -1,7 +1,7 @@
-import React, {useState} from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Modal, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-
+import { Audio } from 'expo-av';
 
 const DescriptionModal = ({ visible, onClose, achievement }) => {
   return (
@@ -24,6 +24,23 @@ const DescriptionModal = ({ visible, onClose, achievement }) => {
  };
  
  const AchievementsModal = ({ visible, onClose, achievements }) => {
+  const [buttonSound, setButtonSound] = useState();
+
+  const playButtonSound = async () => {
+    const { sound } = await Audio.Sound.createAsync(
+       require('../assets/sounds/Menu_Selection_Click.wav')
+    );
+    setButtonSound(sound);
+    await sound.playAsync();
+  }
+
+  useEffect(() => {
+    return buttonSound
+      ? () => {
+          buttonSound.unloadAsync();
+        }
+      : undefined;
+  }, [buttonSound]);
 
   const [selectedAchievement, setSelectedAchievement] = React.useState({
     name: "",
@@ -47,8 +64,9 @@ const DescriptionModal = ({ visible, onClose, achievement }) => {
             <ScrollView contentContainerStyle={styles.scrollViewContent}>
               {achievements.map((achievement, index) => (
                 <TouchableOpacity key={index} onPress={() => {
-                 setSelectedAchievement(achievement);
-                 setDescriptionModalVisible(true);
+                  playButtonSound();
+                  setSelectedAchievement(achievement);
+                  setDescriptionModalVisible(true);
                 }}>
                  <View style={styles.achievementContainer}>
                    <Text style={styles.achievementText}>{achievement.name}</Text>
@@ -64,7 +82,7 @@ const DescriptionModal = ({ visible, onClose, achievement }) => {
       </Modal>
       <DescriptionModal
         visible={descriptionModalVisible}
-        onClose={() => setDescriptionModalVisible(false)}
+        onClose={() => { playButtonSound(); setDescriptionModalVisible(false); }}
         achievement={selectedAchievement}
       />
     </View>
