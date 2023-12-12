@@ -9,6 +9,7 @@ import Modal from 'react-native-modal';
 import { useMusic } from '../utils/MusicContext'; // Import useMusic hook
 import { useSound } from '../utils/SoundContext'; // Import useSound hook
 import { fetchAchievements } from '../utils/monsterUtils';
+import { useFocusEffect } from '@react-navigation/native';
 
 const backgroundImage = require('../assets/images/paper-decorations-halloween-pack_23-2148635839.jpg');
 
@@ -23,7 +24,14 @@ const ProfileScreen = () => {
     const { playMusic, stopMusic } = useMusic(); // Use the useMusic hook
     const [achievements, setAchievements] = useState([]);
 
+    useFocusEffect(
+      React.useCallback(() => {
+        playButtonSound();
+      }, [])
+    );
+
     const handleAudioSettingsToggle = () => {
+      playButtonSound(); // Play button sound on audio settings button press
       setAudioSettingsModalVisible(!isAudioSettingsModalVisible);
     };
 

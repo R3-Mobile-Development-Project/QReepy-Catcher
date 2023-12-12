@@ -28,6 +28,7 @@ const GalleryScreen = ({ navigation }) => {
 
 
   const handleItemPress = (monster) => {
+    playButtonSound();
     console.log(monster.name, 'opened on index:', monsters.indexOf(monster));
     const imageIndex = monsters.indexOf(monster);
     const imageUrl = images[imageIndex];
@@ -60,8 +61,8 @@ const GalleryScreen = ({ navigation }) => {
   };
 
   const closeEggModal = async () => {
-    refreshMonsters();
     playButtonSound();
+    refreshMonsters();
     setEggModalVisible(false);
   };
 
@@ -154,6 +155,7 @@ const GalleryScreen = ({ navigation }) => {
     // Use useFocusEffect to refresh monsters when the screen is focused
     useFocusEffect(
       React.useCallback(() => {
+        playButtonSound();
         refreshMonsters();
       }, [sortingMethod])
     );
@@ -223,13 +225,13 @@ return (
     <ImageBackground source={backgroundImage} style={styles.backgroundImage} resizeMode="cover">
 
     <View style={styles.sortingContainer}>
-  <TouchableOpacity onPress={() => setSortingMethod('id')}>
+  <TouchableOpacity onPress={() => { playButtonSound(); setSortingMethod('id'); }}>
     <Icon name="sort" size={30} color={sortingMethod === 'id' ? 'white' : 'black'} />
   </TouchableOpacity>
   <TouchableOpacity onPress={openEggModal}>
     <Ionicons name="egg-outline" size={30} color="black" />
   </TouchableOpacity>
-  <TouchableOpacity onPress={() => setSortingMethod('name')}>
+  <TouchableOpacity onPress={() => { playButtonSound(); setSortingMethod('name'); }}>
     <Icon name="sort-by-alpha" size={30} color={sortingMethod === 'name' ? 'white' : 'black'} />
   </TouchableOpacity>
 </View>

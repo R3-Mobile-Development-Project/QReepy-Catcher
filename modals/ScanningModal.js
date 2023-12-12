@@ -15,8 +15,8 @@ const ScanningModal = ({ isVisible, onClose, openGallery, monsterInfo, imageURL 
   const { areSoundsMuted } = useSound(); // Use the useSound hook
 
   const toggleInfoModal = () => {
-    setInfoModalVisible(!infoModalVisible);
     playButtonSound();
+    setInfoModalVisible(!infoModalVisible);
   };
 
   const renderInfoModal = () => {
@@ -37,7 +37,7 @@ const ScanningModal = ({ isVisible, onClose, openGallery, monsterInfo, imageURL 
             You can also view more information about the QReep in the Gallery.
             All your caught QReeps will be saved there, should you choose not to sell them.
           </Text>
-          <TouchableOpacity onPress={() => setInfoModalVisible(false)} style={styles.infoModalCloseButton}>
+          <TouchableOpacity onPress={() => { playButtonSound(); setInfoModalVisible(false); }} style={styles.infoModalCloseButton}>
             <MaterialIcons name="close" size={50} color="black" />
           </TouchableOpacity>
           </View>
@@ -53,6 +53,9 @@ const ScanningModal = ({ isVisible, onClose, openGallery, monsterInfo, imageURL 
       }
       if (openModalSound) {
         openModalSound.unloadAsync();
+      }
+      if (buttonSound) {
+        buttonSound.unloadAsync();
       }
     };
   }, [sellSound, openModalSound]);

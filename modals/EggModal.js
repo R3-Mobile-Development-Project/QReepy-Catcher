@@ -6,6 +6,8 @@ import { useFocusEffect } from '@react-navigation/native';
 import { getFirestore, collection, query, onSnapshot, where, getDocs } from 'firebase/firestore';
 import { fetchMonsterDetailsFromFirestore, fetchMonsterImageURL } from '../utils/monsterUtils';
 import { getStorage, ref, getDownloadURL } from 'firebase/storage';
+import { Audio } from 'expo-av';
+import { useSound } from '../utils/SoundContext'; // Import useSound hook
 
 const EggModal = ({ visible, onClose }) => {
     const [savedEggs, setSavedEggs] = useState([]);
@@ -20,10 +22,48 @@ const EggModal = ({ visible, onClose }) => {
     const [monsterModalVisible, setMonsterModalVisible] = useState(false);
     const [monsterData, setMonsterData] = useState({});
     const [imageURL, setImageURL] = useState('');
-
+    const [buttonSound, setButtonSound] = useState();
+    const [monsterSound, setMonsterSound] = useState();
+    const { areSoundsMuted } = useSound(); // Use the useSound hook
     //const [hatchedEggState, setHatchedEggState] = useState({ index: null, borderColor: 'red' });
 
     //const borderColor = useRef(new Animated.Value(0)).current;
+
+    useEffect(() => {
+        return () => {
+          if (buttonSound) {
+            buttonSound.unloadAsync();
+          }
+        };
+      }, [buttonSound]);
+    
+      const playButtonSound = async () => {
+        if (!areSoundsMuted) {
+          const { sound } = await Audio.Sound.createAsync(
+            require('../assets/sounds/Menu_Selection_Click.wav')
+          );
+          setButtonSound(sound);
+          await sound.playAsync();
+        }
+      };
+
+        useEffect(() => {
+            return () => {
+              if (monsterSound) {
+                monsterSound.unloadAsync();
+              }
+            };
+          }, [monsterSound]);
+
+            const playMonsterSound = async () => {
+                if (!areSoundsMuted) {
+                  const { sound } = await Audio.Sound.createAsync(
+                    require('../assets/sounds/Win-sound.wav')
+                  );
+                  setMonsterSound(sound);
+                  await sound.playAsync();
+                }
+              }
 
     useFocusEffect(
         React.useCallback(() => {
@@ -98,6 +138,7 @@ const EggModal = ({ visible, onClose }) => {
     };
 
     const startHatching = async (index) => {
+        playButtonSound();
         if (!isTrackingEgg) {
             const userId = await AsyncStorage.getItem('userId');
 
@@ -132,10 +173,13 @@ const EggModal = ({ visible, onClose }) => {
 
         const selectEgg = (index) => {
             if (!isTrackingEgg) {
+                playButtonSound();
                 setSelectedEggIndex(index);
             } else if (caughtMonsters < neededMonsters){
+                playButtonSound();
                 alert('Catch QReeps to hatch the egg!');
             } else {
+                playButtonSound();
                 hatchEgg(index);
             }
          };
@@ -175,39 +219,17 @@ const EggModal = ({ visible, onClose }) => {
                     console.log('EGGMODAL: Monster Name:', monsterData[0].name);
             //        console.log('Monnster name:', monsterData.name)
 
-
                     setMonsterData(monsterData);
                     // Fetch image URL for the monster
                     const imageUrl = await fetchMonsterImageURL(randomMonsterId, userId);
                     console.log(`EGGMODAL: Monster Image URL: ${imageUrl}`);
                     setImageURL(imageUrl);
 
+                    playMonsterSound();
                     setMonsterModalVisible(true);
                 } catch (error) {
                     console.error('Error fetching monster data:', error);
                 }
-
-
-
-                /*
-                fetchMonsterDetailsFromFirestore(randomMonsterId, userId);
-                fetchMonsterImageURL(randomMonsterId, userId);
-*/
-                // Make the modal visible
-                
-
-                /*
-                // Fetch monster data using the randomly chosen monsterId
-                const db = getFirestore();
-                const q = query(collection(db, 'monsters'), where('id', '==', randomMonsterId));
-
-                const querySnapshot = await getDocs(q);
-                querySnapshot.forEach((doc) => {
-                    const monsterData = doc.data();
-                    console.log('EGGMODAL: Random Monster Data:', monsterData.id);
-                    // Now you can use monsterData to display information about the randomly chosen monster
-                });
-                */
             } else {
                 console.error('EGGMODAL: No valid monster IDs found in the array');
             }
@@ -243,29 +265,6 @@ const EggModal = ({ visible, onClose }) => {
         setSavedEggs(parsedBoughtEggs);
         console.log(`EGGMODAL: Removed egg at index ${index} for user ID: ${userId}`)
         console.log(`EGGMODAL: Remaining eggs: ${parsedBoughtEggs}`);
-
-/*
-        if (isHatching) {
-            setIsHatching(false);
-            setIsHatched(true);
-            setIsTrackingEgg(false);
-            setCaughtMonsters(0);
-            const userId = await AsyncStorage.getItem('userId');
-            await AsyncStorage.setItem(`caughtMonsters_${userId}`, JSON.stringify(0));
-            await AsyncStorage.removeItem(`selectedEggIndex_${userId}`);
-            await AsyncStorage.setItem(`isTrackingEgg_${userId}`, false);
-            //fetch monster from firestore and image from storage
-            //save monster to async storage
-            console.log(`EGGMODAL: Hatched egg at index ${index} for user ID: ${userId}`);
-
-            //delete egg from async storage
-            const boughtEggs = await AsyncStorage.getItem(`boughtEggs_${userId}`);
-            const parsedBoughtEggs = JSON.parse(boughtEggs);
-            parsedBoughtEggs.splice(index, 1);
-            await AsyncStorage.setItem(`boughtEggs_${userId}`, JSON.stringify(parsedBoughtEggs));
-            setSavedEggs(parsedBoughtEggs);
-        }
-        */
     }
 
     const renderHatchButton = () => {
@@ -299,7 +298,7 @@ const EggModal = ({ visible, onClose }) => {
                   />
                   <Text style={styles.monsterNameText}>{monsterData[0].name}</Text>
              {/*     <Text style={styles.monsterDescriptionText}>{monsterData.description}</Text>   */}
-                  <TouchableOpacity onPress={() => setMonsterModalVisible(false)} style={styles.closeButton}>
+                  <TouchableOpacity onPress={() => { playButtonSound(); setMonsterModalVisible(false); }} style={styles.closeButton}>
                     <MaterialIcons name="close" size={50} color="black" />
                   </TouchableOpacity>
                 </View>

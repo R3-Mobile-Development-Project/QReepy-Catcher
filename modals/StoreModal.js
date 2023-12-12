@@ -55,10 +55,10 @@ const StoreModal = ({ visible, onClose }) => {
     };
 
     const handleClosePress = () => {
+        playCloseSound();
         setEggBought(false); // Reset egg state on modal close
         setEggQuantity(0);
         spinValue.setValue(0);
-        playCloseSound();
         onClose();
     };
 
@@ -210,10 +210,12 @@ const StoreModal = ({ visible, onClose }) => {
             setTimer(newTimer);
             setFetchingEgg(true);
         } else {
+            playCloseSound();
             // User does not have enough coins to buy the selected quantity of eggs
             alert('Not enough coins!');
         }
         } else {
+            playCloseSound();
             // User has not selected a quantity of eggs
             alert('Please select a quantity of eggs!');
         }
