@@ -1,5 +1,7 @@
 import { getFirestore, collection, query, onSnapshot, where, getDocs } from 'firebase/firestore';
+import { Alert } from 'react-native';
 import { getStorage, ref, getDownloadURL } from 'firebase/storage';
+import AchievementAlert from '../modals/AchievementAlert';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const findMonster = () => {
@@ -57,19 +59,45 @@ if (!parsedUserProgress[monsterId]) {
   await AsyncStorage.setItem(`userProgress_${userId}`, JSON.stringify(parsedUserProgress));
 
   // Check if the user has achieved any of the achievements
-  const newAchievements = await checkAchievements(userId);
+   // Check if the user has achieved any of the achievements
+   //const newAchievements = await checkAchievements(userId);
+   //Alert.alert('Test Alert', 'This is a test alert');
+   // Display an alert if there are new achievements
+   /*
+   if (newAchievements.length > 0) {
+   
+     const achievementMessage = `New Achievements: ${newAchievements.join(', ')}`;
+     console.log('Displaying Alert:', achievementMessage);
+     Alert.alert('Achievement Unlocked', achievementMessage);
+     console.log('Alert Displayed');
+   }*/
+   // Check if the user has achieved any of the achievements
+   const newAchievements = await checkAchievements(userId);
 
+   // Display an alert if there are new achievements
+   displayAchievementAlert(newAchievements);
   // Trigger the callback to update the component
-  if (newAchievements.length > 0) {
+  /*if (newAchievements.length > 0) {
     // If there are new achievements, display an alert
     const achievementMessage = `New Achievements: ${newAchievements.join(', ')}`;
     AchievementAlert.show(achievementMessage);
-  }
+  }*/
+
 
     // Trigger the callback to update the component
   } catch (error) {
     console.error('Error saving monster to AsyncStorage:', error);
     throw error;
+  }
+};
+
+// Move the alert logic outside of checkAchievements function
+const displayAchievementAlert = (newAchievements) => {
+  if (newAchievements.length > 0) {
+    const achievementMessage = `New Achievements: ${newAchievements.join(', ')}`;
+    console.log('Displaying Alert:', achievementMessage);
+    Alert.alert('Achievement Unlocked', achievementMessage);
+    console.log('Alert Displayed');
   }
 };
 
@@ -234,6 +262,8 @@ const fetchMonsters = async (userId) => {
   }
   //console.log(allAchievements);
 
+  const newAchievements = [];
+
   // Check each achievement
   for (let i = 0; i < allAchievements.length; i++) {
     console.log(`Checking achievement: ${allAchievements[i].name}`);
@@ -274,7 +304,12 @@ const fetchMonsters = async (userId) => {
                 if (collectedCount >= triggerCount) {
                   // Achievement unlocked
                   console.log(`Achievement unlocked: ${achievement.name}`);
+                  newAchievements.push(achievement.name);
+                  //const achievementAlertMessage = `Achievement Unlocked: ${achievement.name}`;
+                  //Alert.alert('Achievement Unlocked', achievementAlertMessage);
+                  //console.log('Achievement Unlocked Alert Displayed');
                   // Add logic to notify the user or update UI as needed
+
                 }
               }
               break;
@@ -324,6 +359,9 @@ const fetchMonsters = async (userId) => {
           if (hasCaughtFirstMonster) {
             // Achievement unlocked
             console.log(`Achievement unlocked: ${achievement.name}`);
+            newAchievements.push(achievement.name);
+            //Alert.alert('Achievement Unlocked', achievementAlertMessage);
+            //console.log('Achievement Unlocked Alert Displayed');
             // Add logic to notify the user or update UI as needed
           }
           break;
@@ -334,10 +372,11 @@ const fetchMonsters = async (userId) => {
           break;
       }
     }
-    return [];
+    //return [];
+    return newAchievements;
   } catch (error) {
     console.error('Error checking achievements:', error);
-    //return []; // Return an empty array in case of an error
+    return []; // Return an empty array in case of an error
   }
  };
 

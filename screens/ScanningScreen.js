@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { Camera } from 'expo-camera';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
@@ -9,10 +9,11 @@ import { Audio } from 'expo-av';
 import Slider from '@react-native-community/slider';
 import ScanningModal from '../modals/ScanningModal';
 import AdModal from '../modals/AdModal';
+import AchievementAlert from '../modals/AchievementAlert';
 import adImage1 from '../assets/images/adpicture1.png';
 import adImage2 from '../assets/images/adpicture2.png';
 import { useSound } from '../utils/SoundContext'; // Import useSound hook
-import { findMonster, fetchMonsterDetailsFromFirestore, fetchMonsterImageURL } from '../utils/monsterUtils';
+import { findMonster, fetchMonsterDetailsFromFirestore, fetchMonsterImageURL} from '../utils/monsterUtils';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function ScanningScreen({ navigation }) {
@@ -221,11 +222,29 @@ const initiateScanning = () => {
         setImageURL(fetchedImageURL);
 
         openModal();
+
         // Log for successful scan
      //   console.log(`Bar code with type ${type} and data ${data} has been scanned.`);
       } catch (error) {
         console.error('Error fetching monster details:', error);
       }
+
+       // Create a monster object with the necessary properties
+       //Alert.alert('Test Alert', 'This is a test alert');
+    /*const monster = {
+      id: foundMonsterId,
+      // other properties...
+    };
+    
+    // Pass the monster object to saveMonsterToAsyncStorage
+    const newAchievements = await saveMonsterToAsyncStorage(monster, userId);
+
+    if (newAchievements.length > 0) {
+      // If there are new achievements, display an alert using React Native Alert
+      const achievementMessage = `New Achievements: ${newAchievements.join(', ')}`;
+      Alert.alert('Achievement Unlocked', achievementMessage);
+    }*/
+
     } else {
       // No valid monster found
       setNoMonsterFound(true);
