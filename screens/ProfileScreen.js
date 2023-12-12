@@ -160,6 +160,10 @@ const ProfileScreen = () => {
       await AsyncStorage.removeItem(`selectedEggIndex_${userId}`);
       //Remove isTrackingEgg from AsyncStorage
       await AsyncStorage.removeItem(`isTrackingEgg_${userId}`);
+      //Remove hatched monsters from AsyncStorage
+      await AsyncStorage.removeItem(`hatchedMonsters_${userId}`);
+      //Remove isHatching from AsyncStorage
+      await AsyncStorage.removeItem(`isHatching_${userId}`);
       //Remove caught monsters from AsyncStorage
       await AsyncStorage.removeItem(`caughtMonsters_${userId}`);
       //Remove caught monsters from AsyncStorage
