@@ -34,7 +34,7 @@ const ScanningModal = ({ isVisible, onClose, openGallery, monsterInfo, imageURL 
             and later spend your Coins by purchasing Qreepy Eggs from the store!
           </Text>
           <Text style={styles.infoModalText}>
-            You can also view more information about the QReep in the Gallery.
+            You can also view more information about the QReep in your Collection.
             All your caught QReeps will be saved there, should you choose not to sell them.
           </Text>
           <TouchableOpacity onPress={() => { playButtonSound(); setInfoModalVisible(false); }} style={styles.infoModalCloseButton}>
