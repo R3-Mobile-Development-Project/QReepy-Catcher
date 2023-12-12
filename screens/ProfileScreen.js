@@ -3,11 +3,12 @@ import { View, Text, StyleSheet, TouchableOpacity, ImageBackground, Switch, Aler
 import { getAuth, signOut } from 'firebase/auth';
 import { MaterialIcons,FontAwesome5 } from '@expo/vector-icons';
 import AchievementsModal from '../modals/AchievementsModal';
-import ChPwModal from '../modals/AchievementsModal';
+import ChPwModal from '../modals/ChPwModal';
 import { Audio } from 'expo-av';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Modal from 'react-native-modal';
 import { useMusic } from '../utils/MusicContext'; // Import useMusic hook
+
 
 const backgroundImage = require('../assets/images/paper-decorations-halloween-pack_23-2148635839.jpg');
 
