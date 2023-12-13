@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, Modal, StyleSheet, TouchableOpacity, ScrollView, Image, ActivityIndicator, Animated, Easing } from 'react-native';
+import { View, Text, Modal, StyleSheet, TouchableOpacity, ScrollView, Image, ActivityIndicator, Animated, Easing, Alert } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Audio } from 'expo-av';
 import { getFirestore, collection, query, onSnapshot, where, getDocs } from 'firebase/firestore';
@@ -212,12 +212,14 @@ const StoreModal = ({ visible, onClose }) => {
         } else {
             playCloseSound();
             // User does not have enough coins to buy the selected quantity of eggs
-            alert('Not enough coins!');
+            const coinMessage = 'You need more coins!'
+            Alert.alert('Uh oh', coinMessage, [{ text: 'OK' }], { cancelable: true });
         }
         } else {
             playCloseSound();
             // User has not selected a quantity of eggs
-            alert('Please select a quantity of eggs!');
+            const quantityMessage = "You tried to buy 0 eggs.\nYou know that's not a good deal."
+            Alert.alert('Uh oh', quantityMessage, [{ text: 'OK' }], { cancelable: true });
         }
     };
 
