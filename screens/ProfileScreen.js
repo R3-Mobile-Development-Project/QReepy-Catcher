@@ -159,6 +159,7 @@ const ProfileScreen = () => {
       // Remove achievements from AsyncStorage
       await AsyncStorage.removeItem(`userProgress_${userId}`);
 
+      await AsyncStorage.removeItem(`displayedAchievements_${userId}`);
     //  await AsyncStorage.removeItem(`images_${userId}`);
       playDeleteSound(); // Play delete sound on delete button press
       console.log(`Collection for user ${userId} cleared successfully!`);

@@ -8,13 +8,13 @@ export const findMonster = () => {
   const randomNumber = Math.random() * 100;
   let foundMonsterId;
 
-  if (randomNumber < 1) {
+  if (randomNumber < 2) {
     // Epic monster
     foundMonsterId = Math.floor(Math.random() * 5) + 46; // ID:t 46-50
-  } else if (randomNumber < 100) {
+  } else if (randomNumber < 1) {
     // Rare monster
     foundMonsterId = Math.floor(Math.random() * 15) + 31; // ID:t 31-45
-  } else if (randomNumber < 2) {
+  } else if (randomNumber < 100) {
     // Common monster
     foundMonsterId = Math.floor(Math.random() * 30) + 1; // ID:t 1-30
   }
@@ -53,6 +53,7 @@ if (!parsedUserProgress[monsterId]) {
   parsedUserProgress[monsterId] = 1;
  }
 
+
   // Log the updated user progress
   console.log(`Updated user progress for monster ${monsterId}:`, parsedUserProgress[monsterId]);
 
@@ -74,8 +75,18 @@ if (!parsedUserProgress[monsterId]) {
    // Check if the user has achieved any of the achievements
    const newAchievements = await checkAchievements(userId);
 
+   console.log("this  is newAchievements!!!",newAchievements)
+
    // Display an alert if there are new achievements
-   displayAchievementAlert(newAchievements);
+   displayAchievementAlert(userId, newAchievements);
+
+
+   /*const newAchievements = await checkAchievements(userId);
+for (let i = 0; i < newAchievements.length; i++) {
+ if (!parsedUserProgress[newAchievements[i]]) {
+   displayAchievementAlert([newAchievements[i]]);
+ }
+}*/
   // Trigger the callback to update the component
   /*if (newAchievements.length > 0) {
     // If there are new achievements, display an alert
@@ -92,14 +103,39 @@ if (!parsedUserProgress[monsterId]) {
 };
 
 // Move the alert logic outside of checkAchievements function
-const displayAchievementAlert = (newAchievements) => {
+/*const displayAchievementAlert = (userId, newAchievements) => {
   if (newAchievements.length > 0) {
     const achievementMessage = `New Achievements: ${newAchievements.join(', ')}`;
     console.log('Displaying Alert:', achievementMessage);
     Alert.alert('Achievement Unlocked', achievementMessage);
     console.log('Alert Displayed');
   }
+};*/
+
+// ACHIEVEMENT ALERT
+const displayAchievementAlert = async (userId, newAchievements) => {
+  if (newAchievements.length > 0) {
+    const displayedAchievements = await AsyncStorage.getItem(`displayedAchievements_${userId}`);
+    const parsedDisplayedAchievements = displayedAchievements ? JSON.parse(displayedAchievements) : [];
+
+    const undiscoveredAchievements = newAchievements.filter(achievement => !parsedDisplayedAchievements.includes(achievement));
+
+    if (undiscoveredAchievements.length > 0) {
+      const achievementMessage = `New Achievements: ${undiscoveredAchievements.join(', ')}`;
+      console.log('Displaying Alert:', achievementMessage);
+      Alert.alert('Achievement Unlocked', achievementMessage);
+      console.log('Alert Displayed');
+
+      // the already displayed function moved to displayedAchievements asyncstorage
+      const updatedDisplayedAchievements = [...parsedDisplayedAchievements, ...undiscoveredAchievements];
+      await AsyncStorage.setItem(`displayedAchievements_${userId}`, JSON.stringify(updatedDisplayedAchievements));
+
+      console.log('Updated Displayed Achievements:', updatedDisplayedAchievements);
+    }
+  }
 };
+
+
 
 export const fetchMonsterDetailsFromFirestore = async (monsterId, userId) => {
   try {
@@ -305,6 +341,7 @@ const fetchMonsters = async (userId) => {
                   // Achievement unlocked
                   console.log(`Achievement unlocked: ${achievement.name}`);
                   newAchievements.push(achievement.name);
+                  //parsedUserProgress[achievement.name] = true;
                   //const achievementAlertMessage = `Achievement Unlocked: ${achievement.name}`;
                   //Alert.alert('Achievement Unlocked', achievementAlertMessage);
                   //console.log('Achievement Unlocked Alert Displayed');
@@ -360,6 +397,7 @@ const fetchMonsters = async (userId) => {
             // Achievement unlocked
             console.log(`Achievement unlocked: ${achievement.name}`);
             newAchievements.push(achievement.name);
+            //parsedUserProgress[achievement.name] = true;
             //Alert.alert('Achievement Unlocked', achievementAlertMessage);
             //console.log('Achievement Unlocked Alert Displayed');
             // Add logic to notify the user or update UI as needed
