@@ -175,7 +175,8 @@ const ProfileScreen = () => {
       playDeleteSound(); // Play delete sound on delete button press
       console.log(`Collection for user ${userId} cleared successfully!`);
       toggleModal(); // Close the modal after deletion
-      Alert.alert('Collection deleted! Relog for changes.');
+      const alertMessage = 'Please relog for all changes to take effect.';
+      Alert.alert('Collection deleted!', alertMessage);
       } catch (error) {
         console.error('Error deleting monsters:', error);
       }

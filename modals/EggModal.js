@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, Modal, StyleSheet, FlatList, Image, TouchableOpacity, Animated } from 'react-native';
+import { View, Text, Modal, StyleSheet, FlatList, Image, TouchableOpacity, Animated, Alert } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
@@ -180,7 +180,8 @@ const EggModal = ({ visible, onClose }) => {
                 setSelectedEggIndex(index);
             } else if (caughtMonsters < neededMonsters){
                 playButtonSound();
-                alert('Catch QReeps to hatch the egg!');
+                const alertMessage = 'Catch QReeps to hatch the egg!';
+                Alert.alert('Egg not yet ready to hatch', alertMessage);
             } else {
                 playButtonSound();
                 hatchEgg(index);

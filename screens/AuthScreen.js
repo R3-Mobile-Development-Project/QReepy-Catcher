@@ -117,7 +117,24 @@ const AuthScreen = ({ navigation }) => {
       playErrorSound(); // Play error sound on signup failure
       setEmail('');
       setPassword('');
-      setError(error.message); // Update error message
+  //    setError(error.message); // Update error message
+      switch (error.code) {
+        case 'auth/invalid-email':
+          setError('Invalid email address.');
+          break;
+        case 'auth/email-already-in-use':
+          setError('The email address is already in use.\n Please use a different email.');
+          break;
+        case 'auth/missing-email':
+          setError('Email field cannot be empty.');
+        break;
+        case 'auth/missing-password':
+          setError('Password field cannot be empty.');
+          break;
+        default:
+          setError('Signup failed. Please try again.');
+          break;
+      }
       console.error(error.message);
     } finally {
       setLoading(false); // Set loading to false when signup is completed
@@ -160,7 +177,24 @@ const AuthScreen = ({ navigation }) => {
       // Handle login error
       playErrorSound(); // Play error sound on signup failure
       setPassword('');
-      setError(error.message); // Update error message
+  //    setError(error.message); // Update error message
+      switch (error.code) {
+        case 'auth/invalid-email':
+          setError('Invalid email address.');
+        break;
+        case 'auth/invalid-login-credentials':
+          setError('Invalid login credentials. Please try again.');
+        break;
+        case 'auth/missing-email':
+          setError('Email field cannot be empty.');
+        break;
+        case 'auth/missing-password':
+          setError('Password field cannot be empty.');
+        break;
+        default:
+          setError('Signup failed. Please try again.');
+        break;
+      }
       console.error(error.message);
     } finally {
       setLoading(false); // Set loading to false when signup is completed
