@@ -9,7 +9,6 @@ import { Audio } from 'expo-av';
 import Slider from '@react-native-community/slider';
 import ScanningModal from '../modals/ScanningModal';
 import AdModal from '../modals/AdModal';
-import AchievementAlert from '../modals/AchievementAlert';
 import adImage1 from '../assets/images/adpicture1.png';
 import adImage2 from '../assets/images/adpicture2.png';
 import { useSound } from '../utils/SoundContext'; // Import useSound hook
