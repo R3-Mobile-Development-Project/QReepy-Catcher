@@ -1,7 +1,6 @@
-import { getFirestore, collection, query, onSnapshot, where, getDocs } from 'firebase/firestore';
+import { getFirestore, collection, query, onSnapshot, where, getDocs, waitForPendingWrites } from 'firebase/firestore';
 import { Alert } from 'react-native';
 import { getStorage, ref, getDownloadURL } from 'firebase/storage';
-import AchievementAlert from '../modals/AchievementAlert';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const findMonster = () => {
@@ -9,7 +8,7 @@ export const findMonster = () => {
   let foundMonsterId;
 
   if (randomNumber < 2) {
-    // Epic monster
+    // Epic monster 
     foundMonsterId = Math.floor(Math.random() * 5) + 46; // ID:t 46-50
   } else if (randomNumber < 1) {
     // Rare monster
@@ -42,12 +41,6 @@ export const saveMonsterToAsyncStorage = async (monster, userId) => {
 
   const monsterId = monster.id;
 
-  /*if (parsedUserProgress[monsterId]) {
-    parsedUserProgress[monsterId]++;
-  } else {
-    parsedUserProgress[monsterId] = 1;
-  }*/
-
   // Check if monsterId already exists in userProgress
 if (!parsedUserProgress[monsterId]) {
   parsedUserProgress[monsterId] = 1;
@@ -59,19 +52,6 @@ if (!parsedUserProgress[monsterId]) {
 
   await AsyncStorage.setItem(`userProgress_${userId}`, JSON.stringify(parsedUserProgress));
 
-  // Check if the user has achieved any of the achievements
-   // Check if the user has achieved any of the achievements
-   //const newAchievements = await checkAchievements(userId);
-   //Alert.alert('Test Alert', 'This is a test alert');
-   // Display an alert if there are new achievements
-   /*
-   if (newAchievements.length > 0) {
-   
-     const achievementMessage = `New Achievements: ${newAchievements.join(', ')}`;
-     console.log('Displaying Alert:', achievementMessage);
-     Alert.alert('Achievement Unlocked', achievementMessage);
-     console.log('Alert Displayed');
-   }*/
    // Check if the user has achieved any of the achievements
    const newAchievements = await checkAchievements(userId);
 
@@ -80,37 +60,12 @@ if (!parsedUserProgress[monsterId]) {
    // Display an alert if there are new achievements
    displayAchievementAlert(userId, newAchievements);
 
-
-   /*const newAchievements = await checkAchievements(userId);
-for (let i = 0; i < newAchievements.length; i++) {
- if (!parsedUserProgress[newAchievements[i]]) {
-   displayAchievementAlert([newAchievements[i]]);
- }
-}*/
-  // Trigger the callback to update the component
-  /*if (newAchievements.length > 0) {
-    // If there are new achievements, display an alert
-    const achievementMessage = `New Achievements: ${newAchievements.join(', ')}`;
-    AchievementAlert.show(achievementMessage);
-  }*/
-
-
     // Trigger the callback to update the component
   } catch (error) {
     console.error('Error saving monster to AsyncStorage:', error);
     throw error;
   }
 };
-
-// Move the alert logic outside of checkAchievements function
-/*const displayAchievementAlert = (userId, newAchievements) => {
-  if (newAchievements.length > 0) {
-    const achievementMessage = `New Achievements: ${newAchievements.join(', ')}`;
-    console.log('Displaying Alert:', achievementMessage);
-    Alert.alert('Achievement Unlocked', achievementMessage);
-    console.log('Alert Displayed');
-  }
-};*/
 
 // ACHIEVEMENT ALERT
 const displayAchievementAlert = async (userId, newAchievements) => {
@@ -312,25 +267,7 @@ const fetchMonsters = async (userId) => {
 
     //console.log(achievement)
 
-    //console.log(`triggerCount: ${triggerCount}`);
-    //console.log(`triggerMonsterRange: ${triggerMonsterRange}`);
-
-    // Create uniqueUserProgressKeys array
-    //const userProgressKeys = Object.keys(parsedUserProgress);
-    //const uniqueUserProgressKeys = [...new Set(userProgressKeys)];
- 
-      // Implement different checks based on the trigger type
-      //switch (triggerType) {
-        /*case 'collectCount':
-          const collectedCount = calculateCollectedCount(userId,parsedUserProgress, triggerMonsterRange);
-          console.log(`User ID in checkAchievements: ${userId}`);
-          if (collectedCount >= triggerCount) {
-            // Achievement unlocked
-            console.log(`Achievement unlocked: ${achievement.name}`);
-            // Add logic to notify the user or update UI as needed
-          }
-          break;*/
-          switch (triggerType) {
+            switch (triggerType) {
             case 'collectCount':
               if (triggerMonsterRange.length > 0) {
                 const collectedCount = await calculateCollectedCount(userId, parsedUserProgress, triggerMonsterRange);
@@ -341,13 +278,7 @@ const fetchMonsters = async (userId) => {
                   // Achievement unlocked
                   console.log(`Achievement unlocked: ${achievement.name}`);
                   newAchievements.push(achievement.name);
-                  //parsedUserProgress[achievement.name] = true;
-                  //const achievementAlertMessage = `Achievement Unlocked: ${achievement.name}`;
-                  //Alert.alert('Achievement Unlocked', achievementAlertMessage);
-                  //console.log('Achievement Unlocked Alert Displayed');
-                  // Add logic to notify the user or update UI as needed
-
-                }
+                  }
               }
               break;
  
@@ -356,40 +287,24 @@ const fetchMonsters = async (userId) => {
           if (collectedSpecificCount >= triggerCount) {
             // Achievement unlocked
             console.log(`Achievement unlocked: ${achievement.name}`);
-            // Add logic to notify the user or update UI as needed
           }
           break;
  
-        /*case 'collectAll':
-          const collectedAllCount = calculateCollectedAll(parsedUserProgress, triggerMonsterRange);
-          //console.log(`Collected all count: ${collectedAllCount}`);
-          if (collectedAllCount >= triggerCount) {
-            // Achievement unlocked
-            console.log(`Achievement unlocked: ${achievement.name}`);
-            // Add logic to notify the user or update UI as needed
-          }
-          break;*/
+        
+          case 'collectAll':
+              if (triggerMonsterRange.length > 0) {
+                 const collectedCount = await calculateCollectedAll(userId, parsedUserProgress, triggerMonsterRange);
+                console.log(`Collected count for user in collect all ${userId}: ${collectedCount}`);
+                console.log("case collect count in collect all", parsedUserProgress, "and triggerMonsterRange", triggerMonsterRange)
+       
+                  if (collectedCount >= triggerCount) {
+                    // Achievement unlocked
+                    console.log(`Achievement unlocked: ${achievement.name}`);
+                    newAchievements.push(achievement.name)
+                  }
+                }
+                break;
 
-          /*case 'collectAll':
-            const collectedAllCount = await calculateCollectedAll(userId);
-            // console.log(`Collected all count: ${collectedAllCount}`);
-            if (collectedAllCount >= triggerCount) {
-              // Achievement unlocked
-              console.log(`Achievement unlocked: ${achievement.name}`);
-              // Add logic to notify the user or update UI as needed
-            }
-            break;*/
-
-            case 'collectAll':
-              const collectedAllCount = await calculateCollectedAll(userId);
-              // console.log(`Collected all count: ${collectedAllCount}`);
-              // No need to check against triggerCount, as the condition is based on the monster range
-              if (collectedAllCount) {
-                // Achievement unlocked
-                console.log(`Achievement unlocked: ${achievement.name}`);
-                // Add logic to notify the user or update UI as needed
-              }
-              break;
  
         case 'firstCatch':
           const hasCaughtFirstMonster = calculateFirstCatch(parsedUserProgress, triggerMonsterRange);
@@ -397,20 +312,14 @@ const fetchMonsters = async (userId) => {
             // Achievement unlocked
             console.log(`Achievement unlocked: ${achievement.name}`);
             newAchievements.push(achievement.name);
-            //parsedUserProgress[achievement.name] = true;
-            //Alert.alert('Achievement Unlocked', achievementAlertMessage);
-            //console.log('Achievement Unlocked Alert Displayed');
-            // Add logic to notify the user or update UI as needed
+            
           }
           break;
- 
-        // Add more cases for other trigger types if needed
  
         default:
           break;
       }
     }
-    //return [];
     return newAchievements;
   } catch (error) {
     console.error('Error checking achievements:', error);
@@ -418,21 +327,6 @@ const fetchMonsters = async (userId) => {
   }
  };
 
-/*const calculateCollectedCount = async (userId, userProgress, monsterRange) => {
-  console.log("monster range in collected count", monsterRange)
-  console.log(`User ID: ${userId}`);
-  let collectedCount = 0;
-  const monsters = await fetchMonsters(userId);
- 
-  for (let i = monsterRange[0]; i <= monsterRange[1]; i++) {
-    const monsterId = i.toString();
-    if (monsters.includes(monsterId)) {
-      collectedCount += userProgress[monsterId] || 0;
-    }
-  }
-  console.log(`Collected count for user ${userId}: ${collectedCount}`);
-  return collectedCount;
- };*/
 
  const calculateCollectedCount = async (userId, userProgress, monsterRange) => {
   console.log("monster range in collected count", monsterRange)
@@ -447,60 +341,6 @@ const fetchMonsters = async (userId) => {
   return collectedCount;
  };
 
- /*const calculateCollectedCount = async (userId, userProgress, monsterRange) => {
-  console.log("monster range in collected count", monsterRange)
-  console.log(`User ID: ${userId}`);
-  let collectedCount = 0;
-  
-  for (let i = monsterRange[0]; i <= monsterRange[1]; i++) {
-  const monsterId = i.toString();
-  if (userProgress[monsterId] >= triggerCount) {
-   collectedCount += userProgress[monsterId];
-  }
-  }
-  console.log(`Collected count for user ${userId}: ${collectedCount}`);
-  return collectedCount;
- };*/
-
- /*const calculateCollectedCount = async (userId, userProgress, monsterRange) => {
-  console.log("monster range in collected count", monsterRange)
-  console.log(`User ID: ${userId}`);
-  let collectedCount = 0;
-  let uniqueMonsters = new Set();
- 
-  for (let i = monsterRange[0]; i <= monsterRange[1]; i++) {
-   const monsterId = i.toString();
-   if (!uniqueMonsters.has(monsterId)) {
-     uniqueMonsters.add(monsterId);
-     collectedCount += userProgress[monsterId] || 0;
-   }
-  }
-  console.log(`Collected count for user ${userId}: ${collectedCount}`);
-  return collectedCount;
- };*/
-
- /*const calculateCollectedCount = async (userId, userProgress, monsterRange) => {
-  console.log("monster range in collected count", monsterRange)
-  console.log(`User ID: ${userId}`);
-  let collectedCount = 0;
-  let uniqueMonsters = new Set();
-  
-  for (let i = monsterRange[0]; i <= monsterRange[1]; i++) {
-  const monsterId = i.toString();
-  if (!uniqueMonsters.has(monsterId)) {
-    uniqueMonsters.add(monsterId);
-    if (uniqueUserProgressKeys.includes(monsterId)) {
-      collectedCount += userProgress[monsterId] || 0;
-    }
-  }
-  }
-  console.log(`Collected count for user ${userId}: ${collectedCount}`);
-  return collectedCount;
- };*/
-
-
-
-// Updated calculateCollectedSpecific function to use uniqueMonsterIds set
 const calculateCollectedSpecific = async (userId, specificMonsters) => {
   let collectedSpecificCount = 0;
   const monsters = await fetchMonsters(userId);
@@ -515,36 +355,21 @@ const calculateCollectedSpecific = async (userId, specificMonsters) => {
   return collectedSpecificCount;
  };
 
- /*const calculateCollectedAll = async (userId, monsterRange) => {
-  const monsters = await fetchMonsters(userId);
- 
-  for (let i = monsterRange[0]; i <= monsterRange[1]; i++) {
-    const monsterId = i.toString();
-    //console.log(`Monster ID: ${monsterId}`);
-    if (!monsters.includes(monsterId) || userProgress[monsterId] < 1) {
-      return 0; // Not all monsters in the range are collected
-    }
-  }
- 
-  return 1; // All monsters in the range are collected
- };*/
-
- const calculateCollectedAll = async (userId) => {
+const calculateCollectedAll = async (userId, userProgress, monsterRange) => {
   try {
-    const monsters = await fetchMonsters(userId);
-    //console.log("in calculate collected all monsters",monsters)
-    // Check if all monsters with IDs between 45 and 50 are collected
-    const monsterIds = monsters.map(monster => monster.id.toString());
-    for (let i = 45; i <= 50; i++) {
+    console.log("monster range in collected all", monsterRange);
+    console.log(`User ID: ${userId}`);
+    let collectedCount = 0;
+
+    for (let i = monsterRange[0]; i <= monsterRange[1]; i++) {
       const monsterId = i.toString();
-      //console.log(`Monster ID in calculate all: ${monsterId}`);
-      // console.log(`Monster ID: ${monsterId}`);
-      if (!monsterIds.includes(monsterId)) {
-        return 0; // Not all monsters in the range are collected
-      }
+
+      // Check if the monster exists in userProgress and if it is collected
+      collectedCount += userProgress[monsterId] || 0;
     }
 
-    return 1; // All monsters in the range are collected
+    console.log(`Collected count for user ${userId}: ${collectedCount}`);
+    return collectedCount; // Return the total collected count
   } catch (error) {
     console.error('Error calculating collected monsters:', error);
     throw error;

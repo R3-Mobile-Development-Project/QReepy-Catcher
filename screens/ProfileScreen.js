@@ -27,17 +27,48 @@ const ProfileScreen = () => {
       setAudioSettingsModalVisible(!isAudioSettingsModalVisible);
     };
 
-    useEffect(() => {
+    /*useEffect(() => {
       if (achievementsModalVisible) {
-      fetchAchievements('firstCatch')
+      fetchAchievements('firstCatch', 'collectAll', 'collectCount')
         .then(data => {
           setAchievements(data);
           console.log(data);
         })
         .catch(error => console.error(error));
       }
-     }, [achievementsModalVisible]);
+     }, [achievementsModalVisible]);*/
 
+     useEffect(() => {
+      const fetchAllAchievements = async () => {
+        try {
+          const [firstCatchAchievements, collectAllAchievements, collectCountAchievements] = await Promise.all([
+            fetchAchievements('firstCatch'),
+            fetchAchievements('collectAll'),
+            fetchAchievements('collectCount'),
+          ]);
+    
+          // Combine achievements from different types
+          const allAchievements = [
+            ...firstCatchAchievements,
+            ...collectAllAchievements,
+            ...collectCountAchievements,
+          ];
+    
+        // Set all achievements
+          setAchievements(allAchievements);
+    
+          console.log(allAchievements);
+        } catch (error) {
+          console.error(error);
+        }
+      };
+
+      if (achievementsModalVisible) {
+        fetchAllAchievements();
+      }
+      
+      
+    }, [achievementsModalVisible]);
     const handleLogout = async () => {
       playSignoutSound(); // Play button sound on logout button press
       const auth = getAuth();
