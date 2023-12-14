@@ -268,6 +268,7 @@ const styles = StyleSheet.create({
     flex: 1,
     marginHorizontal: 8,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   galleryButton: {
     backgroundColor: 'lightblue',
@@ -278,15 +279,16 @@ const styles = StyleSheet.create({
     flex: 1,
     marginHorizontal: 8,
     alignItems: 'center',
+    alignContent: 'center',
   },
   buttonText: {
-    fontSize: 15,
+    fontSize: 18,
     color: 'black',
     fontWeight: 'bold',
   },
   closeButton: {
     position: 'absolute',
-    bottom: 20,
+    bottom: 10,
     width: 70,
     height: 70,
     borderRadius: 35,
