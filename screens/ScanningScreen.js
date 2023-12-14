@@ -14,6 +14,7 @@ import adImage2 from '../assets/images/adpicture2.png';
 import { useSound } from '../utils/SoundContext'; // Import useSound hook
 import { findMonster, fetchMonsterDetailsFromFirestore, fetchMonsterImageURL } from '../utils/monsterUtils';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function ScanningScreen({ navigation }) {
   const [hasCameraPermission, setHasCameraPermission] = useState(null);
@@ -44,6 +45,13 @@ export default function ScanningScreen({ navigation }) {
     { image: adImage1, url: 'https://dictionary.cambridge.org/dictionary/english/patience' },
     { image: adImage2, url: 'https://www.vr.fi/' },
   ]
+
+  useFocusEffect(
+    React.useCallback(() => {
+      playButtonSound();
+    }, [])
+  );
+  
   // Function to load the last 10 scanned barcodes from AsyncStorage
 const loadScannedBarcodes = async () => {
   try {
