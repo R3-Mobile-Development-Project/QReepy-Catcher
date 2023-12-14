@@ -1,9 +1,9 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import { View, Text, Modal, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Audio } from 'expo-av';
 
-const DescriptionModal = ({ visible, onClose, achievement }) => {
+const DescriptionModal = ({ visible, onClose, achievement}) => {
   return (
     <Modal
       animationType="slide"
@@ -13,8 +13,9 @@ const DescriptionModal = ({ visible, onClose, achievement }) => {
     >
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
-          <Text style={styles.modalText}>{achievement.name}</Text>
-          <Text style={styles.modalText}>{achievement.description}</Text>
+        <Text style={styles.title}>{achievement.name}</Text>
+        <Text style={styles.descriptionTitle}>Description:</Text>
+          <Text style={styles.description}>{achievement.description}</Text>
           <TouchableOpacity onPress={onClose} style={styles.closeButton}>
             <MaterialIcons name="close" size={50} color="black" />
           </TouchableOpacity>
@@ -23,7 +24,7 @@ const DescriptionModal = ({ visible, onClose, achievement }) => {
     </Modal>  );
  };
  
- const AchievementsModal = ({ visible, onClose, achievements }) => {
+ const AchievementsModal = ({ visible, onClose, achievements, parsedDisplayedAchievements }) => {
      const [buttonSound, setButtonSound] = useState();
 
    const playButtonSound = async () => {
@@ -41,6 +42,11 @@ const DescriptionModal = ({ visible, onClose, achievement }) => {
         }
       : undefined;
   }, [buttonSound]);
+
+  useEffect(() => {
+    //console.log('Parsed Displayed Achievements in modal here!!!:', parsedDisplayedAchievements);
+    
+  }, [parsedDisplayedAchievements]);
 
   const [selectedAchievement, setSelectedAchievement] = React.useState({
     name: "",
@@ -69,7 +75,9 @@ const DescriptionModal = ({ visible, onClose, achievement }) => {
                  setDescriptionModalVisible(true);
                 }}>
                  <View style={styles.achievementContainer}>
-                   <Text style={styles.achievementText}>{achievement.name}</Text>
+                   <Text style={[styles.achievementText, { color: parsedDisplayedAchievements.includes(achievement.name) ? 'limegreen' : 'black' }]}>
+                {achievement.name}
+              </Text>
                  </View>
                 </TouchableOpacity>
               ))}
@@ -137,6 +145,20 @@ const styles = StyleSheet.create({
         backgroundColor: 'salmon',
         alignItems: 'center',
         justifyContent: 'center',
+      },
+  title: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        marginBottom: 10,
+      },
+      description: {
+        fontSize: 16,
+        marginBottom: 20,
+      },
+      descriptionTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginTop: 10,
       },
 });
 
