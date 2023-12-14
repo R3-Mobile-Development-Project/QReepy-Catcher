@@ -15,8 +15,9 @@ const ScanningModal = ({ isVisible, onClose, openGallery, monsterInfo, imageURL 
   const { areSoundsMuted } = useSound(); // Use the useSound hook
 
   const toggleInfoModal = () => {
-    setInfoModalVisible(!infoModalVisible);
     playButtonSound();
+    setInfoModalVisible(!infoModalVisible);
+  
   };
 
   const renderInfoModal = () => {
@@ -34,10 +35,10 @@ const ScanningModal = ({ isVisible, onClose, openGallery, monsterInfo, imageURL 
             and later spend your Coins by purchasing Qreepy Eggs from the store!
           </Text>
           <Text style={styles.infoModalText}>
-            You can also view more information about the QReep in the Gallery.
+            You can also view more information about the QReep in your Collection.
             All your caught QReeps will be saved there, should you choose not to sell them.
           </Text>
-          <TouchableOpacity onPress={() => setInfoModalVisible(false)} style={styles.infoModalCloseButton}>
+          <TouchableOpacity onPress={() => { playButtonSound(); setInfoModalVisible(false); }} style={styles.infoModalCloseButton}>
             <MaterialIcons name="close" size={50} color="black" />
           </TouchableOpacity>
           </View>
@@ -179,7 +180,7 @@ const ScanningModal = ({ isVisible, onClose, openGallery, monsterInfo, imageURL 
             <Text style={styles.buttonText}>Sell</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.galleryButton} onPress={handleGalleryPress}>
-            <Text style={styles.buttonText}>View in Gallery</Text>
+            <Text style={styles.buttonText}>View in Collection</Text>
           </TouchableOpacity>
         </View>
         <TouchableOpacity onPress={onClose} style={styles.closeButton}>
