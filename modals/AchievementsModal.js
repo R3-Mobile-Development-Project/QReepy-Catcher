@@ -13,8 +13,9 @@ const DescriptionModal = ({ visible, onClose, achievement}) => {
     >
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
-        <Text style={styles.modalText}>{achievement.name}</Text>
-          <Text style={styles.modalText}>{achievement.description}</Text>
+        <Text style={styles.title}>{achievement.name}</Text>
+        <Text style={styles.descriptionTitle}>Description:</Text>
+          <Text style={styles.description}>{achievement.description}</Text>
           <TouchableOpacity onPress={onClose} style={styles.closeButton}>
             <MaterialIcons name="close" size={50} color="black" />
           </TouchableOpacity>
@@ -57,7 +58,7 @@ const DescriptionModal = ({ visible, onClose, achievement}) => {
                  setDescriptionModalVisible(true);
                 }}>
                  <View style={styles.achievementContainer}>
-                 <Text style={[styles.achievementText, { color: parsedDisplayedAchievements.includes(achievement.name) ? 'limegreen' : 'defaultColor' }]}>
+                 <Text style={[styles.achievementText, { color: parsedDisplayedAchievements.includes(achievement.name) ? 'limegreen' : 'black' }]}>
                 {achievement.name}
               </Text>
                  </View>
@@ -108,7 +109,6 @@ const styles = StyleSheet.create({
     achievementText: {
         fontSize: 16,
         marginBottom: 10,
-       //color: parsedDisplayedAchievements.includes(achievement.name) ? '8FBC8F' : 'defaultColor' 
     },
     scrollViewContent: {
       flexGrow: 1,
@@ -128,6 +128,20 @@ const styles = StyleSheet.create({
         backgroundColor: 'salmon',
         alignItems: 'center',
         justifyContent: 'center',
+      },
+      title: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        marginBottom: 10,
+      },
+      description: {
+        fontSize: 16,
+        marginBottom: 20,
+      },
+      descriptionTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginTop: 10,
       },
 });
 
