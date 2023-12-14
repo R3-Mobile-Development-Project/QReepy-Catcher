@@ -8,7 +8,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Modal from 'react-native-modal';
 import { useMusic } from '../utils/MusicContext'; // Import useMusic hook
 import { useSound } from '../utils/SoundContext'; // Import useSound hook
-import { fetchAchievements } from '../utils/monsterUtils';
+import { fetchAchievements, getUpdatedDisplayedAchievements } from '../utils/monsterUtils';
 
 const backgroundImage = require('../assets/images/paper-decorations-halloween-pack_23-2148635839.jpg');
 
@@ -22,21 +22,44 @@ const ProfileScreen = () => {
     const { areSoundsMuted, toggleSounds, playSound } = useSound();
     const { playMusic, stopMusic } = useMusic(); // Use the useMusic hook
     const [achievements, setAchievements] = useState([]);
+    const [parsedDisplayedAchievements, setParsedDisplayedAchievements] = useState([]);
 
     const handleAudioSettingsToggle = () => {
       setAudioSettingsModalVisible(!isAudioSettingsModalVisible);
     };
 
     useEffect(() => {
+      const fetchAllAchievements = async () => {
+        try {
+          const [firstCatchAchievements, collectAllAchievements, collectCountAchievements] = await Promise.all([
+            fetchAchievements('firstCatch'),
+            fetchAchievements('collectAll'),
+            fetchAchievements('collectCount'),
+          ]);
+    
+          // Combine achievements from different types
+          const allAchievements = [
+            ...firstCatchAchievements,
+            ...collectAllAchievements,
+            ...collectCountAchievements,
+          ];
+    
+        // Set all achievements
+          setAchievements(allAchievements);
+    
+          //console.log(allAchievements);
+        } catch (error) {
+          console.error(error);
+        }
+      };
+
       if (achievementsModalVisible) {
-      fetchAchievements('firstCatch')
-        .then(data => {
-          setAchievements(data);
-          console.log(data);
-        })
-        .catch(error => console.error(error));
+        fetchAllAchievements();
+        //console.log(parsedDisplayedAchievements)
       }
-     }, [achievementsModalVisible]);
+      
+      
+    }, [achievementsModalVisible]);
 
     const handleLogout = async () => {
       playSignoutSound(); // Play button sound on logout button press
@@ -158,6 +181,8 @@ const ProfileScreen = () => {
       await AsyncStorage.removeItem(`achievedMonsterIds_${userId}`);
       // Remove achievements from AsyncStorage
       await AsyncStorage.removeItem(`userProgress_${userId}`);
+      // Remove displayed achievements
+      await AsyncStorage.removeItem(`displayedAchievements_${userId}`);
 
     //  await AsyncStorage.removeItem(`images_${userId}`);
       playDeleteSound(); // Play delete sound on delete button press
@@ -265,6 +290,7 @@ const ProfileScreen = () => {
           visible={achievementsModalVisible}
           onClose={closeAchievementsModal}
           achievements={achievements}
+          parsedDisplayedAchievements={parsedDisplayedAchievements}
         />
       </View>
     );
