@@ -9,6 +9,7 @@ import Modal from 'react-native-modal';
 import { useMusic } from '../utils/MusicContext'; // Import useMusic hook
 import { useSound } from '../utils/SoundContext'; // Import useSound hook
 import { fetchAchievements, getUpdatedDisplayedAchievements } from '../utils/monsterUtils';
+import { useFocusEffect } from '@react-navigation/native';
 
 const backgroundImage = require('../assets/images/paper-decorations-halloween-pack_23-2148635839.jpg');
 
@@ -24,7 +25,14 @@ const ProfileScreen = () => {
     const [achievements, setAchievements] = useState([]);
     const [parsedDisplayedAchievements, setParsedDisplayedAchievements] = useState([]);
 
+    useFocusEffect(
+      React.useCallback(() => {
+        playButtonSound();
+      }, [])
+    );
+
     const handleAudioSettingsToggle = () => {
+    playButtonSound(); // Play button sound on audio settings button press
       setAudioSettingsModalVisible(!isAudioSettingsModalVisible);
     };
 
@@ -175,6 +183,10 @@ const ProfileScreen = () => {
       await AsyncStorage.removeItem(`selectedEggIndex_${userId}`);
       //Remove isTrackingEgg from AsyncStorage
       await AsyncStorage.removeItem(`isTrackingEgg_${userId}`);
+          //Remove hatched monsters from AsyncStorage
+      await AsyncStorage.removeItem(`hatchedMonsters_${userId}`);
+          //Remove isHatching from AsyncStorage
+      await AsyncStorage.removeItem(`isHatching_${userId}`);
       //Remove caught monsters from AsyncStorage
       await AsyncStorage.removeItem(`caughtMonsters_${userId}`);
       //Remove caught monsters from AsyncStorage
@@ -188,7 +200,8 @@ const ProfileScreen = () => {
       playDeleteSound(); // Play delete sound on delete button press
       console.log(`Collection for user ${userId} cleared successfully!`);
       toggleModal(); // Close the modal after deletion
-      Alert.alert('Collection has been deleted! Please relog for all changes.');
+      const alertMessage = 'Please relog for all changes to take effect.';
+      Alert.alert('Collection deleted!', alertMessage);
       } catch (error) {
         console.error('Error deleting monsters:', error);
       }
