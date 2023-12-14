@@ -91,7 +91,7 @@ const initiateScanning = () => {
     }, 3000);
     return;
     }
-   // playScanningSound(); // Call the function to play the scanning sound
+    playScanningSound(); // Call the function to play the scanning sound
     setLastScannedData(null);
     setIsScanningActive(true);
     setIsDebouncingScan(false); // Reset debounce state
