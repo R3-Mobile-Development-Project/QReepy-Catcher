@@ -44,6 +44,7 @@ const HomeScreen = ({ navigation }) => {
   // Use useFocusEffect to refresh monsters when the screen is focused
   useFocusEffect(
     React.useCallback(() => {
+      playButtonSound();
       fetchUserData();
     }, [])
   );
