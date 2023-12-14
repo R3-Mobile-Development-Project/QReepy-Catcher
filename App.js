@@ -19,6 +19,7 @@ import SplashScreen from './screens/SplashScreen';
 import GalleryScreen from './screens/GalleryScreen';
 import { MusicProvider } from './utils/MusicContext'; // Import MusicProvider from MusicContext
 import { SoundProvider } from './utils/SoundContext'; // Import SoundProvider from SoundContext
+import { Audio } from 'expo-av';
 
 import BannerAd from './utils/BannerAd'; // Import the BannerAd component
 
@@ -32,6 +33,7 @@ export default function App() {
   const [userLoggedIn, setUserLoggedIn] = useState(false); // Initialize user state variable
   const [showSplash, setShowSplash] = useState(true); // State to control whether to show the SplashScreen
   const [soundSettingsReady, setSoundSettingsReady] = useState(false); // New state
+  const [buttonSound, setButtonSound] = useState();
 
   useEffect(() => {
     // Check if user is logged in or not
@@ -64,6 +66,22 @@ export default function App() {
 
     loadSettings();
   }, []);
+
+  useEffect(() => {
+    return () => {
+      if (buttonSound) {
+        buttonSound.unloadAsync();
+      }
+    };
+  }, [buttonSound]);
+
+  const playButtonSound = async () => {
+      const { sound } = await Audio.Sound.createAsync(
+        require('./assets/sounds/Menu_Selection_Click.wav')
+      );
+      setButtonSound(sound);
+      await sound.playAsync();
+  };
 
   return (
 
