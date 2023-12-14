@@ -65,8 +65,28 @@ const ProfileScreen = () => {
         fetchAllAchievements();
         //console.log(parsedDisplayedAchievements)
       }
-      
-      
+    }, [achievementsModalVisible]);
+
+    
+    useEffect(() => {
+      const fetchUpdatedDisplayedAchievements = async () => {
+        try {
+          if (achievementsModalVisible) {
+            const userId = await AsyncStorage.getItem('userId');
+            const updatedDisplayedAchievements = await getUpdatedDisplayedAchievements(userId);
+    
+            // Check if the value has changed before updating
+            if (JSON.stringify(updatedDisplayedAchievements) !== JSON.stringify(parsedDisplayedAchievements)) {
+              setParsedDisplayedAchievements(updatedDisplayedAchievements);
+              console.log("in profilescreen", updatedDisplayedAchievements);
+            }
+          }
+        } catch (error) {
+          console.error('Error fetching updatedDisplayedAchievements:', error);
+        }
+      };
+    
+      fetchUpdatedDisplayedAchievements();
     }, [achievementsModalVisible]);
 
     const handleLogout = async () => {
