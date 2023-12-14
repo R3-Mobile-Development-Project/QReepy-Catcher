@@ -250,7 +250,7 @@ const ProfileScreen = () => {
           />
         </View>
 
-        {/* All Sounds Switch */}
+        {/* All Sounds Switch 
         <View style={styles.audioSwitchContainer}>
           <Text style={styles.audioSwitchLabel}>Mute All Sounds</Text>
           <Switch
@@ -260,7 +260,7 @@ const ProfileScreen = () => {
             thumbColor={areSoundsMuted ? '#f5dd4b' : '#f4f3f4'}
           />
         </View>
-
+*/}
         <TouchableOpacity onPress={handleAudioSettingsToggle} style={styles.audioCloseButton}>
           <Text style={styles.audioCloseButtonText}>Close</Text>
         </TouchableOpacity>
