@@ -10,10 +10,10 @@ export const findMonster = () => {
   if (randomNumber < 2) {
     // Epic monster 
     foundMonsterId = Math.floor(Math.random() * 5) + 46; // ID:t 46-50
-  } else if (randomNumber < 1) {
+  } else if (randomNumber < 10) {
     // Rare monster
     foundMonsterId = Math.floor(Math.random() * 15) + 31; // ID:t 31-45
-  } else if (randomNumber < 100) {
+  } else if (randomNumber < 40) {
     // Common monster
     foundMonsterId = Math.floor(Math.random() * 30) + 1; // ID:t 1-30
   }
@@ -68,7 +68,7 @@ if (!parsedUserProgress[monsterId]) {
 };
 
 // ACHIEVEMENT ALERT
-const displayAchievementAlert = async (userId, newAchievements) => {
+export const displayAchievementAlert = async (userId, newAchievements) => {
   if (newAchievements.length > 0) {
     const displayedAchievements = await AsyncStorage.getItem(`displayedAchievements_${userId}`);
     const parsedDisplayedAchievements = displayedAchievements ? JSON.parse(displayedAchievements) : [];
@@ -90,7 +90,16 @@ const displayAchievementAlert = async (userId, newAchievements) => {
   }
 };
 
-
+export const getUpdatedDisplayedAchievements = async (userId) => {
+  try {
+    const displayedAchievements = await AsyncStorage.getItem(`displayedAchievements_${userId}`);
+    const parsedDisplayedAchievements = displayedAchievements ? JSON.parse(displayedAchievements) : [];
+    return parsedDisplayedAchievements;
+  } catch (error) {
+    console.error('Error fetching updatedDisplayedAchievements:', error);
+    throw error;
+  }
+};
 
 export const fetchMonsterDetailsFromFirestore = async (monsterId, userId) => {
   try {

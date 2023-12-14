@@ -16,7 +16,7 @@ const EggModal = ({ visible, onClose }) => {
     const [caughtMonsters, setCaughtMonsters] = useState(0); // New state to track monsters caught
     const [isHatched, setIsHatched] = useState(false); // New state to track if the egg is hatched
     const [isTrackingEgg, setIsTrackingEgg] = useState(false);
-    const neededMonsters = 3; // LASKURIN TARVITSEMA ARVO ETTÄ MUNA KUORIUTUU, TÄYTYY OLLA PIENEMPI TAI YHTÄSUURI KUIN SCANNINGSCREENIN arrayMax
+    const neededMonsters = 1; // LASKURIN TARVITSEMA ARVO ETTÄ MUNA KUORIUTUU, TÄYTYY OLLA PIENEMPI TAI YHTÄSUURI KUIN SCANNINGSCREENIN arrayMax
     const [monsterModalVisible, setMonsterModalVisible] = useState(false);
     const [monsterData, setMonsterData] = useState({});
     const [imageURL, setImageURL] = useState('');

@@ -8,7 +8,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Modal from 'react-native-modal';
 import { useMusic } from '../utils/MusicContext'; // Import useMusic hook
 import { useSound } from '../utils/SoundContext'; // Import useSound hook
-import { fetchAchievements } from '../utils/monsterUtils';
+import { fetchAchievements, getUpdatedDisplayedAchievements} from '../utils/monsterUtils';
 
 const backgroundImage = require('../assets/images/paper-decorations-halloween-pack_23-2148635839.jpg');
 
@@ -22,21 +22,11 @@ const ProfileScreen = () => {
     const { areSoundsMuted, toggleSounds, playSound } = useSound();
     const { playMusic, stopMusic } = useMusic(); // Use the useMusic hook
     const [achievements, setAchievements] = useState([]);
+    const [parsedDisplayedAchievements, setParsedDisplayedAchievements] = useState([]);
 
     const handleAudioSettingsToggle = () => {
       setAudioSettingsModalVisible(!isAudioSettingsModalVisible);
     };
-
-    /*useEffect(() => {
-      if (achievementsModalVisible) {
-      fetchAchievements('firstCatch', 'collectAll', 'collectCount')
-        .then(data => {
-          setAchievements(data);
-          console.log(data);
-        })
-        .catch(error => console.error(error));
-      }
-     }, [achievementsModalVisible]);*/
 
      useEffect(() => {
       const fetchAllAchievements = async () => {
@@ -57,7 +47,7 @@ const ProfileScreen = () => {
         // Set all achievements
           setAchievements(allAchievements);
     
-          console.log(allAchievements);
+          //console.log(allAchievements);
         } catch (error) {
           console.error(error);
         }
@@ -65,10 +55,69 @@ const ProfileScreen = () => {
 
       if (achievementsModalVisible) {
         fetchAllAchievements();
+        //console.log(parsedDisplayedAchievements)
       }
       
       
     }, [achievementsModalVisible]);
+
+    /*useEffect(() => {
+      const fetchUpdatedDisplayedAchievements = async () => {
+        try {
+          const userId = await AsyncStorage.getItem('userId');
+          const updatedDisplayedAchievements = await getUpdatedDisplayedAchievements(userId);
+          setParsedDisplayedAchievements(updatedDisplayedAchievements);
+          //console.log("in profilescreen",updatedDisplayedAchievements)
+        } catch (error) {
+          console.error('Error fetching updatedDisplayedAchievements:', error);
+        }
+      };
+  
+      fetchUpdatedDisplayedAchievements();
+      
+    }, [parsedDisplayedAchievements]);*/
+
+    useEffect(() => {
+      const fetchUpdatedDisplayedAchievements = async () => {
+        try {
+          if (achievementsModalVisible) {
+            const userId = await AsyncStorage.getItem('userId');
+            const updatedDisplayedAchievements = await getUpdatedDisplayedAchievements(userId);
+    
+            // Check if the value has changed before updating
+            if (JSON.stringify(updatedDisplayedAchievements) !== JSON.stringify(parsedDisplayedAchievements)) {
+              setParsedDisplayedAchievements(updatedDisplayedAchievements);
+              console.log("in profilescreen", updatedDisplayedAchievements);
+            }
+          }
+        } catch (error) {
+          console.error('Error fetching updatedDisplayedAchievements:', error);
+        }
+      };
+    
+      fetchUpdatedDisplayedAchievements();
+    }, [achievementsModalVisible]);
+
+    /*useEffect(() => {
+      const fetchUpdatedDisplayedAchievements = async () => {
+        try {
+          const userId = await AsyncStorage.getItem('userId');
+          const updatedDisplayedAchievements = await getUpdatedDisplayedAchievements(userId);
+    
+          // Check if the value has changed before updating
+          if (JSON.stringify(updatedDisplayedAchievements) !== JSON.stringify(parsedDisplayedAchievements)) {
+            setParsedDisplayedAchievements(updatedDisplayedAchievements);
+            console.log("in profilescreen", updatedDisplayedAchievements);
+          }
+        } catch (error) {
+          console.error('Error fetching updatedDisplayedAchievements:', error);
+        }
+      };
+    
+      fetchUpdatedDisplayedAchievements();
+    }, [parsedDisplayedAchievements]);*/
+
+
     const handleLogout = async () => {
       playSignoutSound(); // Play button sound on logout button press
       const auth = getAuth();
@@ -84,6 +133,13 @@ const ProfileScreen = () => {
         console.error('Logout error:', error);
       }
     };
+
+    /*useEffect(() => {
+      const someFunction = async () => {
+      };
+  
+      someFunction();
+    }, [parsedDisplayedAchievements]);*/
 
     const playButtonSound = async () => {
       const buttonSound = new Audio.Sound();
@@ -295,6 +351,7 @@ const ProfileScreen = () => {
           visible={achievementsModalVisible}
           onClose={closeAchievementsModal}
           achievements={achievements}
+          parsedDisplayedAchievements={parsedDisplayedAchievements}
         />
       </View>
     );
