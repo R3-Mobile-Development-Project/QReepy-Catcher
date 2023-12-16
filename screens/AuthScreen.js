@@ -107,6 +107,23 @@ const AuthScreen = ({ navigation }) => {
       const auth = getAuth();
       await createUserWithEmailAndPassword(auth, email, password);
       // Once signup is successful, navigate to HomeScreen or perform other actions
+
+      // Get the currently signed-in user
+      const user = auth.currentUser;
+
+      if (user) {
+        const userId = user.uid;
+     //   console.log('User ID:', userId);
+
+        // Save the userId to AsyncStorage
+        await AsyncStorage.setItem('userId', userId);
+        // Now, retrieve the value and log it
+        const storedUserId = await AsyncStorage.getItem('userId');
+        console.log('Stored User ID:', storedUserId);
+      } else {
+        console.error('No user found after login');
+      }
+
       playSuccessSound(); // Play success sound on signup success
       setEmail('');
       setPassword('');
@@ -130,7 +147,10 @@ const AuthScreen = ({ navigation }) => {
         break;
         case 'auth/missing-password':
           setError('Password field cannot be empty.');
-          break;
+        break;
+        case 'auth/weak-password':
+          setError('Password has to be atleast 6 characters.');
+        break;
         default:
           setError('Signup failed. Please try again.');
           break;
